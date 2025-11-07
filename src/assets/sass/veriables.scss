@@ -1,0 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100..700&display=swap");
+
+@font-face {
+  font-family: "Muli";
+  src: url("../fonts/Muli.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Muli-Light";
+  src: url("../fonts/Muli-ExtraLight.ttf") format("truetype");
+}
+
+$font-body: "Muli", sans-serif;
+$font-secund: "Josefin Sans", sans-serif;
+$color-white: white;
+$color-black: black;

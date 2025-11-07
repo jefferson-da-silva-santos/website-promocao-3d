@@ -1,0 +1,27 @@
+@mixin flex-box($dirct-row, $jtf-baseline, $alg-baseline, $gap) {
+  display: flex;
+  flex-direction: $dirct-row;
+  justify-content: $jtf-baseline;
+  align-items: $alg-baseline;
+  gap: $gap;
+}
+
+@mixin grid-layout(
+  $gd-tp-clm-auto,
+  $gd-tp-rw-auto,
+  $clm-gp-normal,
+  $rw-gp-normal
+) {
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  column-gap: normal;
+  row-gap: normal;
+}
+
+@mixin media-query($tmh) {
+  @media screen and (max-width: $tmh) {
+    @content;
+  }
+}
+

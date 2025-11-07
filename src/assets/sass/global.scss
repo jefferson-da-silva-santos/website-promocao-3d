@@ -1,0 +1,229 @@
+/* Reset e base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: $font-body;
+  text-decoration: none;
+  list-style: none;
+}
+
+/* Container do vídeo */
+.video-audiencia {
+  position: relative;
+  width: 100%;
+  max-width: 800px; /* padrão YouTube */
+  margin: 0 auto;
+  z-index: 2;
+  transition: max-width 0.3s ease-in-out, width 0.3s ease-in-out, transform 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Player base (Plyr) */
+.plyr--video {
+  transition: all 0.3s ease-in-out;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Aplica apenas quando o player estiver exibindo vídeo local */
+.plyr--video.plyr--local {
+  max-width: 50rem;
+  width: 100%;
+  margin: 0 auto;
+  transform: scale(1.02); /* leve destaque */
+}
+
+/* Contêiner dos botões */
+.buttons_audiencia {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.plyr__video-wrapper {
+    max-width: 50rem;
+    border-radius: 10px;
+    height: 30rem;
+}
+
+/* Botões */
+.btn-audience-prev,
+.btn-audience-next {
+  background-color: #004278;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover interativo */
+.btn-audience-prev:hover,
+.btn-audience-next:hover {
+  background-color: #008cff;
+  transform: translateY(-2px);
+}
+
+/* Estado desabilitado */
+.btn-audience-prev:disabled,
+.btn-audience-next:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .video-audiencia {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+
+  .plyr--video.plyr--local {
+    max-width: 100%;
+    transform: none;
+    border-radius: 10px;
+  }
+
+  .plyr--video {
+    
+  }
+
+  .btn-audience-prev,
+  .btn-audience-next {
+    width: 100%;
+    max-width: 250px;
+  }
+}
+
+
+.video-resultados {
+  position: relative;
+  width: 100%;
+  max-width: 50rem; /* Caixa fixa */
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Plyr ajustado dentro da caixa */
+.plyr--video {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Quando for vídeo local */
+.plyr--video.plyr--local {
+  max-width: 50rem;
+  width: 100%;
+  background-color: #000;
+}
+
+/* Garante que o vídeo se adapta dentro da caixa */
+.plyr__video-wrapper video,
+.plyr__video-embed iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
+}
+
+/* Botões */
+.buttons-resultados {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-video-prev,
+.btn-video-next {
+  background-color: #004278;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-video-prev:hover,
+.btn-video-next:hover {
+  background-color: #008cff;
+  transform: translateY(-2px);
+}
+
+.btn-video-prev:disabled,
+.btn-video-next:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .video-resultados {
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.swiper-jogo-da-vida {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  color: #004278; /* cor personalizada */
+}
+
+.swiper-pagination-bullet {
+  background: #008cff;
+  opacity: 0.6;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
+/* Estilo para inputs (e textarea) inválidos */
+.input-error {
+  /* Altera a cor da borda para vermelho */
+  border-color: #ff6f6f !important; 
+  /* Adiciona uma sombra para destaque (opcional) */
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); 
+}
+
+/* Se seus inputs tiverem um estilo base, você pode querer garantir que o erro sobrescreva */
+.form input[type="text"].input-error,
+.form input[type="email"].input-error,
+.form textarea.input-error {
+    border: 1px solid #ff6f6f;
+}

@@ -14,6 +14,7 @@ import Informacoes from "./pages/Informacoes";
 import Resultados from "./pages/Resultados";
 import Contato from "./pages/Contato";
 import Footer from "./components/Footer";
+import ModalDesvendandoProvider from "./providers/ModalDesvendandoProvider";
 
 function App() {
   useEffect(() => {
@@ -24,7 +25,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <ModalDesvendandoProvider>
       <Option />
       <NavBar />
       <Inicio />
@@ -39,7 +40,7 @@ function App() {
         <Contato />
       </main>
       <Footer />
-    </>
+    </ModalDesvendandoProvider>
   );
 }
 

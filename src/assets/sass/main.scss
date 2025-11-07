@@ -9,6 +9,14 @@
 }
 /* ========== Option ========== */
 
+.conatiner-option-active {
+  display: flex !important;
+}
+
+.conatiner-option-disabled {
+  display: none !important;
+}
+
 .conatiner-option {
   position: fixed;
   top: 0;
@@ -18,7 +26,6 @@
   bottom: 0;
   background-color: #000000a1;
   @include flex-box(row, center, center, 0);
-  display: none;
 
   .option {
     margin: 0 1em;
@@ -215,10 +222,10 @@
 
   &__title {
     font-family: $font-secund;
-    font-size: 37px;
+    font-size: 49px;
     margin: 0 0 20px;
     max-width: 100%;
-    font-weight: 400;
+    font-weight: 600;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     letter-spacing: -2px;
     line-height: 1.12;
@@ -1109,7 +1116,7 @@
       .btn {
         @include flex-box(row, center, center, 0);
         width: 100%;
-        max-width: 14em;
+        max-width: 19em;
         height: 3.3em;
         background-image: linear-gradient(to right, #000000, #373737);
         border-radius: 20px;

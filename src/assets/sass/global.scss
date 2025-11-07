@@ -95,10 +95,6 @@
     border-radius: 10px;
   }
 
-  .plyr--video {
-    
-  }
-
   .btn-audience-prev,
   .btn-audience-next {
     width: 100%;
@@ -153,7 +149,7 @@
 /* Botões */
 .buttons-resultados {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
   margin-top: 1.5rem;
 }

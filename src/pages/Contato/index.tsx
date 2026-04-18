@@ -1,43 +1,46 @@
-import React from 'react';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import P3D from '../../assets/image/P3D.jpg';
-import logo from '../../assets/image/logo.png';
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import P3D from "../../assets/image/P3D.jpg";
+import logo from "../../assets/image/logo.png";
+
+type FormValues = {
+  nome: string;
+  email: string;
+  assunto: string;
+  mensagem: string;
+};
 
 // Definição do Schema de Validação com Yup (mantido o mesmo)
 const ContatoSchema = Yup.object().shape({
   nome: Yup.string()
-    .min(2, 'Nome muito curto!')
-    .max(50, 'Nome muito longo!')
-    .required('O nome é obrigatório'),
+    .min(2, "Nome muito curto!")
+    .max(50, "Nome muito longo!")
+    .required("O nome é obrigatório"),
   email: Yup.string()
-    .email('E-mail inválido')
-    .required('O e-mail é obrigatório'),
-  assunto: Yup.string()
-    .required('O assunto é obrigatório'),
-  mensagem: Yup.string()
-    .required('A mensagem é obrigatória'),
+    .email("E-mail inválido")
+    .required("O e-mail é obrigatório"),
+  assunto: Yup.string().required("O assunto é obrigatório"),
+  mensagem: Yup.string().required("A mensagem é obrigatória"),
 });
 
 const Contato = () => {
-  const formik = useFormik({
+  const formik = useFormik<FormValues>({
     initialValues: {
-      nome: '',
-      email: '',
-      assunto: '',
-      mensagem: '',
+      nome: "",
+      email: "",
+      assunto: "",
+      mensagem: "",
     },
     validationSchema: ContatoSchema,
     onSubmit: (values, { resetForm }) => {
-      // Lógica de envio
-      console.log('Dados do formulário enviados:', values);
-      alert(`Mensagem de ${values.nome} enviada com sucesso! (Ver console)`);
-      resetForm(); 
+      console.log(values);
+      resetForm();
     },
   });
 
   // Função auxiliar para determinar se o campo tem erro e foi tocado
-  const isInvalid = (field) => formik.errors[field] && formik.touched[field];
+  const isInvalid = (field: keyof FormValues) =>
+    formik.errors[field] && formik.touched[field];
 
   return (
     <div className="contato" id="contato">
@@ -52,9 +55,8 @@ const Contato = () => {
           <h2 className="contato__content__section--primary__title">
             Você pode nos mandar um email
           </h2>
-          
+
           <form className="form" onSubmit={formik.handleSubmit}>
-            
             {/* Campo Nome */}
             <input
               placeholder="Insira seu nome e sobrenome"
@@ -65,7 +67,7 @@ const Contato = () => {
               onBlur={formik.handleBlur}
               value={formik.values.nome}
               // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid('nome') ? 'input-error' : ''} 
+              className={isInvalid("nome") ? "input-error" : ""}
             />
             {/* Mensagem de erro REMOVIDA */}
 
@@ -79,7 +81,7 @@ const Contato = () => {
               onBlur={formik.handleBlur}
               value={formik.values.email}
               // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid('email') ? 'input-error' : ''}
+              className={isInvalid("email") ? "input-error" : ""}
             />
             {/* Mensagem de erro REMOVIDA */}
 
@@ -93,7 +95,7 @@ const Contato = () => {
               onBlur={formik.handleBlur}
               value={formik.values.assunto}
               // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid('assunto') ? 'input-error' : ''}
+              className={isInvalid("assunto") ? "input-error" : ""}
             />
             {/* Mensagem de erro REMOVIDA */}
 
@@ -106,19 +108,18 @@ const Contato = () => {
               onBlur={formik.handleBlur}
               value={formik.values.mensagem}
               // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid('mensagem') ? 'input-error' : ''}
+              className={isInvalid("mensagem") ? "input-error" : ""}
             ></textarea>
             {/* Mensagem de erro REMOVIDA */}
 
             {/* Botão de Envio */}
-            <input 
-              type="submit" 
-              value="Enviar" 
+            <input
+              type="submit"
+              value="Enviar"
               // Opcional: Desabilita o botão se o formulário for inválido
-              disabled={!formik.isValid} 
+              disabled={!formik.isValid}
             />
           </form>
-
         </div>
         <div className="contato__content__section--secundary">
           <img
@@ -128,22 +129,23 @@ const Contato = () => {
           />
           <div className="contato__content__section--secundary__group">
             <a
-              href="" 
+              href=""
               className="contato__content__section--secundary__group__button"
             >
-              <i className='bx bxl-instagram'></i>
+              <i className="bx bxl-instagram"></i>
             </a>
             <a
-              href="" 
+              href=""
               className="contato__content__section--secundary__group__button"
             >
-              <i className='bx bxl-twitter'></i>
+              <i className="bx bxl-twitter"></i>
             </a>
             <a
-              href="" 
+              href=""
               className="contato__content__section--secundary__group__button"
             >
-              <i className='bx bxl-whatsapp'></i> </a>
+              <i className="bx bxl-whatsapp"></i>{" "}
+            </a>
           </div>
         </div>
       </section>

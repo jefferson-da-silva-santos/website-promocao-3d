@@ -89,14 +89,14 @@ const CATEGORIES: Category[] = [
 
 // Posições CSS de cada btn-mapa-N (índice 0 = btn-mapa-1)
 const BTN_POSITIONS: React.CSSProperties[] = [
-  { top: "0%",    left: "50%",  transform: "translateX(-50%)" },
+  { top: "0%",    left: "38%",  transform: "translateX(-50%)" },
   { top: "15%",   right: "6%"  },
   { bottom: "13.5%", right: "9%"  },
   { bottom: "0%", left: "38%"  },
   { bottom: "16%", left: "9%"  },
   { top: "20%",   left: "7%"   },
   { top: "42%",   left: "5%"   },   // btn-mapa-7 (oculto por padrão)
-  { top: "50%",   right: "4%"  },   // btn-mapa-8 (oculto por padrão)
+  { top: "38%",   right: "4%"  },   // btn-mapa-8 (oculto por padrão)
 ];
 
 // ─── Componente ───────────────────────────────────────────────────────────────

@@ -60,7 +60,7 @@ const HomePage: React.FC = () => {
 const App: React.FC = () => (
   <BrowserRouter>
     <BlogProvider>
-      <Routes>
+      <Routes> 
         <Route path="/" element={<HomePage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />

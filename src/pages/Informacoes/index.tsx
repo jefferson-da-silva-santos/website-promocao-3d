@@ -7,7 +7,7 @@ const Informacoes = () => {
   return (
     <div className="informacoes" id="informacoes">
         <section className="informacoes__content">
-          <div className="informacoes__content--primary">
+          <div className="informacoes__content--primary" data-aos="fade-up">
             <div className="group">
               <img src={logo} alt="" />
               <span className="informacoes__content--primary__suptitle">
@@ -19,7 +19,7 @@ const Informacoes = () => {
             </h2>
           </div>
           <div className="informacoes__content--secundary">
-            <article className="informacoes__content--secundary__card card1">
+          <article className="informacoes__content--secundary__card card1" data-aos="flip-right">
               <div className="img">
                 <img
                   src={iconeInfoTecidos}
@@ -38,7 +38,7 @@ const Informacoes = () => {
               </div>
             </article>
 
-            <article className="informacoes__content--secundary__card card2">
+          <article className="informacoes__content--secundary__card card2" data-aos="flip-right">
               <div className="img">
                 <img
                   src={iconeInfoSangue}
@@ -57,7 +57,7 @@ const Informacoes = () => {
               </div>
             </article>
 
-            <article className="informacoes__content--secundary__card card3">
+          <article className="informacoes__content--secundary__card card3" data-aos="flip-right">
               <div className="img">
                 <img
                   src={iconeInfoLeite}

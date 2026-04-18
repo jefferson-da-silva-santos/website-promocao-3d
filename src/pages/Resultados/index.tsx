@@ -38,8 +38,8 @@ const Resultados: React.FC = () => {
 
       <section className="resultados__content">
 
-        {/* ── Coluna do vídeo ── */}
-        <div className="resultados__content__section--primary">
+        {/* ── Coluna do vídeo ── */} 
+        <div className="resultados__content__section--primary" data-aos="fade-right">
           <div className="video-resultados">
             {/*
               A prop `key` força o React a desmontar e remontar o elemento
@@ -66,7 +66,7 @@ const Resultados: React.FC = () => {
         </div>
 
         {/* ── Coluna de texto ── */}
-        <div className="resultados__content__section--secundary">
+        <div className="resultados__content__section--secundary" data-aos="fade-left">
           <div>
             <div className="group">
               <img src={logo} alt="Logo Promoção 3D" />

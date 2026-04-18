@@ -5,7 +5,7 @@ const Material = () => {
   return (
      <div className="material" id="material">
         <section className="material__content">
-          <div className="material__content__section--primary">
+          <div className="material__content__section--primary" data-aos="fade-left">
             <div className="group">
               <img src={logo} alt="" className="img" />
               <span className="material__content__section--primary__suptitle"
@@ -28,7 +28,7 @@ const Material = () => {
               incentivando e educando para salvar vidas.
             </p>
           </div>
-          <div className="material__content__section--secundary">
+          <div className="material__content__section--secundary" data-aos="fade-right">
             <img src={chat} alt="" />
             <a
               href="https://chatgpt.com/g/g-67791d9bb8008191982ec1f0f492a4d6-promocao-3d"

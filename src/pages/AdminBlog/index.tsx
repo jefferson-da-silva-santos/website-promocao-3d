@@ -14,7 +14,7 @@ import logo from "../../assets/image/logo.png";
 // Para trocar a senha, gere o SHA-256 da nova senha e substitua a constante.
 
 const ADMIN_HASH =
-  "7a3f2c1e9d4b8f6a2e5c0d7b3a9f1e4c8b2d6a0f3e7b1c5d9a4f8e2b6c0d3a7f";
+  "00956e6d55431bedc0af94ffbd09d4d25e909b02d044919001d11d768154950f";
 
 async function sha256(text: string): Promise<string> {
   const encoder = new TextEncoder();

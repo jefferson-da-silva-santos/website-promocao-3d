@@ -25,8 +25,7 @@ import { BlogProvider } from "./contexts/BlogContext";
 import BlogPage from "./pages/Blog";
 import BlogPostPage from "./components/BlogPost";
 import AdminPage from "./pages/AdminBlog";
-
-// ─── Página principal (home) ──────────────────────────────────
+import IA from "./pages/IA";
 
 const HomePage: React.FC = () => {
   useEffect(() => {
@@ -62,17 +61,11 @@ const App: React.FC = () => (
   <BrowserRouter>
     <BlogProvider>
       <Routes>
-        {/* Home */}
         <Route path="/" element={<HomePage />} />
-
-        {/* Blog público */}
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />
-
-        {/* Admin (protegido por senha) */}
         <Route path="/admin" element={<AdminPage />} />
-
-        {/* Fallback */}
+        <Route path="/agente" element={<IA />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </BlogProvider>

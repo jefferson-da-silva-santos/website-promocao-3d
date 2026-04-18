@@ -121,7 +121,7 @@ const Desvendando = () => {
 
   return (
     <div className="desvendando" id="desvendando">
-      <section className="desvendando__content">
+      <section className="desvendando__content" data-aos="fade-up">
 
         {/* ── Cabeçalho ── */}
         <div className="desvendando__content__section desvendando__content__section--primary">

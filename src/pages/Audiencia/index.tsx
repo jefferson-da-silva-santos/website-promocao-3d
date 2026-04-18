@@ -13,7 +13,7 @@ const Audiencia: React.FC = () => {
     <div className="audiencia" id="audiencia">
       <div className="audiencia__overlay"></div>
 
-      <section className="audiencia__content">
+      <section className="audiencia__content" data-aos="fade-up">
         {/* Cabeçalho */}
         <div className="audiencia__content--primary">
           <div className="group-sup-img">

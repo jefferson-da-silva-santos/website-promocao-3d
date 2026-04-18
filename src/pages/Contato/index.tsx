@@ -44,7 +44,7 @@ const Contato = () => {
 
   return (
     <div className="contato" id="contato">
-      <section className="contato__content">
+      <section className="contato__content" data-aos="fade-up">
         <div className="contato__content__section--primary">
           <div className="group">
             <img src={logo} alt="Logo" />

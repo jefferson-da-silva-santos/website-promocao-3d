@@ -151,7 +151,7 @@ const JogoDaVida: React.FC = () => {
 
   return (
     <div className="jogo-da-vida" id="jogo-da-vida">
-      <section className="jogo-da-vida__content">
+      <section className="jogo-da-vida__content" data-aos="fade-up">
 
         {/* ── Cabeçalho ── */}
         <div className="jogo-da-vida__header">

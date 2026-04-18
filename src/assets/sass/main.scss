@@ -432,6 +432,7 @@
         @include flex-box(row, center, center, 0);
         width: 100%;
         padding: 0 2rem;
+        text-align: center;
         font-size: 1.2rem;
         max-width: max-content;
         height: 3em;
@@ -3029,6 +3030,7 @@
   }
 }
 
+
 .blog-featured {
   margin-bottom: 3.5rem;
 }
@@ -3104,10 +3106,13 @@
 
     @media screen and (max-width: 720px) {
       grid-template-columns: 1fr;
+      
     }
 
+    
+
     .blog-card__cover {
-      max-height: 400px;
+      max-height: max-content;
     }
 
     .blog-card__title {
@@ -3119,7 +3124,7 @@
   &__cover {
     position: relative;
     overflow: hidden;
-    height: 200px;
+    height: max-content;
 
     img {
       width: 100%;
@@ -3220,6 +3225,14 @@
     font-size: 0.82rem;
     font-weight: 600;
     color: #1f2937;
+  }
+}
+
+.blog-card--featured {
+  max-height: 16rem;
+
+  @media screen and (max-width: 720px) {
+    max-height: max-content;
   }
 }
 

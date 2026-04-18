@@ -21,9 +21,9 @@ const GAMES: GameData[] = [
     label: "Tabuleiro da Vida",
     images: [
       { src: `${BASE_URL}/tabuleiro%20da%20vida/tabuleiro.jpeg`, alt: "Tabuleiro da Vida" },
-      { src: `${BASE_URL}/tabuleiro%20da%20vida/tab1.jpeg`,      alt: "Tabuleiro 1" },
-      { src: `${BASE_URL}/tabuleiro%20da%20vida/tabu2.jpeg`,     alt: "Tabuleiro 2" },
-      { src: `${BASE_URL}/tabuleiro%20da%20vida/tabu3.jpeg`,     alt: "Tabuleiro 3" },
+      // { src: `${BASE_URL}/tabuleiro%20da%20vida/tab1.jpeg`,      alt: "Tabuleiro 1" },
+      // { src: `${BASE_URL}/tabuleiro%20da%20vida/tabu2.jpeg`,     alt: "Tabuleiro 2" },
+      // { src: `${BASE_URL}/tabuleiro%20da%20vida/tabu3.jpeg`,     alt: "Tabuleiro 3" },
     ],
   },
   {

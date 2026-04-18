@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useBlog } from "../../contexts/BlogContext";
 import type { BlogPost } from "../../contexts/BlogContext";
 import logo from "../../assets/image/logo.png";
+import Footer from "../../components/Footer";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -181,9 +182,7 @@ const BlogPage: React.FC = () => {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="blog-footer">
-        <span>© {new Date().getFullYear()} Promoção 3D — Todos os direitos reservados</span>
-      </footer>
+     <Footer />
     </div>
   );
 };

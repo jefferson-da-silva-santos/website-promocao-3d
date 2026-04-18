@@ -16,10 +16,10 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Gerar build
+      - name: Gerar build (Vite)
         run: npm run build
 
-      - name: Deploy via FTP
+      - name: Deploy via FTP (somente dist)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_HOST }}
@@ -27,3 +27,4 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           local-dir: dist/
           server-dir: public_html/
+          dangerous-clean-slate: true

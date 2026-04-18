@@ -10,7 +10,42 @@
   src: url("../fonts/Muli-ExtraLight.ttf") format("truetype");
 }
 
-$font-body: "Muli", sans-serif;
+$font-body:   "Muli", sans-serif;
 $font-secund: "Josefin Sans", sans-serif;
-$color-white: white;
-$color-black: black;
+$font-light:  "Muli-Light", sans-serif;
+ 
+$color-white:         #ffffff;
+$color-black:         #000000;
+$color-primary:       #004278;
+$color-primary-light: #008cff;
+$color-red:           rgb(165, 0, 0);
+$color-red-btn:       rgb(181, 0, 0);
+$color-yellow:        rgb(255, 255, 0);
+$color-green:         rgb(21, 128, 0);
+$color-blue-dark:     rgb(0, 0, 151);
+$color-overlay:       rgba(0, 0, 0, 0.678);
+$color-box-overlay:   rgba(0, 0, 0, 0.631);
+$color-input-bg:      #f2f2f2;
+$color-input-border:  #d9d9d9;
+$color-placeholder:   rgb(179, 179, 179);
+$color-error:         #ff6f6f;
+ 
+$shadow-card:   0 0 10px rgba(128, 128, 128, 0.564);
+$shadow-video:  0 4px 20px rgba(0, 0, 0, 0.3);
+$shadow-btn:    6px 3px 7px rgba(0, 0, 0, 0.28);
+$shadow-navbar: 0 0 10px rgba(28, 29, 45, 0.56);
+ 
+$r-sm:   5px;
+$r-md:   10px;
+$r-lg:   20px;
+$r-pill: 30px;
+ 
+$t-fast: all 0.3s ease;
+$t-slow: all 1s ease;
+ 
+$bp-xl:  1094px;
+$bp-lg:  1000px;
+$bp-md:  960px;
+$bp-sm:  798px;
+$bp-xs:  480px;
+$bp-xxs: 376px;

@@ -12,36 +12,36 @@
     position: relative;
   }
 
-  .navbar__list {
-    display: none;
-    top: 5px;
-    z-index: 22;
-    position: fixed;
-    flex-direction: column;
-    right: 0;
-    gap: 18px;
-    background-color: #000000;
-    padding: 2em;
-    border-radius: 15px 0 0 15px;
-    align-items: center;
-    margin-top: 40px;
-    animation: menu 1s ease 0s 1 normal forwards;
+  // .navbar__list {
+  //   display: none;
+  //   top: 5px;
+  //   z-index: 22;
+  //   position: fixed;
+  //   flex-direction: column;
+  //   right: 0;
+  //   gap: 18px;
+  //   background-color: #000000;
+  //   padding: 2em;
+  //   border-radius: 15px 0 0 15px;
+  //   align-items: center;
+  //   margin-top: 40px;
+  //   animation: menu 1s ease 0s 1 normal forwards;
 
-    @keyframes menu {
-      0% {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      50% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
+  //   @keyframes menu {
+  //     0% {
+  //       transform: translateX(100%);
+  //       opacity: 0;
+  //     }
+  //     50% {
+  //       transform: translateX(0);
+  //       opacity: 1;
+  //     }
+  //   }
 
-    a {
-      font-size: 1em;
-    }
-  }
+  //   a {
+  //     font-size: 1em;
+  //   }
+  // }
 
   .navbar .menu-btn {
     display: inline-block;
@@ -194,7 +194,7 @@
   .resultados__content {
     padding-top: 2rem;
     grid-template-columns: 1fr;
-    grid-template-rows: 22rem 28rem;
+    grid-template-rows: 22rem 16rem;
   }
 
   .resultados__content__section--secundary .group {

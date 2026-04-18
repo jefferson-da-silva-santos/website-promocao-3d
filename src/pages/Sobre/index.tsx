@@ -7,6 +7,7 @@ const Sobre = () => {
         <section className="sobre__content">
           <div
             className="sobre__content__section sobre__content__section--primary"
+            data-aos="fade-up"
           >
             <div className="sobre__content__section__group-sup">
               <img src={logo} alt="" />
@@ -32,6 +33,7 @@ const Sobre = () => {
 
           <div
             className="sobre__content__section sobre__content__section--secudary"
+            data-aos="fade-up"
           >
             <img src={UPE} alt="" />
           </div>

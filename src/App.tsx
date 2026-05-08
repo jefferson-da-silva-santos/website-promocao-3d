@@ -26,6 +26,7 @@ import BlogPage from "./pages/Blog";
 import BlogPostPage from "./components/BlogPost";
 import AdminPage from "./pages/AdminBlog";
 import IA from "./pages/IA";
+import AdminDashboard from "./pages/DashboardAdmin";
 
 const HomePage: React.FC = () => {
   useEffect(() => {
@@ -65,6 +66,7 @@ const App: React.FC = () => (
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin-dash" element={<AdminDashboard />} />
         <Route path="/agente" element={<IA />} />
         <Route path="*" element={<HomePage />} />
       </Routes>

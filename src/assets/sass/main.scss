@@ -5323,6 +5323,1103 @@
   .agente-creators__cards { grid-template-columns: 1fr; }
 }
 
+
+// admin-dashboard.scss
+// ─────────────────────────────────────────────────────────────────────────────
+//  Dashboard Admin — Promoção 3D
+//  Padrão: BEM, sem mixins externos, alinhado ao design system do projeto
+//  Fontes: Josefin Sans (display) + Muli / Muli-Light (body)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Tokens ───────────────────────────────────────────────────────────────────
+
+$navy:   #004278;
+$navy-d: #002a4e;
+$navy-l: #eff6ff;
+$sky:    #5ce2e7;
+$white:  #ffffff;
+$black:  #0a0a0a;
+$ink:    #1f2937;
+$muted:  #9ca3af;
+$sub:    #4b5563;
+$border: #e5e5e5;
+$bg:     #f9f9f9;
+
+$r-sm:  6px;
+$r-md:  12px;
+$r-lg:  20px;
+
+$shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+$shadow-md: 0 4px 16px rgba(0,0,0,.10);
+$shadow-lg: 0 8px 32px rgba(0,0,0,.14);
+
+// ── Reset específico do componente ────────────────────────────────────────────
+
+.adm {
+  *,
+  *::before,
+  *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  font-family: "Muli", sans-serif;
+  background-color: $bg;
+  min-height: 100vh;
+  color: $black;
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+
+.adm-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background: $bg;
+
+  p {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: $muted;
+  }
+}
+
+// ── Spinner ───────────────────────────────────────────────────────────────────
+
+.adm-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 3px solid rgba($navy, .15);
+  border-top-color: $navy;
+  animation: adm-spin .7s linear infinite;
+}
+
+@keyframes adm-spin { to { transform: rotate(360deg); } }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+.adm-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  background: $navy-d;
+  color: $white;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: .75rem 1.5rem;
+  border-radius: $r-md;
+  box-shadow: $shadow-lg;
+  animation: adm-toast-in .3s cubic-bezier(.4,0,.2,1);
+
+  @keyframes adm-toast-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.adm-header {
+  background: $white;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+
+  &__inner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 64px;
+    gap: 1rem;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__logo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $sky;
+    box-shadow: 0 0 0 4px rgba($sky, .2);
+    animation: adm-pulse 2s ease infinite;
+    flex-shrink: 0;
+
+    @keyframes adm-pulse {
+      0%,100% { box-shadow: 0 0 0 4px rgba($sky,.2); }
+      50%      { box-shadow: 0 0 0 8px rgba($sky,.1); }
+    }
+  }
+
+  &__eyebrow {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .65rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: $muted;
+    margin-bottom: 1px;
+  }
+
+  &__title {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -.5px;
+    text-transform: uppercase;
+    color: $black;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  &__updated {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .78rem;
+    color: $muted;
+
+    i { font-size: .95rem; }
+  }
+
+  &__refresh {
+    width: 36px;
+    height: 36px;
+    border-radius: $r-sm;
+    border: 1px solid $border;
+    background: $white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    color: $sub;
+    transition: all .25s ease;
+
+    &:hover { background: $bg; border-color: $navy; color: $navy; }
+
+    &--spin i { animation: adm-spin .6s linear infinite; }
+  }
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+
+.adm-tabs {
+  background: $white;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 64px;
+  z-index: 99;
+
+  &__inner {
+    display: flex;
+    flex-direction: row;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+.adm-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: "Muli", sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  color: $muted;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s ease;
+
+  i { font-size: 1rem; }
+
+  &:hover { color: $ink; }
+
+  &--active {
+    color: $navy;
+    border-bottom-color: $navy;
+  }
+
+  &__badge {
+    font-size: .65rem;
+    font-weight: 700;
+    background: $border;
+    color: $sub;
+    padding: .1rem .45rem;
+    border-radius: 100px;
+    min-width: 20px;
+    text-align: center;
+
+    .adm-tab--active & {
+      background: rgba($navy, .12);
+      color: $navy;
+    }
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
+.adm-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  @media screen and (max-width: 768px) { padding: 1.25rem; }
+}
+
+// ── Overview grid ─────────────────────────────────────────────────────────────
+
+.adm-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+
+.adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+
+  @media screen and (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media screen and (max-width: 480px)  { grid-template-columns: 1fr; }
+}
+
+.adm-kpi {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  box-shadow: $shadow-sm;
+  animation: adm-fade-up .5s ease both;
+  position: relative;
+  overflow: hidden;
+
+  // Detalhe decorativo
+  &::after {
+    content: "";
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    opacity: .06;
+  }
+
+  &--blue  { border-top: 3px solid $navy;   &::after { background: $navy; } }
+  &--red   { border-top: 3px solid #dc2626; &::after { background: #dc2626; } }
+  &--navy  { border-top: 3px solid $navy-d; &::after { background: $navy-d; } }
+  &--sky   { border-top: 3px solid $sky;    &::after { background: $sky; } }
+
+  &__icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: $r-md;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    background: $navy-l;
+    color: $navy;
+
+    .adm-kpi--red &  { background: #fef2f2; color: #dc2626; }
+    .adm-kpi--sky &  { background: #ecfeff; color: #0891b2; }
+
+    i { font-size: 1.4rem; }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: .75rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__value {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: $black;
+    line-height: 1;
+  }
+
+  &__sub {
+    font-size: .75rem;
+    color: $muted;
+  }
+}
+
+@keyframes adm-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Card genérico ─────────────────────────────────────────────────────────────
+
+.adm-card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  box-shadow: $shadow-sm;
+  padding: 1.5rem;
+  animation: adm-fade-up .5s ease both;
+
+  &--full { grid-column: 1 / -1; }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__title {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: -.3px;
+    color: $black;
+  }
+
+  &__sub {
+    font-size: .78rem;
+    color: $muted;
+    margin-top: .15rem;
+  }
+}
+
+// ── Row: dois cards lado a lado ───────────────────────────────────────────────
+
+.adm-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+
+  @media screen and (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+// ── Intervalo de tempo ────────────────────────────────────────────────────────
+
+.adm-interval-btns {
+  display: flex;
+  gap: .3rem;
+}
+
+.adm-interval-btn {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $r-sm;
+  padding: .35rem .8rem;
+  font-family: "Muli", sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  color: $sub;
+  cursor: pointer;
+  transition: all .2s ease;
+
+  &:hover { border-color: $navy; color: $navy; }
+
+  &--active {
+    background: $navy;
+    border-color: $navy;
+    color: $white;
+  }
+}
+
+// ── Pizza wrapper ─────────────────────────────────────────────────────────────
+
+.adm-pie-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+}
+
+.adm-pie-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .82rem;
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__label { flex: 1; color: $sub; }
+
+  &__val {
+    font-family: "Josefin Sans", sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    color: $black;
+  }
+}
+
+// ── Bar list (estados) ────────────────────────────────────────────────────────
+
+.adm-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    animation: adm-fade-up .4s ease both;
+  }
+
+  &__label {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .8rem;
+    font-weight: 600;
+    width: 32px;
+    flex-shrink: 0;
+    color: $ink;
+  }
+
+  &__track {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: $border;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to right, $navy, lighten($navy, 18%));
+    transition: width .8s cubic-bezier(.4,0,.2,1);
+  }
+
+  &__val {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .8rem;
+    font-weight: 700;
+    color: $black;
+    min-width: 28px;
+    text-align: right;
+  }
+}
+
+// ── Ranking table ─────────────────────────────────────────────────────────────
+
+.adm-rank-table-wrap {
+  overflow-x: auto;
+}
+
+.adm-rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .875rem;
+
+  thead tr {
+    border-bottom: 2px solid $border;
+  }
+
+  th {
+    padding: .6rem 1rem;
+    text-align: left;
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $muted;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background .15s ease;
+
+    &:hover { background: $bg; }
+    &:last-child { border-bottom: none; }
+  }
+
+  td {
+    padding: .85rem 1rem;
+    color: $ink;
+  }
+
+  &__top td { font-weight: 600; }
+
+  &__name {
+    font-weight: 700;
+    color: $black;
+  }
+
+  &__score {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: 1rem;
+    color: $navy;
+    font-weight: 700;
+  }
+
+  &__empty {
+    text-align: center;
+    color: $muted;
+    padding: 2rem !important;
+    font-size: .85rem;
+  }
+}
+
+.adm-rank-medal {
+  font-size: .9rem;
+  &--1, &--2, &--3 { font-size: 1.1rem; }
+}
+
+// ── Cidades grid ──────────────────────────────────────────────────────────────
+
+.adm-city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: .75rem;
+}
+
+.adm-city-card {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  padding: .9rem 1rem;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $r-md;
+  animation: adm-fade-up .4s ease both;
+  transition: all .2s ease;
+
+  &:hover { border-color: $navy; transform: translateY(-2px); box-shadow: $shadow-sm; }
+
+  &__rank {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .8rem;
+    font-weight: 700;
+    color: $muted;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      font-size: .85rem;
+      font-weight: 700;
+      color: $black;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    span {
+      font-size: .72rem;
+      color: $muted;
+    }
+  }
+
+  &__total {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    color: $navy;
+    flex-shrink: 0;
+  }
+}
+
+// ── Tooltip recharts ──────────────────────────────────────────────────────────
+
+.adm-tooltip {
+  background: $navy-d;
+  border-radius: $r-sm;
+  padding: .6rem .9rem;
+  box-shadow: $shadow-md;
+  min-width: 120px;
+
+  &__label {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba($white, .55);
+    margin-bottom: .35rem;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    font-size: .82rem;
+    margin-top: .2rem;
+  }
+
+  &__key { color: rgba($white, .75); }
+  &__val { font-weight: 700; color: $white; }
+}
+
+// ── Section (users / scores / audit) ─────────────────────────────────────────
+
+.adm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__title {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: 1.3rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    color: $black;
+
+    em {
+      font-style: normal;
+      color: $muted;
+      font-size: 1rem;
+      margin-left: .5rem;
+    }
+  }
+}
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+
+.adm-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-md;
+  padding: 1rem 1.25rem;
+
+  &__search {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+
+    i {
+      position: absolute;
+      left: .85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $muted;
+      font-size: 1rem;
+      pointer-events: none;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    padding: .6rem 2.4rem .6rem 2.4rem;
+    border: 1px solid $border;
+    border-radius: $r-sm;
+    font-family: "Muli", sans-serif;
+    font-size: .88rem;
+    background: $bg;
+    color: $black;
+    outline: none;
+    transition: all .25s ease;
+
+    &:focus { border-color: $navy; background: $white; box-shadow: 0 0 0 3px rgba($navy,.08); }
+
+    &--sm { max-width: 90px; padding-left: .75rem; }
+  }
+
+  &__clear {
+    position: absolute;
+    right: .6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $muted;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    transition: color .2s;
+
+    &:hover { color: $black; }
+  }
+
+  &__select {
+    padding: .6rem .9rem;
+    border: 1px solid $border;
+    border-radius: $r-sm;
+    font-family: "Muli", sans-serif;
+    font-size: .88rem;
+    background: $bg;
+    color: $ink;
+    outline: none;
+    cursor: pointer;
+    transition: all .25s ease;
+
+    &:focus { border-color: $navy; background: $white; }
+  }
+}
+
+// ── Tabela ────────────────────────────────────────────────────────────────────
+
+.adm-table-wrap {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .855rem;
+
+  thead tr { background: $bg; border-bottom: 1px solid $border; }
+
+  th {
+    padding: .75rem 1rem;
+    text-align: left;
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $muted;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background .15s ease;
+
+    &:hover { background: $bg; }
+    &:last-child { border-bottom: none; }
+  }
+
+  td {
+    padding: .8rem 1rem;
+    color: $ink;
+    white-space: nowrap;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 700;
+    color: $black;
+  }
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $navy;
+    color: $white;
+    font-size: .72rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    font-family: "Josefin Sans", sans-serif;
+  }
+
+  &__muted { color: $muted; }
+
+  &__del {
+    width: 30px;
+    height: 30px;
+    border-radius: $r-sm;
+    border: 1px solid $border;
+    background: $white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: .95rem;
+    color: #9ca3af;
+    transition: all .2s ease;
+
+    &:hover { background: #fef2f2; border-color: #dc2626; color: #dc2626; }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 3rem !important;
+    color: $muted;
+    font-size: .88rem;
+  }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+
+.adm-pill {
+  display: inline-block;
+  padding: .2rem .65rem;
+  border-radius: 100px;
+  font-size: .72rem;
+  font-family: "Josefin Sans", sans-serif;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+
+  &--blood  { background: #fef2f2; color: #dc2626; }
+  &--organs { background: #eff6ff; color: #2563eb; }
+  &--milk   { background: #f0fdf4; color: #16a34a; }
+}
+
+.adm-role {
+  display: inline-block;
+  padding: .2rem .65rem;
+  border-radius: $r-sm;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+
+  &--teacher { background: rgba($navy,.1);   color: $navy;   }
+  &--student { background: #ecfeff; color: #0891b2; }
+  &--other   { background: $bg;     color: $muted;  }
+}
+
+.adm-uf {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 22px;
+  border-radius: 4px;
+  background: $bg;
+  border: 1px solid $border;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  color: $sub;
+}
+
+.adm-score-val {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: $navy;
+}
+
+// ── Paginação ─────────────────────────────────────────────────────────────────
+
+.adm-pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .75rem;
+
+  &__btn {
+    width: 36px;
+    height: 36px;
+    border-radius: $r-sm;
+    border: 1px solid $border;
+    background: $white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    color: $sub;
+    transition: all .2s ease;
+
+    &:hover:not(:disabled) { border-color: $navy; color: $navy; }
+    &:disabled { opacity: .4; cursor: not-allowed; }
+  }
+
+  &__info {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    color: $muted;
+    letter-spacing: 1px;
+  }
+}
+
+// ── Auditoria ─────────────────────────────────────────────────────────────────
+
+.adm-audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.adm-audit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: $white;
+  border: 1px solid $border;
+  border-left: 3px solid transparent;
+  border-radius: $r-md;
+  transition: all .2s ease;
+  animation: adm-fade-up .35s ease both;
+
+  &:hover { box-shadow: $shadow-sm; }
+
+  &--created { border-left-color: #16a34a; }
+  &--deleted { border-left-color: #dc2626; }
+  &--updated { border-left-color: #d97706; }
+  &--login   { border-left-color: $navy; }
+
+  &__icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: $r-sm;
+    background: $bg;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.1rem;
+
+      .adm-audit-row--created & { color: #16a34a; }
+      .adm-audit-row--deleted & { color: #dc2626; }
+      .adm-audit-row--updated & { color: #d97706; }
+      .adm-audit-row--login   & { color: $navy;   }
+    }
+  }
+
+  &__body { flex: 1; min-width: 0; }
+
+  &__event {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: $black;
+    margin-bottom: .2rem;
+  }
+
+  &__meta {
+    font-size: .75rem;
+    color: $muted;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+    align-items: center;
+  }
+
+  &__entity { color: $navy; font-weight: 600; }
+  &__id     { font-family: monospace; background: $bg; padding: 1px 5px; border-radius: 3px; color: $sub; }
+  &__sep    { opacity: .4; }
+  &__ip     { font-family: monospace; color: $sub; }
+
+  &__date {
+    font-size: .75rem;
+    color: $muted;
+    white-space: nowrap;
+    align-self: center;
+    flex-shrink: 0;
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.adm-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: .75rem;
+  padding: 3rem 2rem;
+  color: $muted;
+
+  i { font-size: 2.5rem; opacity: .4; }
+  p { font-size: .85rem; text-transform: uppercase; letter-spacing: 1px; font-family: "Josefin Sans", sans-serif; }
+}
+
+// ── Responsividade ────────────────────────────────────────────────────────────
+
+@media screen and (max-width: 768px) {
+  .adm-header__title   { font-size: .95rem; }
+  .adm-header__eyebrow { display: none; }
+  .adm-kpi__label      { font-size: .68rem; }
+  .adm-kpi__value      { font-size: 1.55rem; }
+  .adm-card__head      { flex-direction: column; gap: .75rem; }
+  .adm-interval-btns   { flex-wrap: wrap; }
+  .adm-city-grid       { grid-template-columns: 1fr 1fr; }
+  .adm-audit-row__date { display: none; }
+}
+
+@media screen and (max-width: 480px) {
+  .adm-kpis             { grid-template-columns: 1fr 1fr; }
+  .adm-city-grid        { grid-template-columns: 1fr; }
+  .adm-tab span         { display: none; }
+  .adm-tab i            { font-size: 1.2rem; }
+  .adm-filters          { padding: .75rem; }
+  .adm-toast            { left: 1rem; right: 1rem; bottom: 1rem; text-align: center; }
+}
+
 @media screen and (max-width: 640px) {
   .agente-nav__links button:not(.active):not(:last-child) { display: none; }
 

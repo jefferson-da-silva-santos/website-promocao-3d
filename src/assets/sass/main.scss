@@ -3050,6 +3050,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
+
+    img {
+      max-height: 10rem;
+    }
   }
 }
 
@@ -3087,8 +3091,8 @@
   border: 1px solid #e5e5e5;
   cursor: pointer;
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+  transform 0.25s ease,
+  box-shadow 0.25s ease;
   outline: none;
 
   &:hover {
@@ -3108,8 +3112,6 @@
       grid-template-columns: 1fr;
       
     }
-
-    
 
     .blog-card__cover {
       max-height: max-content;

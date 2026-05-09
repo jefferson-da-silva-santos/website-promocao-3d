@@ -1,100 +1,66 @@
-import React, { useState, useRef } from "react";
+// src/pages/AdminBlog.tsx
+// ─────────────────────────────────────────────────────────────────────────────
+//  Painel Admin do Blog — Promoção 3D
+//  Auth: POST /api/admin/login (SHA-256) → token → AdminContext
+//  Blog CRUD: /api/blog (leitura pública, escrita com x-admin-token)
+//  Estilo: classes .admin-* e .blog-* existentes no SCSS do projeto
+// ─────────────────────────────────────────────────────────────────────────────
+
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAdmin } from "../../contexts/AdminContext";
 import { useBlog } from "../../contexts/BlogContext";
+import type { CreatePostInput } from "../../contexts/BlogContext";
 import logo from "../../assets/image/logo.png";
-
-// ─── Segurança ────────────────────────────────────────────────────────────────
-//
-// A senha é armazenada como hash SHA-256. Nunca em texto puro.
-// Para gerar um novo hash: https://emn178.github.io/online-tools/sha256.html
-//
-// Senha padrão: Promocao3D@2025!
-// Hash SHA-256: a seguir
-//
-// Para trocar a senha, gere o SHA-256 da nova senha e substitua a constante.
-
-const ADMIN_HASH =
-  "00956e6d55431bedc0af94ffbd09d4d25e909b02d044919001d11d768154950f";
-
-async function sha256(text: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-// Proteção contra brute-force: bloqueio após N tentativas
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 5 * 60 * 1000; // 5 minutos
 
 // ─── Categorias ───────────────────────────────────────────────────────────────
 
 const CATEGORIES = ["Doação de Sangue", "Doação de Leite", "Doação de Órgãos"];
 
-// ─── Login Screen ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  LOGIN SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
 
-const LoginScreen: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+const LoginScreen: React.FC = () => {
+  const { login, loginError, clearLoginError, isAuthenticated } = useAdmin();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
-  const [showPass, setShowPass] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_MS = 5 * 60 * 1000;
+
   const isLocked = lockedUntil !== null && Date.now() < lockedUntil;
-  const remainingSeconds = isLocked
-    ? Math.ceil((lockedUntil! - Date.now()) / 1000)
-    : 0;
+  const remaining = isLocked ? Math.ceil((lockedUntil! - Date.now()) / 1000) : 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked || !password.trim()) return;
 
-    if (isLocked) return;
-    if (!password.trim()) {
-      setError("Digite a senha.");
-      return;
-    }
-
+    clearLoginError();
     setLoading(true);
-    setError("");
+    // delay anti-timing
+    await new Promise(r => setTimeout(r, 350));
 
-    // Pequeno delay artificial para dificultar timing attacks
-    await new Promise((r) => setTimeout(r, 400));
-
-    const hash = await sha256(password);
-    const valid = hash === ADMIN_HASH;
-
-    if (valid) {
-      // Salva sessão com expiração de 2 horas
-      sessionStorage.setItem(
-        "blog_admin_session",
-        JSON.stringify({ expires: Date.now() + 2 * 60 * 60 * 1000 })
-      );
-      onSuccess();
-    } else {
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-
-      if (newAttempts >= MAX_ATTEMPTS) {
-        const until = Date.now() + LOCKOUT_MS;
-        setLockedUntil(until);
-        setError(
-          `Muitas tentativas. Tente novamente em ${LOCKOUT_MS / 60000} minutos.`
-        );
-      } else {
-        setError(
-          `Senha incorreta. ${MAX_ATTEMPTS - newAttempts} tentativa(s) restante(s).`
-        );
+    try {
+      await login(password);
+    } catch {
+      const next = attempts + 1;
+      setAttempts(next);
+      if (next >= MAX_ATTEMPTS) {
+        setLockedUntil(Date.now() + LOCKOUT_MS);
       }
-
       setPassword("");
       inputRef.current?.focus();
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
+
+  if (isAuthenticated) return null;
 
   return (
     <div className="admin-login">
@@ -113,7 +79,7 @@ const LoginScreen: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
                 id="admin-pass"
                 type={showPass ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••••••"
                 disabled={isLocked || loading}
                 autoComplete="current-password"
@@ -121,23 +87,25 @@ const LoginScreen: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
               <button
                 type="button"
                 className="admin-login__eye"
-                onClick={() => setShowPass((v) => !v)}
-                aria-label={showPass ? "Ocultar senha" : "Mostrar senha"}
+                onClick={() => setShowPass(v => !v)}
+                aria-label={showPass ? "Ocultar" : "Mostrar"}
               >
                 <i className={`bx ${showPass ? "bx-hide" : "bx-show"}`} />
               </button>
             </div>
           </div>
 
-          {error && (
+          {loginError && !isLocked && (
             <div className="admin-login__error">
-              <i className="bx bx-error-circle" /> {error}
+              <i className="bx bx-error-circle" />
+              {loginError}
+              {attempts > 0 && ` (${MAX_ATTEMPTS - attempts} tentativa(s) restante(s))`}
             </div>
           )}
 
           {isLocked && (
             <div className="admin-login__lockout">
-              <i className="bx bx-time" /> Aguarde {remainingSeconds}s
+              <i className="bx bx-time" /> Bloqueado. Aguarde {remaining}s
             </div>
           )}
 
@@ -146,116 +114,143 @@ const LoginScreen: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
             className="admin-login__btn"
             disabled={isLocked || loading}
           >
-            {loading ? (
-              <span className="admin-login__spinner" />
-            ) : (
-              <>
-                <i className="bx bx-log-in" /> Entrar
-              </>
-            )}
+            {loading ? <span className="admin-login__spinner" /> : <><i className="bx bx-log-in" /> Entrar</>}
           </button>
         </form>
 
         <div className="admin-login__security">
           <i className="bx bx-shield-check" />
-          <span>Conexão protegida · SHA-256</span>
+          <span>Autenticação via API · SHA-256</span>
         </div>
       </div>
     </div>
   );
 };
 
-// ─── Editor ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  EDITOR
+// ─────────────────────────────────────────────────────────────────────────────
 
-const AdminEditor: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
-  const { posts, addPost, deletePost } = useBlog();
+const AdminEditor: React.FC = () => {
+  const { logout, token } = useAdmin();
+  const { posts, addPost, updatePost, deletePost } = useBlog();
   const navigate = useNavigate();
 
-  const [tab, setTab] = useState<"list" | "new">("list");
-  const [success, setSuccess] = useState(false);
+  const [tab, setTab] = useState<"list" | "new" | "edit">("list");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
-  // Form state
-  const [form, setForm] = useState({
-    title: "",
-    subtitle: "",
-    content: "",
-    author: "Eliabe Pereira",
-    category: CATEGORIES[0],
-    coverImage: "",
-  });
   const [coverPreview, setCoverPreview] = useState("");
+
+  const emptyForm = {
+    title: "", subtitle: "", content: "",
+    author: "Eliabe Pereira", category: CATEGORIES[0],
+    cover_image: "", published: true,
+  };
+
+  const [form, setForm] = useState(emptyForm);
   const [formErrors, setFormErrors] = useState<Partial<typeof form>>({});
 
-  const handleField = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (formErrors[name as keyof typeof form]) {
-      setFormErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+  const setField = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setForm(prev => ({ ...prev, [name]: val }));
+    if (formErrors[name as keyof typeof form]) setFormErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleCoverUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
-    setForm((prev) => ({ ...prev, coverImage: url }));
+    setForm(prev => ({ ...prev, cover_image: url }));
     setCoverPreview(url);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev => {
       const result = ev.target?.result as string;
-      setForm((prev) => ({ ...prev, coverImage: result }));
+      setForm(prev => ({ ...prev, cover_image: result }));
       setCoverPreview(result);
     };
     reader.readAsDataURL(file);
+  };
+
+  const openEdit = (id: string) => {
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    setForm({
+      title: post.title,
+      subtitle: post.subtitle,
+      content: post.content,
+      author: post.author,
+      category: post.category,
+      cover_image: post.cover_image,
+      published: post.published,
+    });
+    setCoverPreview(post.cover_image);
+    setEditingId(id);
+    setTab("edit");
   };
 
   const validate = (): boolean => {
     const errors: Partial<typeof form> = {};
     if (!form.title.trim()) errors.title = "Título obrigatório.";
     if (!form.subtitle.trim()) errors.subtitle = "Subtítulo obrigatório.";
-    if (form.content.trim().length < 100)
-      errors.content = "Conteúdo deve ter ao menos 100 caracteres.";
-    if (!form.coverImage.trim()) errors.coverImage = "Imagem de capa obrigatória.";
+    if (form.content.trim().length < 100) errors.content = "Conteúdo: mínimo 100 caracteres.";
+    if (!form.cover_image.trim()) errors.cover_image = "Imagem obrigatória.";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handlePublish = () => {
-    if (!validate()) return;
-    addPost(form);
-    setForm({
-      title: "",
-      subtitle: "",
-      content: "",
-      author: "Eliabe Pereira",
-      category: CATEGORIES[0],
-      coverImage: "",
-    });
-    setCoverPreview("");
-    setSuccess(true);
-    setTab("list");
-    setTimeout(() => setSuccess(false), 4000);
+  const handlePublish = async () => {
+    if (!validate() || !token) return;
+    setSubmitting(true); setApiError(null);
+    try {
+      const input: CreatePostInput = { ...form };
+      if (tab === "edit" && editingId) {
+        await updatePost(token, editingId, input);
+        setSuccess("Artigo atualizado!");
+      } else {
+        await addPost(token, input);
+        setSuccess("Artigo publicado!");
+      }
+      setForm(emptyForm); setCoverPreview(""); setEditingId(null);
+      setTab("list");
+      setTimeout(() => setSuccess(null), 4000);
+    } catch (err: any) {
+      setApiError(err?.response?.data?.error ?? "Erro ao salvar o artigo.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    deletePost(id);
+  const handleDelete = async (id: string) => {
+    if (!token) return;
+    try {
+      await deletePost(token, id);
+      setSuccess("Artigo removido.");
+      setTimeout(() => setSuccess(null), 3000);
+    } catch {
+      setApiError("Erro ao remover.");
+    }
     setDeleteConfirm(null);
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("blog_admin_session");
-    onLogout();
+  const handleLogout = async () => {
+    await logout();
   };
+
+  const fmtDate = (iso: string) =>
+    new Date(iso).toLocaleDateString("pt-BR");
+
+  const readEst = (text: string) =>
+    Math.max(1, Math.ceil(text.trim().split(/\s+/).length / 200));
 
   return (
     <div className="admin-panel">
-
       {/* Header */}
       <header className="admin-header">
         <div className="admin-header__inner">
@@ -263,13 +258,12 @@ const AdminEditor: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             <img src={logo} alt="Promoção 3D" />
             <span>Admin · Blog</span>
           </button>
-
           <div className="admin-header__actions">
-            <button
-              className="admin-header__view-btn"
-              onClick={() => navigate("/blog")}
-            >
+            <button className="admin-header__view-btn" onClick={() => navigate("/blog")}>
               <i className="bx bx-link-external" /> Ver blog
+            </button>
+            <button className="admin-header__view-btn" onClick={() => navigate("/admin-dash")}>
+              <i className="bx bx-grid-alt" /> Dashboard
             </button>
             <button className="admin-header__logout" onClick={handleLogout}>
               <i className="bx bx-log-out" /> Sair
@@ -283,29 +277,35 @@ const AdminEditor: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
           {/* Tabs */}
           <div className="admin-tabs">
-            <button
-              className={`admin-tab${tab === "list" ? " admin-tab--active" : ""}`}
-              onClick={() => setTab("list")}
-            >
-              <i className="bx bx-list-ul" /> Posts publicados
-              <span className="admin-tab__badge">{posts.length}</span>
-            </button>
-            <button
-              className={`admin-tab${tab === "new" ? " admin-tab--active" : ""}`}
-              onClick={() => setTab("new")}
-            >
-              <i className="bx bx-plus-circle" /> Novo artigo
-            </button>
+            {[
+              { key: "list", icon: "bx-list-ul", label: `Posts publicados`, badge: posts.length },
+              { key: "new", icon: "bx-plus-circle", label: "Novo artigo" },
+            ].map(t => (
+              <button
+                key={t.key}
+                className={`admin-tab${tab === t.key || (tab === "edit" && t.key === "new") ? " admin-tab--active" : ""}`}
+                onClick={() => { setTab(t.key as any); setEditingId(null); setForm(emptyForm); setCoverPreview(""); }}
+              >
+                <i className={`bx ${t.icon}`} />
+                {t.label}
+                {t.badge != null && <span className="admin-tab__badge">{t.badge}</span>}
+              </button>
+            ))}
           </div>
 
-          {/* Feedback de sucesso */}
+          {/* Feedback */}
           {success && (
             <div className="admin-success">
-              <i className="bx bx-check-circle" /> Artigo publicado com sucesso!
+              <i className="bx bx-check-circle" /> {success}
+            </div>
+          )}
+          {apiError && (
+            <div className="admin-login__error" style={{ marginBottom: '1rem' }}>
+              <i className="bx bx-error-circle" /> {apiError}
             </div>
           )}
 
-          {/* ── Lista de posts ── */}
+          {/* ── Lista ── */}
           {tab === "list" && (
             <div className="admin-list">
               {posts.length === 0 ? (
@@ -313,197 +313,141 @@ const AdminEditor: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                   <i className="bx bx-file-blank admin-empty__icon" />
                   <p>Nenhum artigo publicado ainda.</p>
                 </div>
-              ) : (
-                posts.map((post) => (
-                  <div key={post.id} className="admin-post-row">
-                    <img
-                      src={post.coverImage}
-                      alt={post.title}
-                      className="admin-post-row__thumb"
-                    />
-                    <div className="admin-post-row__info">
-                      <span className="admin-post-row__cat">{post.category}</span>
-                      <h3 className="admin-post-row__title">{post.title}</h3>
-                      <span className="admin-post-row__meta">
-                        {new Date(post.createdAt).toLocaleDateString("pt-BR")} ·{" "}
-                        {post.readTime} min
-                      </span>
-                    </div>
-                    <div className="admin-post-row__actions">
-                      <button
-                        className="admin-post-row__view"
-                        onClick={() => navigate(`/blog/${post.id}`)}
-                        title="Ver post"
-                      >
-                        <i className="bx bx-show" />
-                      </button>
-                      <button
-                        className="admin-post-row__delete"
-                        onClick={() => setDeleteConfirm(post.id)}
-                        title="Excluir post"
-                      >
-                        <i className="bx bx-trash" />
-                      </button>
-                    </div>
+              ) : posts.map(post => (
+                <div key={post.id} className="admin-post-row">
+                  <img src={post.cover_image} alt={post.title} className="admin-post-row__thumb" />
+                  <div className="admin-post-row__info">
+                    <span className="admin-post-row__cat">{post.category}</span>
+                    <h3 className="admin-post-row__title">{post.title}</h3>
+                    <span className="admin-post-row__meta">
+                      {fmtDate(post.created_at)} · {post.read_time} min
+                      {!post.published && <span style={{ color: '#d97706', marginLeft: '.5rem' }}>· Rascunho</span>}
+                    </span>
                   </div>
-                ))
-              )}
+                  <div className="admin-post-row__actions">
+                    <button className="admin-post-row__view" onClick={() => navigate(`/blog/${post.id}`)} title="Ver"><i className="bx bx-show" /></button>
+                    <button className="admin-post-row__view" onClick={() => openEdit(post.id)} title="Editar" style={{ color: '#d97706', borderColor: '#d97706' }}><i className="bx bx-edit" /></button>
+                    <button className="admin-post-row__delete" onClick={() => setDeleteConfirm(post.id)} title="Excluir"><i className="bx bx-trash" /></button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
-          {/* ── Novo post ── */}
-          {tab === "new" && (
+          {/* ── Editor (novo ou edição) ── */}
+          {(tab === "new" || tab === "edit") && (
             <div className="admin-editor">
+              {tab === "edit" && (
+                <p style={{ fontSize: '.82rem', color: '#9ca3af', marginBottom: '1rem' }}>
+                  <i className="bx bx-edit" /> Editando artigo existente
+                </p>
+              )}
               <div className="admin-editor__grid">
-
                 {/* Coluna principal */}
                 <div className="admin-editor__main">
+                  {/* Título */}
                   <div className="admin-field">
                     <label className="admin-field__label">Título *</label>
-                    <input
-                      className={`admin-field__input${formErrors.title ? " admin-field__input--error" : ""}`}
-                      name="title"
-                      value={form.title}
-                      onChange={handleField}
-                      placeholder="Ex: A importância da doação de sangue"
-                      maxLength={100}
-                    />
-                    {formErrors.title && (
-                      <span className="admin-field__error">{formErrors.title}</span>
-                    )}
-                    <span className="admin-field__count">
-                      {form.title.length}/100
-                    </span>
+                    <input className={`admin-field__input${formErrors.title ? " admin-field__input--error" : ""}`}
+                      name="title" value={form.title} onChange={setField}
+                      placeholder="Ex: A importância da doação de sangue" maxLength={120} />
+                    {formErrors.title && <span className="admin-field__error">{formErrors.title}</span>}
+                    <span className="admin-field__count">{form.title.length}/120</span>
                   </div>
 
+                  {/* Subtítulo */}
                   <div className="admin-field">
                     <label className="admin-field__label">Subtítulo *</label>
-                    <input
-                      className={`admin-field__input${formErrors.subtitle ? " admin-field__input--error" : ""}`}
-                      name="subtitle"
-                      value={form.subtitle}
-                      onChange={handleField}
-                      placeholder="Um resumo breve e atrativo do artigo"
-                      maxLength={160}
-                    />
-                    {formErrors.subtitle && (
-                      <span className="admin-field__error">{formErrors.subtitle}</span>
-                    )}
-                    <span className="admin-field__count">
-                      {form.subtitle.length}/160
-                    </span>
+                    <input className={`admin-field__input${formErrors.subtitle ? " admin-field__input--error" : ""}`}
+                      name="subtitle" value={form.subtitle} onChange={setField}
+                      placeholder="Um resumo breve e atrativo" maxLength={180} />
+                    {formErrors.subtitle && <span className="admin-field__error">{formErrors.subtitle}</span>}
+                    <span className="admin-field__count">{form.subtitle.length}/180</span>
                   </div>
 
+                  {/* Conteúdo */}
                   <div className="admin-field">
                     <label className="admin-field__label">
                       Conteúdo *
-                      <span className="admin-field__hint">
-                        Separe parágrafos com uma linha em branco
-                      </span>
+                      <span className="admin-field__hint">Separe parágrafos com linha em branco</span>
                     </label>
-                    <textarea
-                      className={`admin-field__textarea${formErrors.content ? " admin-field__input--error" : ""}`}
-                      name="content"
-                      value={form.content}
-                      onChange={handleField}
-                      placeholder="Escreva o conteúdo completo do artigo aqui..."
-                      rows={18}
-                    />
-                    {formErrors.content && (
-                      <span className="admin-field__error">{formErrors.content}</span>
-                    )}
+                    <textarea className={`admin-field__textarea${formErrors.content ? " admin-field__input--error" : ""}`}
+                      name="content" value={form.content} onChange={setField}
+                      placeholder="Escreva o artigo aqui..." rows={18} />
+                    {formErrors.content && <span className="admin-field__error">{formErrors.content}</span>}
                     <span className="admin-field__count">
-                      {form.content.length} caracteres · ~
-                      {Math.max(1, Math.ceil(form.content.trim().split(/\s+/).length / 200))} min de leitura
+                      {form.content.length} caracteres · ~{readEst(form.content)} min de leitura
                     </span>
                   </div>
                 </div>
 
                 {/* Sidebar */}
                 <aside className="admin-editor__sidebar">
+                  {/* Publicar */}
                   <div className="admin-sidebar-card">
                     <h4 className="admin-sidebar-card__title">Publicar</h4>
 
                     <div className="admin-field">
                       <label className="admin-field__label">Autor</label>
-                      <input
-                        className="admin-field__input"
-                        name="author"
-                        value={form.author}
-                        onChange={handleField}
-                      />
+                      <input className="admin-field__input" name="author" value={form.author} onChange={setField} />
                     </div>
 
                     <div className="admin-field">
                       <label className="admin-field__label">Categoria</label>
-                      <select
-                        className="admin-field__select"
-                        name="category"
-                        value={form.category}
-                        onChange={handleField}
-                      >
-                        {CATEGORIES.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
+                      <select className="admin-field__select" name="category" value={form.category} onChange={setField}>
+                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
 
-                    <button
-                      className="admin-publish-btn"
-                      onClick={handlePublish}
-                    >
-                      <i className="bx bx-send" /> Publicar artigo
-                    </button>
-                  </div>
+                    <div className="admin-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '.75rem' }}>
+                      <input type="checkbox" id="pub-check" name="published"
+                        checked={form.published as unknown as boolean}
+                        onChange={e => setForm(p => ({ ...p, published: e.target.checked }))}
+                        style={{ width: 16, height: 16, cursor: 'pointer' }} />
+                      <label htmlFor="pub-check" className="admin-field__label" style={{ marginBottom: 0, cursor: 'pointer' }}>
+                        Publicar imediatamente
+                      </label>
+                    </div>
 
-                  {/* Imagem de capa */}
-                  <div className="admin-sidebar-card">
-                    <h4 className="admin-sidebar-card__title">Imagem de capa *</h4>
-
-                    {coverPreview && (
-                      <div className="admin-cover-preview">
-                        <img src={coverPreview} alt="Preview da capa" />
-                        <button
-                          className="admin-cover-preview__remove"
-                          onClick={() => {
-                            setForm((p) => ({ ...p, coverImage: "" }));
-                            setCoverPreview("");
-                          }}
-                          aria-label="Remover imagem"
-                        >
-                          <i className="bx bx-x" />
-                        </button>
+                    {apiError && (
+                      <div className="admin-login__error" style={{ fontSize: '.78rem' }}>
+                        <i className="bx bx-error-circle" /> {apiError}
                       </div>
                     )}
 
+                    <button className="admin-publish-btn" onClick={handlePublish} disabled={submitting}>
+                      {submitting
+                        ? <><span className="admin-login__spinner" style={{ marginRight: '.5rem' }} /> Salvando…</>
+                        : <><i className={`bx ${tab === "edit" ? "bx-save" : "bx-send"}`} /> {tab === "edit" ? "Salvar alterações" : "Publicar artigo"}</>}
+                    </button>
+                  </div>
+
+                  {/* Capa */}
+                  <div className="admin-sidebar-card">
+                    <h4 className="admin-sidebar-card__title">Imagem de capa *</h4>
+                    {coverPreview && (
+                      <div className="admin-cover-preview">
+                        <img src={coverPreview} alt="Preview" />
+                        <button className="admin-cover-preview__remove"
+                          onClick={() => { setForm(p => ({ ...p, cover_image: '' })); setCoverPreview(''); }}
+                          aria-label="Remover"><i className="bx bx-x" /></button>
+                      </div>
+                    )}
                     <div className="admin-field">
                       <label className="admin-field__label">URL da imagem</label>
                       <input
-                        className={`admin-field__input${formErrors.coverImage ? " admin-field__input--error" : ""}`}
-                        value={form.coverImage.startsWith("data:") ? "" : form.coverImage}
+                        className={`admin-field__input${formErrors.cover_image ? " admin-field__input--error" : ""}`}
+                        value={form.cover_image.startsWith('data:') ? '' : form.cover_image}
                         onChange={handleCoverUrl}
-                        placeholder="https://..."
-                      />
+                        placeholder="https://..." />
                     </div>
-
-                    <div className="admin-cover-divider">
-                      <span>ou</span>
-                    </div>
-
+                    <div className="admin-cover-divider"><span>ou</span></div>
                     <label className="admin-upload-btn">
                       <i className="bx bx-upload" /> Fazer upload
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: "none" }}
-                      />
+                      <input type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} />
                     </label>
-
-                    {formErrors.coverImage && (
-                      <span className="admin-field__error">{formErrors.coverImage}</span>
+                    {formErrors.cover_image && (
+                      <span className="admin-field__error">{formErrors.cover_image}</span>
                     )}
                   </div>
                 </aside>
@@ -513,33 +457,16 @@ const AdminEditor: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         </div>
       </main>
 
-      {/* Modal de confirmação de exclusão */}
+      {/* Modal exclusão */}
       {deleteConfirm && (
         <div className="admin-modal-overlay" onClick={() => setDeleteConfirm(null)}>
-          <div
-            className="admin-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="admin-modal__icon">
-              <i className="bx bx-trash" />
-            </div>
+          <div className="admin-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-modal__icon"><i className="bx bx-trash" /></div>
             <h3 className="admin-modal__title">Excluir artigo?</h3>
-            <p className="admin-modal__desc">
-              Essa ação não pode ser desfeita.
-            </p>
+            <p className="admin-modal__desc">Essa ação não pode ser desfeita.</p>
             <div className="admin-modal__actions">
-              <button
-                className="admin-modal__cancel"
-                onClick={() => setDeleteConfirm(null)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="admin-modal__confirm"
-                onClick={() => handleDelete(deleteConfirm)}
-              >
-                Sim, excluir
-              </button>
+              <button className="admin-modal__cancel" onClick={() => setDeleteConfirm(null)}>Cancelar</button>
+              <button className="admin-modal__confirm" onClick={() => handleDelete(deleteConfirm)}>Sim, excluir</button>
             </div>
           </div>
         </div>
@@ -548,27 +475,22 @@ const AdminEditor: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   );
 };
 
-// ─── Página principal ─────────────────────────────────────────────────────────
-
-function isSessionValid(): boolean {
-  try {
-    const raw = sessionStorage.getItem("blog_admin_session");
-    if (!raw) return false;
-    const { expires } = JSON.parse(raw);
-    return Date.now() < expires;
-  } catch {
-    return false;
-  }
-}
+// ─────────────────────────────────────────────────────────────────────────────
+//  PÁGINA PRINCIPAL (guard)
+// ─────────────────────────────────────────────────────────────────────────────
 
 const AdminPage: React.FC = () => {
-  const [authenticated, setAuthenticated] = useState(isSessionValid);
+  const { isAuthenticated, isLoading } = useAdmin();
 
-  return authenticated ? (
-    <AdminEditor onLogout={() => setAuthenticated(false)} />
-  ) : (
-    <LoginScreen onSuccess={() => setAuthenticated(true)} />
-  );
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span className="admin-login__spinner" style={{ width: 32, height: 32 }} />
+      </div>
+    );
+  }
+
+  return isAuthenticated ? <AdminEditor /> : <LoginScreen />;
 };
 
 export default AdminPage;

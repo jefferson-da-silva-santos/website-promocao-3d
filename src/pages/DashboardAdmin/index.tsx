@@ -1,36 +1,21 @@
-// src/pages/admin/AdminDashboard.tsx
+// src/pages/DashboardAdmin.tsx
 // ─────────────────────────────────────────────────────────────────────────────
-//  Dashboard administrativo — Promoção 3D
-//  Libs: axios, recharts
-//  SCSS: admin-dashboard.scss (BEM, sem Tailwind)
+//  Dashboard Admin — Promoção 3D
+//  Protegido pelo AdminContext. Se não autenticado → redireciona para /admin.
+//  Usa api do AdminContext (axios com x-admin-token automático).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAdmin } from "../../contexts/AdminContext";
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
+  AreaChart, Area,
+  BarChart, Bar,
+  PieChart, Pie, Cell,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Legend,
 } from "recharts";
-
-// ─── Config ──────────────────────────────────────────────────────────────────
-
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
-const http = axios.create({ baseURL: API });
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -41,16 +26,15 @@ interface Summary {
   lastWeekNewUsers: number;
   byRole: { teachers: number; students: number; others: number };
 }
-
 interface StateRow { state: string; total: number }
 interface CityRow { city: string; state: string; total: number }
-interface RoleRow { role: string; role_detail: string | null; total: number }
 interface SubjectRow { subject: string; total: number }
 interface TimeRow { period: string; total: number }
 interface ThemeRow { theme: string; plays: number; avg_score: number; max_score: number; avg_time_s: number }
 interface PlayerRow { player_name: string; total_score: number; games_played: number; avg_score: number }
 interface HeatRow { hour: number; plays: number }
-interface UserRow { id: string; name: string; role: string; role_detail: string | null; subject: string | null; city: string; state: string; created_at: string }
+interface AgeRow { faixa: string; total: number }
+interface UserRow { id: string; name: string; role: string; role_detail: string | null; subject: string | null; age: number | null; city: string; state: string; created_at: string }
 interface AuditRow { id: number; event: string; entity: string | null; entity_id: string | null; ip: string | null; created_at: string }
 interface ScoreRow { id: string; player_name: string; theme: string; score: number; attempts: number; time_seconds: number; played_at: string }
 
@@ -59,23 +43,22 @@ type Interval = "day" | "week" | "month";
 
 // ─── Paleta ──────────────────────────────────────────────────────────────────
 
-const COLORS = {
+const PALETTE = {
+  navy: "#004278",
+  navyD: "#002a4e",
+  sky: "#5ce2e7",
   blood: "#dc2626",
   organs: "#2563eb",
   milk: "#16a34a",
   teacher: "#004278",
   student: "#0ea5e9",
   other: "#9ca3af",
-  accent: "#5ce2e7",
 };
 
-const THEME_LABEL: Record<string, string> = {
-  blood: "Sangue", organs: "Órgãos", milk: "Leite",
-};
+const THEME_LABEL: Record<string, string> = { blood: "Sangue", organs: "Órgãos", milk: "Leite" };
+const THEME_COLOR: Record<string, string> = { blood: PALETTE.blood, organs: PALETTE.organs, milk: PALETTE.milk };
 
-const THEME_COLOR: Record<string, string> = {
-  blood: COLORS.blood, organs: COLORS.organs, milk: COLORS.milk,
-};
+const AGE_COLORS = ["#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -90,27 +73,26 @@ const fmtTime = (s: number) => {
   return `${m}m ${sec}s`;
 };
 
-function useInterval(fn: () => void, ms: number) {
+function useAutoRefresh(fn: () => void, ms: number) {
   const ref = useRef(fn);
   useEffect(() => { ref.current = fn; }, [fn]);
-  useEffect(() => { const id = setInterval(() => ref.current(), ms); return () => clearInterval(id); }, [ms]);
+  useEffect(() => {
+    const id = setInterval(() => ref.current(), ms);
+    return () => clearInterval(id);
+  }, [ms]);
 }
 
 // ─── Sub-componentes ─────────────────────────────────────────────────────────
 
-// Número animado
 function AnimNumber({ value, dec = 0 }: { value: number; dec?: number }) {
   const [display, setDisplay] = useState(0);
   const frame = useRef<number>(0);
   useEffect(() => {
     const start = performance.now();
-    const duration = 900;
-    const from = 0;
-    const to = value;
     const tick = (now: number) => {
-      const t = Math.min((now - start) / duration, 1);
+      const t = Math.min((now - start) / 900, 1);
       const ease = 1 - Math.pow(1 - t, 3);
-      setDisplay(from + (to - from) * ease);
+      setDisplay(value * ease);
       if (t < 1) frame.current = requestAnimationFrame(tick);
     };
     frame.current = requestAnimationFrame(tick);
@@ -119,14 +101,10 @@ function AnimNumber({ value, dec = 0 }: { value: number; dec?: number }) {
   return <>{fmt(display, dec)}</>;
 }
 
-// Spinner
 function Spinner({ size = 24 }: { size?: number }) {
-  return (
-    <span className="adm-spinner" style={{ width: size, height: size }} />
-  );
+  return <span className="adm-spinner" style={{ width: size, height: size }} />;
 }
 
-// Tooltip customizado para Recharts
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
@@ -142,23 +120,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-// Pill de tema
 function ThemePill({ theme }: { theme: string }) {
-  return (
-    <span className={`adm-pill adm-pill--${theme}`}>
-      {THEME_LABEL[theme] ?? theme}
-    </span>
-  );
+  return <span className={`adm-pill adm-pill--${theme}`}>{THEME_LABEL[theme] ?? theme}</span>;
 }
 
-// Linha de role
 function RoleBadge({ role }: { role: string }) {
   const map: Record<string, string> = { teacher: "Professor", student: "Aluno", other: "Outro" };
   return <span className={`adm-role adm-role--${role}`}>{map[role] ?? role}</span>;
 }
 
-// Paginação simples
-function Pager({ page, total, limit, onChange }: { page: number; total: number; limit: number; onChange: (p: number) => void }) {
+function Pager({ page, total, limit, onChange }: {
+  page: number; total: number; limit: number; onChange: (p: number) => void;
+}) {
   const pages = Math.ceil(total / limit);
   if (pages <= 1) return null;
   return (
@@ -174,25 +147,30 @@ function Pager({ page, total, limit, onChange }: { page: number; total: number; 
   );
 }
 
-// ─── Componente principal ─────────────────────────────────────────────────────
+// ─── Componente principal ────────────────────────────────────────────────────
 
 const AdminDashboard: React.FC = () => {
+  const { isAuthenticated, isLoading: authLoading, api, logout } = useAdmin();
+  const navigate = useNavigate();
+
+  // ── Estado geral ─────────────────────────────────────────
   const [tab, setTab] = useState<Tab>("overview");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [toast, setToast] = useState<string | null>(null);
 
   // ── Dados overview ────────────────────────────────────────
   const [summary, setSummary] = useState<Summary | null>(null);
   const [byState, setByState] = useState<StateRow[]>([]);
   const [byCity, setByCity] = useState<CityRow[]>([]);
-  const [byRole, setByRole] = useState<RoleRow[]>([]);
   const [bySubject, setBySubject] = useState<SubjectRow[]>([]);
   const [regTime, setRegTime] = useState<TimeRow[]>([]);
   const [themeStats, setThemeStats] = useState<ThemeRow[]>([]);
   const [topPlayers, setTopPlayers] = useState<PlayerRow[]>([]);
   const [heatmap, setHeatmap] = useState<HeatRow[]>([]);
-  const [interval, setInterval_] = useState<Interval>("day");
+  const [byAge, setByAge] = useState<AgeRow[]>([]);
+  const [interval_, setInterval_] = useState<Interval>("day");
 
   // ── Dados users ───────────────────────────────────────────
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -214,95 +192,96 @@ const AdminDashboard: React.FC = () => {
   const [auditEvent, setAuditEvent] = useState("");
   const [auditEvents, setAuditEvents] = useState<string[]>([]);
 
-  // ── Notificação ───────────────────────────────────────────
-  const [toast, setToast] = useState<string | null>(null);
-
+  // ── Helpers ───────────────────────────────────────────────
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 3000);
   };
 
-  // ── Fetch overview ────────────────────────────────────────
-  const fetchOverview = useCallback(async () => {
-    const [
-      sumRes, stateRes, cityRes, roleRes, subjectRes,
-      timeRes, themeRes, playerRes, heatRes,
-    ] = await Promise.all([
-      http.get("/api/dashboard/summary"),
-      http.get("/api/dashboard/users-by-state"),
-      http.get("/api/dashboard/users-by-city?limit=8"),
-      http.get("/api/dashboard/users-by-role"),
-      http.get("/api/dashboard/users-by-subject"),
-      http.get(`/api/dashboard/registrations-over-time?interval=${interval}`),
-      http.get("/api/dashboard/scores-by-theme"),
-      http.get("/api/dashboard/top-players?n=10"),
-      http.get("/api/dashboard/activity-heatmap"),
-    ]);
-    setSummary(sumRes.data);
-    setByState(stateRes.data.data);
-    setByCity(cityRes.data.data);
-    setByRole(roleRes.data.data);
-    setBySubject(subjectRes.data.data);
-    setRegTime(timeRes.data.data);
-    setThemeStats(themeRes.data.data);
-    setTopPlayers(playerRes.data.data);
-    setHeatmap(heatRes.data.data);
-  }, [interval]);
-
-  // ── Fetch users ───────────────────────────────────────────
-  const fetchUsers = useCallback(async () => {
-    const params = new URLSearchParams({ page: String(userPage), limit: "15" });
-    if (userQ) params.set("q", userQ);
-    if (userRole) params.set("role", userRole);
-    if (userState) params.set("state", userState);
-    const res = await http.get(`/api/dashboard/search-users?${params}`);
-    setUsers(res.data.data);
-    setUserTotal(res.data.total);
-  }, [userPage, userQ, userRole, userState]);
-
-  // ── Fetch scores ──────────────────────────────────────────
-  const fetchScores = useCallback(async () => {
-    const res = await http.get(`/api/scores?page=${scorePage}&limit=15`);
-    setScores(res.data.data);
-    setScoreTotal(res.data.total ?? 0);
-  }, [scorePage]);
-
-  // ── Fetch audit ───────────────────────────────────────────
-  const fetchAudit = useCallback(async () => {
-    const params = new URLSearchParams({ page: String(auditPage), limit: "20" });
-    if (auditEvent) params.set("event", auditEvent);
-    const [logRes, evRes] = await Promise.all([
-      http.get(`/api/audit?${params}`),
-      http.get("/api/audit/events"),
-    ]);
-    setAudit(logRes.data.data);
-    setAuditTotal(logRes.data.total);
-    setAuditEvents(evRes.data.data);
-  }, [auditPage, auditEvent]);
-
-  // ── Bootstrap ─────────────────────────────────────────────
+  // ── Guard ─────────────────────────────────────────────────
   useEffect(() => {
+    if (!authLoading && !isAuthenticated) navigate("/admin");
+  }, [authLoading, isAuthenticated, navigate]);
+
+  // ── Fetches ───────────────────────────────────────────────
+  const fetchOverview = useCallback(async () => {
+    const [sumR, stateR, cityR, subjectR, timeR, themeR, playerR, heatR, ageR] =
+      await Promise.all([
+        api.get("/api/dashboard/summary"),
+        api.get("/api/dashboard/users-by-state"),
+        api.get("/api/dashboard/users-by-city?limit=8"),
+        api.get("/api/dashboard/users-by-subject"),
+        api.get(`/api/dashboard/registrations-over-time?interval=${interval_}`),
+        api.get("/api/dashboard/scores-by-theme"),
+        api.get("/api/dashboard/top-players?n=10"),
+        api.get("/api/dashboard/activity-heatmap"),
+        api.get("/api/dashboard/users-by-age"),
+      ]);
+    setSummary(sumR.data);
+    setByState(stateR.data.data);
+    setByCity(cityR.data.data);
+    setBySubject(subjectR.data.data);
+    setRegTime(timeR.data.data);
+    setThemeStats(themeR.data.data);
+    setTopPlayers(playerR.data.data);
+    setHeatmap(heatR.data.data);
+    setByAge(ageR.data.data);
+  }, [api, interval_]);
+
+  const fetchUsers = useCallback(async () => {
+    const p = new URLSearchParams({ page: String(userPage), limit: "15" });
+    if (userQ) p.set("q", userQ);
+    if (userRole) p.set("role", userRole);
+    if (userState) p.set("state", userState);
+    const r = await api.get(`/api/dashboard/search-users?${p}`);
+    setUsers(r.data.data);
+    setUserTotal(r.data.total);
+  }, [api, userPage, userQ, userRole, userState]);
+
+  const fetchScores = useCallback(async () => {
+    const r = await api.get(`/api/scores?page=${scorePage}&limit=15`);
+    setScores(r.data.data);
+    setScoreTotal(r.data.total ?? 0);
+  }, [api, scorePage]);
+
+  const fetchAudit = useCallback(async () => {
+    const p = new URLSearchParams({ page: String(auditPage), limit: "20" });
+    if (auditEvent) p.set("event", auditEvent);
+    const [logR, evR] = await Promise.all([
+      api.get(`/api/audit?${p}`),
+      api.get("/api/audit/events"),
+    ]);
+    setAudit(logR.data.data);
+    setAuditTotal(logR.data.total);
+    setAuditEvents(evR.data.data);
+  }, [api, auditPage, auditEvent]);
+
+  // Bootstrap
+  useEffect(() => {
+    if (!isAuthenticated) return;
     (async () => {
       setLoading(true);
       try { await fetchOverview(); } catch { }
       setLoading(false);
     })();
-  }, []);
+  }, [isAuthenticated]);
 
-  // Re-fetch ao mudar de aba
+  // Re-fetch por aba / filtros
   useEffect(() => {
+    if (!isAuthenticated) return;
     if (tab === "overview") fetchOverview().catch(() => { });
     if (tab === "users") fetchUsers().catch(() => { });
     if (tab === "scores") fetchScores().catch(() => { });
     if (tab === "audit") fetchAudit().catch(() => { });
-  }, [tab, interval, userPage, userQ, userRole, userState, scorePage, auditPage, auditEvent]);
+  }, [tab, interval_, userPage, userQ, userRole, userState, scorePage, auditPage, auditEvent, isAuthenticated]);
 
   // Auto-refresh 60s
-  useInterval(() => {
-    if (tab === "overview") fetchOverview().catch(() => { });
+  useAutoRefresh(() => {
+    if (tab === "overview" && isAuthenticated) fetchOverview().catch(() => { });
     setLastUpdated(new Date());
   }, 60_000);
 
+  // Atualização manual
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -316,11 +295,12 @@ const AdminDashboard: React.FC = () => {
     setRefreshing(false);
   };
 
+  // Ações de remoção
   const handleDeleteUser = async (id: string, name: string) => {
-    if (!confirm(`Remover o usuário "${name}"? Esta ação não pode ser desfeita.`)) return;
+    if (!confirm(`Remover o usuário "${name}"?`)) return;
     try {
-      await http.delete(`/api/users/${id}`);
-      showToast(`Usuário "${name}" removido.`);
+      await api.delete(`/api/users/${id}`);
+      showToast(`"${name}" removido.`);
       fetchUsers();
       fetchOverview();
     } catch { showToast("Erro ao remover usuário."); }
@@ -329,27 +309,31 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteScore = async (id: string) => {
     if (!confirm("Remover esta pontuação?")) return;
     try {
-      await http.delete(`/api/scores/${id}`);
+      await api.delete(`/api/scores/${id}`);
       showToast("Pontuação removida.");
       fetchScores();
       fetchOverview();
     } catch { showToast("Erro ao remover pontuação."); }
   };
 
-  // ── Gráfico pizza papéis ──────────────────────────────────
+  const handleLogout = async () => {
+    await logout();
+    navigate("/admin");
+  };
+
+  // ── Dados derivados ───────────────────────────────────────
   const rolePieData = [
-    { name: "Professores", value: summary?.byRole.teachers ?? 0, color: COLORS.teacher },
-    { name: "Alunos", value: summary?.byRole.students ?? 0, color: COLORS.student },
-    { name: "Outros", value: summary?.byRole.others ?? 0, color: COLORS.other },
+    { name: "Professores", value: summary?.byRole.teachers ?? 0, color: PALETTE.teacher },
+    { name: "Alunos", value: summary?.byRole.students ?? 0, color: PALETTE.student },
+    { name: "Outros", value: summary?.byRole.others ?? 0, color: PALETTE.other },
   ];
 
-  // ── Heatmap: fill 0-23h ───────────────────────────────────
   const heatFull = Array.from({ length: 24 }, (_, i) => {
     const found = heatmap.find(h => Number(h.hour) === i);
     return { hour: `${String(i).padStart(2, "0")}h`, plays: found ? Number(found.plays) : 0 };
   });
+  const heatMax = Math.max(...heatFull.map(h => h.plays), 1);
 
-  // ── Radar de temas ────────────────────────────────────────
   const radarData = themeStats.map(t => ({
     tema: THEME_LABEL[t.theme] ?? t.theme,
     Partidas: Number(t.plays),
@@ -357,7 +341,8 @@ const AdminDashboard: React.FC = () => {
     "Máx. Pts": Number(t.max_score),
   }));
 
-  if (loading) {
+  // ── Loading inicial ───────────────────────────────────────
+  if (authLoading || (loading && !summary)) {
     return (
       <div className="adm-loading">
         <Spinner size={40} />
@@ -383,14 +368,32 @@ const AdminDashboard: React.FC = () => {
               <h1 className="adm-header__title">Painel de Controle</h1>
             </div>
           </div>
-
           <div className="adm-header__right">
+            <button
+              className="adm-tab"
+              style={{ border: "1px solid #e5e5e5", borderRadius: 6, padding: ".4rem .85rem" }}
+              onClick={() => navigate("/admin")}
+            >
+              <i className="bx bx-edit" /> Blog
+            </button>
             <span className="adm-header__updated">
               <i className="bx bx-time-five" />
               {lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
             </span>
-            <button className={`adm-header__refresh${refreshing ? " adm-header__refresh--spin" : ""}`} onClick={handleRefresh} title="Atualizar">
+            <button
+              className={`adm-header__refresh${refreshing ? " adm-header__refresh--spin" : ""}`}
+              onClick={handleRefresh}
+              title="Atualizar"
+            >
               <i className="bx bx-refresh" />
+            </button>
+            <button
+              className="adm-header__refresh"
+              onClick={handleLogout}
+              title="Sair"
+              style={{ color: "#dc2626" }}
+            >
+              <i className="bx bx-log-out" />
             </button>
           </div>
         </div>
@@ -420,13 +423,13 @@ const AdminDashboard: React.FC = () => {
 
       <main className="adm-main">
 
-        {/* ════════════════════════════════════════════════════
-            TAB: OVERVIEW
-        ════════════════════════════════════════════════════ */}
+        {/* ══════════════════════════════════════════════════════
+            OVERVIEW
+        ══════════════════════════════════════════════════════ */}
         {tab === "overview" && (
           <div className="adm-overview">
 
-            {/* ── KPI Cards ── */}
+            {/* KPI Cards */}
             <section className="adm-kpis">
               {[
                 {
@@ -461,7 +464,7 @@ const AdminDashboard: React.FC = () => {
               ))}
             </section>
 
-            {/* ── Cadastros no tempo ── */}
+            {/* Cadastros no tempo */}
             <section className="adm-card adm-card--full">
               <div className="adm-card__head">
                 <div>
@@ -472,7 +475,7 @@ const AdminDashboard: React.FC = () => {
                   {(["day", "week", "month"] as Interval[]).map(iv => (
                     <button
                       key={iv}
-                      className={`adm-interval-btn${interval === iv ? " adm-interval-btn--active" : ""}`}
+                      className={`adm-interval-btn${interval_ === iv ? " adm-interval-btn--active" : ""}`}
                       onClick={() => setInterval_(iv)}
                     >
                       {{ day: "Dia", week: "Semana", month: "Mês" }[iv]}
@@ -484,46 +487,51 @@ const AdminDashboard: React.FC = () => {
                 <AreaChart data={regTime} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
                   <defs>
                     <linearGradient id="gradUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#004278" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#004278" stopOpacity={0} />
+                      <stop offset="5%" stopColor={PALETTE.navy} stopOpacity={0.35} />
+                      <stop offset="95%" stopColor={PALETTE.navy} stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="period" tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="total" name="Cadastros" stroke="#004278" strokeWidth={2.5} fill="url(#gradUsers)" dot={false} activeDot={{ r: 5, fill: "#004278" }} />
+                  <Area
+                    type="monotone" dataKey="total" name="Cadastros"
+                    stroke={PALETTE.navy} strokeWidth={2.5}
+                    fill="url(#gradUsers)" dot={false}
+                    activeDot={{ r: 5, fill: PALETTE.navy }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </section>
 
-            {/* ── Row: Temas + Pizza papéis ── */}
+            {/* Row: temas + perfis */}
             <div className="adm-row">
-
-              {/* Barras por tema */}
               <section className="adm-card">
                 <div className="adm-card__head">
                   <div>
                     <h2 className="adm-card__title">Partidas por tema</h2>
-                    <p className="adm-card__sub">Plays, média e recorde</p>
+                    <p className="adm-card__sub">Plays e pontuação média</p>
                   </div>
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={themeStats.map(t => ({ ...t, tema: THEME_LABEL[t.theme] ?? t.theme }))} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
+                  <BarChart
+                    data={themeStats.map(t => ({ ...t, tema: THEME_LABEL[t.theme] ?? t.theme }))}
+                    margin={{ top: 8, right: 8, bottom: 0, left: -8 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="tema" tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} />
                     <YAxis tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Muli" }} />
                     <Bar dataKey="plays" name="Partidas" radius={[4, 4, 0, 0]}>
-                      {themeStats.map(t => <Cell key={t.theme} fill={THEME_COLOR[t.theme] ?? "#004278"} />)}
+                      {themeStats.map(t => <Cell key={t.theme} fill={THEME_COLOR[t.theme] ?? PALETTE.navy} />)}
                     </Bar>
-                    <Bar dataKey="avg_score" name="Méd. Pts" fill="#5ce2e7" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="avg_score" name="Méd. Pts" fill={PALETTE.sky} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </section>
 
-              {/* Pizza papéis */}
               <section className="adm-card">
                 <div className="adm-card__head">
                   <div>
@@ -532,12 +540,21 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="adm-pie-wrap">
-                  <ResponsiveContainer width="100%" height={220}>
+                  <ResponsiveContainer width="100%" height={200}>
                     <PieChart>
-                      <Pie data={rolePieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="value">
+                      <Pie
+                        data={rolePieData}
+                        cx="50%" cy="50%"
+                        innerRadius={55} outerRadius={85}
+                        paddingAngle={4} dataKey="value"
+                      >
                         {rolePieData.map((d, i) => <Cell key={i} fill={d.color} />)}
                       </Pie>
-                      <Tooltip formatter={(v: any) => fmt(v)} />
+                      <Tooltip
+                        formatter={(v: any) =>
+                          fmt(typeof v === "number" ? v : Number(v))
+                        }
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="adm-pie-legend">
@@ -553,10 +570,49 @@ const AdminDashboard: React.FC = () => {
               </section>
             </div>
 
-            {/* ── Row: Top estados + Matérias ── */}
+            {/* Row: faixa etária + estados */}
             <div className="adm-row">
+              <section className="adm-card">
+                <div className="adm-card__head">
+                  <div>
+                    <h2 className="adm-card__title">Faixa etária</h2>
+                    <p className="adm-card__sub">Distribuição de usuários por idade</p>
+                  </div>
+                </div>
+                {byAge.length === 0 ? (
+                  <div className="adm-empty">
+                    <i className="bx bx-user" />
+                    <p>Sem dados de idade</p>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={byAge} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis
+                        dataKey="faixa"
+                        tick={{ fontSize: 9, fontFamily: "Muli", fill: "#9ca3af" }}
+                        tickLine={false} axisLine={false}
+                        interval={0}
+                        angle={-15}
+                        textAnchor="end"
+                        height={42}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
+                        tickLine={false} axisLine={false}
+                        allowDecimals={false}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="total" name="Usuários" radius={[4, 4, 0, 0]}>
+                        {byAge.map((_, i) => (
+                          <Cell key={i} fill={AGE_COLORS[i % AGE_COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </section>
 
-              {/* Top estados */}
               <section className="adm-card">
                 <div className="adm-card__head">
                   <div>
@@ -579,8 +635,10 @@ const AdminDashboard: React.FC = () => {
                   })}
                 </div>
               </section>
+            </div>
 
-              {/* Matérias */}
+            {/* Row: matérias + heatmap */}
+            <div className="adm-row">
               <section className="adm-card">
                 <div className="adm-card__head">
                   <div>
@@ -592,22 +650,21 @@ const AdminDashboard: React.FC = () => {
                   <div className="adm-empty"><i className="bx bx-data" /><p>Sem dados</p></div>
                 ) : (
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart layout="vertical" data={bySubject.slice(0, 8)} margin={{ top: 4, right: 16, bottom: 4, left: 8 }}>
+                    <BarChart
+                      layout="vertical"
+                      data={bySubject.slice(0, 8)}
+                      margin={{ top: 4, right: 16, bottom: 4, left: 8 }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
                       <XAxis type="number" tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
                       <YAxis type="category" dataKey="subject" width={90} tick={{ fontSize: 10, fontFamily: "Muli", fill: "#4b5563" }} tickLine={false} axisLine={false} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="total" name="Professores" fill="#004278" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="total" name="Professores" fill={PALETTE.navy} radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
               </section>
-            </div>
 
-            {/* ── Row: Heatmap + Radar ── */}
-            <div className="adm-row">
-
-              {/* Heatmap horário */}
               <section className="adm-card">
                 <div className="adm-card__head">
                   <div>
@@ -615,7 +672,7 @@ const AdminDashboard: React.FC = () => {
                     <p className="adm-card__sub">Partidas registradas por hora do dia</p>
                   </div>
                 </div>
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={heatFull} margin={{ top: 4, right: 8, bottom: 0, left: -24 }} barSize={10}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="hour" tick={{ fontSize: 9, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} interval={2} />
@@ -623,38 +680,46 @@ const AdminDashboard: React.FC = () => {
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="plays" name="Partidas" radius={[3, 3, 0, 0]}>
                       {heatFull.map((d, i) => (
-                        <Cell key={i} fill={d.plays > 0 ? `rgba(0,66,120,${0.3 + (d.plays / (Math.max(...heatFull.map(h => h.plays)) || 1)) * 0.7})` : "#f0f0f0"} />
+                        <Cell
+                          key={i}
+                          fill={
+                            d.plays > 0
+                              ? `rgba(0,66,120,${(0.2 + (d.plays / heatMax) * 0.8).toFixed(2)})`
+                              : "#f0f0f0"
+                          }
+                        />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </section>
-
-              {/* Radar temas */}
-              <section className="adm-card">
-                <div className="adm-card__head">
-                  <div>
-                    <h2 className="adm-card__title">Radar de temas</h2>
-                    <p className="adm-card__sub">Comparação multidimensional</p>
-                  </div>
-                </div>
-                {radarData.length === 0 ? (
-                  <div className="adm-empty"><i className="bx bx-data" /><p>Sem dados</p></div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <RadarChart data={radarData}>
-                      <PolarGrid stroke="#e5e5e5" />
-                      <PolarAngleAxis dataKey="tema" tick={{ fontSize: 11, fontFamily: "Josefin Sans", fill: "#4b5563" }} />
-                      <Radar name="Partidas" dataKey="Partidas" stroke="#004278" fill="#004278" fillOpacity={0.25} />
-                      <Radar name="Méd. Pts" dataKey="Méd. Pts" stroke="#5ce2e7" fill="#5ce2e7" fillOpacity={0.2} />
-                      <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Muli" }} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                )}
-              </section>
             </div>
 
-            {/* ── Top Jogadores ── */}
+            {/* Radar de temas */}
+            <section className="adm-card adm-card--full">
+              <div className="adm-card__head">
+                <div>
+                  <h2 className="adm-card__title">Radar de temas</h2>
+                  <p className="adm-card__sub">Comparação multidimensional entre os três temas</p>
+                </div>
+              </div>
+              {radarData.length === 0 ? (
+                <div className="adm-empty"><i className="bx bx-data" /><p>Sem dados</p></div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="#e5e5e5" />
+                    <PolarAngleAxis dataKey="tema" tick={{ fontSize: 12, fontFamily: "Josefin Sans", fill: "#4b5563" }} />
+                    <Radar name="Partidas" dataKey="Partidas" stroke={PALETTE.navy} fill={PALETTE.navy} fillOpacity={0.2} />
+                    <Radar name="Méd. Pts" dataKey="Méd. Pts" stroke={PALETTE.sky} fill={PALETTE.sky} fillOpacity={0.15} />
+                    <Radar name="Máx. Pts" dataKey="Máx. Pts" stroke={PALETTE.blood} fill={PALETTE.blood} fillOpacity={0.1} />
+                    <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Muli" }} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              )}
+            </section>
+
+            {/* Top Jogadores */}
             <section className="adm-card adm-card--full">
               <div className="adm-card__head">
                 <div>
@@ -665,13 +730,7 @@ const AdminDashboard: React.FC = () => {
               <div className="adm-rank-table-wrap">
                 <table className="adm-rank-table">
                   <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Jogador</th>
-                      <th>Partidas</th>
-                      <th>Méd. Pts</th>
-                      <th>Total</th>
-                    </tr>
+                    <tr><th>#</th><th>Jogador</th><th>Partidas</th><th>Média</th><th>Total</th></tr>
                   </thead>
                   <tbody>
                     {topPlayers.map((p, i) => (
@@ -695,7 +754,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </section>
 
-            {/* ── Cidades ── */}
+            {/* Top Cidades */}
             <section className="adm-card adm-card--full">
               <div className="adm-card__head">
                 <div>
@@ -720,16 +779,15 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* ════════════════════════════════════════════════════
-            TAB: USERS
-        ════════════════════════════════════════════════════ */}
+        {/* ══════════════════════════════════════════════════════
+            USERS
+        ══════════════════════════════════════════════════════ */}
         {tab === "users" && (
           <div className="adm-section">
             <div className="adm-section__head">
               <h2 className="adm-section__title">Usuários <em>{fmt(userTotal)}</em></h2>
             </div>
 
-            {/* Filtros */}
             <div className="adm-filters">
               <div className="adm-filters__search">
                 <i className="bx bx-search" />
@@ -740,9 +798,17 @@ const AdminDashboard: React.FC = () => {
                   onChange={e => { setUserQ(e.target.value); setUserPage(1); }}
                   className="adm-filters__input"
                 />
-                {userQ && <button className="adm-filters__clear" onClick={() => { setUserQ(""); setUserPage(1); }}><i className="bx bx-x" /></button>}
+                {userQ && (
+                  <button className="adm-filters__clear" onClick={() => { setUserQ(""); setUserPage(1); }}>
+                    <i className="bx bx-x" />
+                  </button>
+                )}
               </div>
-              <select className="adm-filters__select" value={userRole} onChange={e => { setUserRole(e.target.value); setUserPage(1); }}>
+              <select
+                className="adm-filters__select"
+                value={userRole}
+                onChange={e => { setUserRole(e.target.value); setUserPage(1); }}
+              >
                 <option value="">Todos os perfis</option>
                 <option value="teacher">Professor</option>
                 <option value="student">Aluno</option>
@@ -750,7 +816,7 @@ const AdminDashboard: React.FC = () => {
               </select>
               <input
                 type="text"
-                placeholder="Estado (ex: PE)"
+                placeholder="UF"
                 maxLength={2}
                 value={userState}
                 onChange={e => { setUserState(e.target.value.toUpperCase()); setUserPage(1); }}
@@ -758,7 +824,6 @@ const AdminDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Tabela */}
             <div className="adm-table-wrap">
               <table className="adm-table">
                 <thead>
@@ -767,6 +832,7 @@ const AdminDashboard: React.FC = () => {
                     <th>Perfil</th>
                     <th>Detalhe</th>
                     <th>Matéria</th>
+                    <th>Idade</th>
                     <th>Cidade</th>
                     <th>UF</th>
                     <th>Cadastro</th>
@@ -783,18 +849,19 @@ const AdminDashboard: React.FC = () => {
                       <td><RoleBadge role={u.role} /></td>
                       <td className="adm-table__muted">{u.role_detail ?? "—"}</td>
                       <td className="adm-table__muted">{u.subject ?? "—"}</td>
+                      <td className="adm-table__muted">{u.age != null ? `${u.age} anos` : "—"}</td>
                       <td>{u.city}</td>
                       <td><span className="adm-uf">{u.state}</span></td>
                       <td className="adm-table__muted">{fmtDate(u.created_at)}</td>
                       <td>
-                        <button className="adm-table__del" onClick={() => handleDeleteUser(u.id, u.name)} title="Remover">
+                        <button className="adm-table__del" onClick={() => handleDeleteUser(u.id, u.name)}>
                           <i className="bx bx-trash" />
                         </button>
                       </td>
                     </tr>
                   ))}
                   {users.length === 0 && (
-                    <tr><td colSpan={8} className="adm-table__empty">Nenhum usuário encontrado</td></tr>
+                    <tr><td colSpan={9} className="adm-table__empty">Nenhum usuário encontrado</td></tr>
                   )}
                 </tbody>
               </table>
@@ -803,9 +870,9 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* ════════════════════════════════════════════════════
-            TAB: SCORES
-        ════════════════════════════════════════════════════ */}
+        {/* ══════════════════════════════════════════════════════
+            SCORES
+        ══════════════════════════════════════════════════════ */}
         {tab === "scores" && (
           <div className="adm-section">
             <div className="adm-section__head">
@@ -839,7 +906,7 @@ const AdminDashboard: React.FC = () => {
                       <td className="adm-table__muted">{fmtTime(s.time_seconds)}</td>
                       <td className="adm-table__muted">{fmtDate(s.played_at)}</td>
                       <td>
-                        <button className="adm-table__del" onClick={() => handleDeleteScore(s.id)} title="Remover">
+                        <button className="adm-table__del" onClick={() => handleDeleteScore(s.id)}>
                           <i className="bx bx-trash" />
                         </button>
                       </td>
@@ -855,23 +922,24 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* ════════════════════════════════════════════════════
-            TAB: AUDIT
-        ════════════════════════════════════════════════════ */}
+        {/* ══════════════════════════════════════════════════════
+            AUDIT
+        ══════════════════════════════════════════════════════ */}
         {tab === "audit" && (
           <div className="adm-section">
             <div className="adm-section__head">
               <h2 className="adm-section__title">Auditoria <em>{fmt(auditTotal)}</em></h2>
             </div>
-
-            {/* Filtro evento */}
             <div className="adm-filters">
-              <select className="adm-filters__select" value={auditEvent} onChange={e => { setAuditEvent(e.target.value); setAuditPage(1); }}>
+              <select
+                className="adm-filters__select"
+                value={auditEvent}
+                onChange={e => { setAuditEvent(e.target.value); setAuditPage(1); }}
+              >
                 <option value="">Todos os eventos</option>
                 {auditEvents.map(ev => <option key={ev} value={ev}>{ev}</option>)}
               </select>
             </div>
-
             <div className="adm-audit-list">
               {audit.map(a => (
                 <div key={a.id} className={`adm-audit-row adm-audit-row--${a.event.split(".")[1] ?? "info"}`}>

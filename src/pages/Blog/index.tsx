@@ -40,7 +40,7 @@ const PostCard: React.FC<{ post: BlogPost; featured?: boolean }> = ({
 
       <div className="blog-card__body">
         <div className="blog-card__meta">
-          <span className="blog-card__date">{formatDate(post.createdAt)}</span>
+          <span className="blog-card__date">{post.createdAt && formatDate(post.createdAt)}</span>
           <span className="blog-card__dot">·</span>
           <span className="blog-card__read">{post.readTime} min de leitura</span>
         </div>

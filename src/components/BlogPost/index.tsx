@@ -79,7 +79,7 @@ const BlogPostPage: React.FC = () => {
             </div>
 
             <div className="blog-post__meta">
-              <span>{formatDate(post.createdAt)}</span>
+              <span>{post.createdAt && formatDate(post.createdAt)}</span>
               <span className="blog-post__dot">·</span>
               <span>{post.readTime} min de leitura</span>
             </div>

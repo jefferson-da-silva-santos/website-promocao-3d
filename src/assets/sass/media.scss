@@ -53,32 +53,6 @@
 }
 
 @include media-query(960px) {
-  // Hero
-  .hero {
-    padding-bottom: 4rem;
-    &__content {
-      grid-template-columns: 1fr;
-      grid-template-rows: 1fr 1fr;
-      row-gap: 3em;
-      min-height: 58em;
-    }
-
-    .video {
-      width: 100%;
-    }
-
-    &__text {
-      max-width: 100%;
-    }
-
-    &__section--primary {
-      padding-top: 5em;
-    }
-
-    &__section--video {
-      justify-content: flex-start;
-    }
-  }
 
   // Sobre
   .sobre {
@@ -351,10 +325,6 @@
 }
 
 @include media-query(516px) {
-  .hero__content {
-    min-height: 60em;
-  }
-
   .conatiner-option .option--primary__title,
   .desvendando__content__section--primary__title,
   .audiencia__content--primary__title {
@@ -373,9 +343,6 @@
     margin-left: 6px;
   }
 
-  .hero__content {
-    min-height: 48em;
-  }
 
   .resultados__content__section--secundary .card-location__city-name {
     margin-top: 0;
@@ -388,7 +355,6 @@
   .material__content__section--primary__title,
   .resultados__content__section--primary__title,
   .contato__content__section--primary__title,
-  .hero__title,
   .desvendando__content__section--primary__title,
   .audiencia__content--primary__title {
     font-size: 2em;
@@ -404,9 +370,7 @@
 }
 
 @include media-query(464px) {
-  .hero__content {
-    min-height: 54em;
-  }
+ 
 
   .audiencia__content--secundary iframe {
     aspect-ratio: 4 / 5;
@@ -479,7 +443,6 @@
   .material__content__section--primary__title,
   .resultados__content__section--primary__title,
   .contato__content__section--primary__title,
-  .hero__title,
   .audiencia__content--primary__title,
   .desvendando__content__section--primary__title {
     font-size: 1.8em;

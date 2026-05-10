@@ -3076,6 +3076,11 @@
     gap: 2.5rem;
   }
 
+  .hero__left {
+    margin-top: 2rem;
+    grid-row: 1 / -1;
+  }
+
   .footer-pro__col--brand {
     grid-column: 1 / -1;
     padding-right: 0;

@@ -3245,6 +3245,10 @@
     grid-template-columns: 1fr 1fr;
     gap: 2.5rem;
   }
+  .hero__left {
+    margin-top: 2rem;
+    grid-row: 1/-1;
+  }
   .footer-pro__col--brand {
     grid-column: 1/-1;
     padding-right: 0;
@@ -7852,27 +7856,6 @@
   }
 }
 @media screen and (max-width: 960px) {
-  .hero {
-    padding-bottom: 4rem;
-  }
-  .hero__content {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    row-gap: 3em;
-    min-height: 58em;
-  }
-  .hero .video {
-    width: 100%;
-  }
-  .hero__text {
-    max-width: 100%;
-  }
-  .hero__section--primary {
-    padding-top: 5em;
-  }
-  .hero__section--video {
-    justify-content: flex-start;
-  }
   .sobre {
     min-height: 55em;
   }
@@ -8082,9 +8065,6 @@
   }
 }
 @media screen and (max-width: 516px) {
-  .hero__content {
-    min-height: 60em;
-  }
   .conatiner-option .option--primary__title,
   .desvendando__content__section--primary__title,
   .audiencia__content--primary__title {
@@ -8100,9 +8080,6 @@
     width: 34px;
     margin-left: 6px;
   }
-  .hero__content {
-    min-height: 48em;
-  }
   .resultados__content__section--secundary .card-location__city-name {
     margin-top: 0;
     text-align: start;
@@ -8113,7 +8090,6 @@
   .material__content__section--primary__title,
   .resultados__content__section--primary__title,
   .contato__content__section--primary__title,
-  .hero__title,
   .desvendando__content__section--primary__title,
   .audiencia__content--primary__title {
     font-size: 2em;
@@ -8127,9 +8103,6 @@
   }
 }
 @media screen and (max-width: 464px) {
-  .hero__content {
-    min-height: 54em;
-  }
   .audiencia__content--secundary iframe {
     aspect-ratio: 4/5;
   }
@@ -8188,7 +8161,6 @@
   .material__content__section--primary__title,
   .resultados__content__section--primary__title,
   .contato__content__section--primary__title,
-  .hero__title,
   .audiencia__content--primary__title,
   .desvendando__content__section--primary__title {
     font-size: 1.8em;

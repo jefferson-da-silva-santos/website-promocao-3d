@@ -8,7 +8,10 @@ const Option = () => {
       showOption ? "conatiner-option conatiner-option-active" : "conatiner-option conatiner-option-disabled"
      } >
       <aside className="option">
-        <a href="" className="btn-close-option" onClick={() => setShowOption(false)}>
+        <a href="" className="btn-close-option" onClick={(e) => {
+          e.preventDefault();
+          setShowOption(false)
+        }}>
           <i className="bx bx-x"></i>
         </a>
         <div className="option--primary">

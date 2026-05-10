@@ -34,6 +34,7 @@ import BlogPostPage from "./components/BlogPost";
 import AdminPage from "./pages/AdminBlog";
 import AdminDashboard from "./pages/DashboardAdmin";
 import IA from "./pages/IA";
+import SaibaMais from "./pages/SaibaMais";
 
 // ─── Home ─────────────────────────────────────────────────────────────────────
 
@@ -79,6 +80,7 @@ const App: React.FC = () => (
           {/* Dashboard analytics — requer login admin */}
           <Route path="/admin-dash" element={<AdminDashboard />} />
           <Route path="/agente" element={<IA />} />
+          <Route path="/saiba-mais" element={<SaibaMais />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </BlogProvider>

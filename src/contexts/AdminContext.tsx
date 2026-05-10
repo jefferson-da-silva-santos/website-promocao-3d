@@ -11,7 +11,7 @@ import type { AxiosInstance } from "axios";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+export const API_BASE = "https://promocao3d-server.vercel.app";
 const SESSION_KEY = "p3d_admin_session";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────

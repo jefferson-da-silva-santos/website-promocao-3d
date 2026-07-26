@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Se o arquivo ou diretório existir, serve normalmente
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Caso contrário, redireciona tudo para o index.html
+  # permitindo que o React Router (ou outro SPA router)
+  # resolva a rota no frontend
+  RewriteRule ^ index.html [L]
+</IfModule>

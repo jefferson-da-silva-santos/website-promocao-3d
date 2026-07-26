@@ -494,6 +494,83 @@
   overflow: hidden;
   display: flex;
   align-items: center;
+  
+  // ═══════════════════════════════════════════════════════════════
+//  hero__app-btn — Botão "Baixar o app Memória e Vida" no Hero
+//  Adicionar dentro do bloco .hero existente no main.scss,
+//  logo após o bloco &__link { ... }
+// ═══════════════════════════════════════════════════════════════
+
+// Cole dentro de .hero { } no main.scss:
+
+&__app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1.1rem 0.55rem 0.55rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  text-decoration: none;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease;
+  width: fit-content;
+  margin-top: 0.5rem;       // espaço em relação ao hero__actions
+
+  &:hover {
+    background: rgba(77, 217, 222, 0.1);
+    border-color: rgba(77, 217, 222, 0.35);
+    transform: translateY(-2px);
+
+    .hero__app-btn-arrow {
+      transform: translateX(3px);
+      color: $hero-accent;
+    }
+  }
+}
+
+&__app-btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+&__app-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+&__app-btn-label {
+  font-size: 10px;
+  font-family: $font-secund, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $hero-muted;
+  line-height: 1;
+}
+
+&__app-btn-name {
+  font-size: 13.5px;
+  font-family: $font-secund, sans-serif;
+  font-weight: 600;
+  color: $hero-text;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+
+&__app-btn-arrow {
+  color: $hero-muted;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+  margin-left: 0.15rem;
+}
+
 
   &__bg {
     position: absolute;
@@ -555,6 +632,14 @@
     @media (max-width: 960px) {
       grid-template-columns: 1fr;
       padding: 4rem 0 3rem;
+
+      &__app-btn {
+  align-self: flex-start;    // alinha à esquerda em mobile
+}
+
+&__app-btn {
+  align-self: center;
+}
     }
   }
 
@@ -7869,4 +7954,6 @@ $sm-amber-bd:  rgba(230,155,30,0.28);
   }
 }
 
+
+@import "DownloadApp.scss";
 @import "media.scss";

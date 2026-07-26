@@ -36,6 +36,9 @@ import AdminDashboard from "./pages/DashboardAdmin";
 import IA from "./pages/IA";
 import SaibaMais from "./pages/SaibaMais";
 
+// App Memória e Vida — download
+import DownloadAppSection from "./components/DownloadAppSection";
+
 // ─── Home ─────────────────────────────────────────────────────────────────────
 
 const HomePage: React.FC = () => {
@@ -81,6 +84,8 @@ const App: React.FC = () => (
           <Route path="/admin-dash" element={<AdminDashboard />} />
           <Route path="/agente" element={<IA />} />
           <Route path="/saiba-mais" element={<SaibaMais />} />
+          {/* Página de download do app Memória e Vida */}
+          <Route path="/app" element={<DownloadAppSection />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </BlogProvider>

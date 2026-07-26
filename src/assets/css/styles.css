@@ -735,6 +735,63 @@
   display: flex;
   align-items: center;
 }
+.hero__app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1.1rem 0.55rem 0.55rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+  width: fit-content;
+  margin-top: 0.5rem;
+}
+.hero__app-btn:hover {
+  background: rgba(77, 217, 222, 0.1);
+  border-color: rgba(77, 217, 222, 0.35);
+  transform: translateY(-2px);
+}
+.hero__app-btn:hover .hero__app-btn-arrow {
+  transform: translateX(3px);
+  color: #4dd9de;
+}
+.hero__app-btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.hero__app-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.hero__app-btn-label {
+  font-size: 10px;
+  font-family: "Josefin Sans", sans-serif, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(240, 244, 248, 0.55);
+  line-height: 1;
+}
+.hero__app-btn-name {
+  font-size: 13.5px;
+  font-family: "Josefin Sans", sans-serif, sans-serif;
+  font-weight: 600;
+  color: #f0f4f8;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+.hero__app-btn-arrow {
+  color: rgba(240, 244, 248, 0.55);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+  margin-left: 0.15rem;
+}
 .hero__bg {
   position: absolute;
   inset: 0;
@@ -798,6 +855,12 @@
   .hero__content {
     grid-template-columns: 1fr;
     padding: 4rem 0 3rem;
+  }
+  .hero__content__app-btn {
+    align-self: flex-start;
+  }
+  .hero__content__app-btn {
+    align-self: center;
   }
 }
 .hero {
@@ -7838,6 +7901,1074 @@
   box-shadow: 0 12px 32px rgba(77, 217, 222, 0.3);
 }
 
+@keyframes da-orb-drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(28px, -18px) scale(1.04);
+  }
+  66% {
+    transform: translate(-14px, 12px) scale(0.97);
+  }
+}
+@keyframes da-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes da-badge-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.7);
+  }
+}
+@keyframes da-screen-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes da-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes da-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes da-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes da-glow-pulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+@keyframes da-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.app-download {
+  position: relative;
+  background-color: #07111f;
+  overflow: hidden;
+  padding: 6rem 0 5rem;
+}
+.app-download__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.app-download__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: da-orb-drift 14s ease-in-out infinite;
+}
+.app-download__orb--1 {
+  width: 520px;
+  height: 520px;
+  top: -140px;
+  right: -100px;
+  background: rgba(77, 217, 222, 0.07);
+}
+.app-download__orb--2 {
+  width: 340px;
+  height: 340px;
+  bottom: -80px;
+  left: 4%;
+  background: rgba(77, 217, 222, 0.05);
+  animation-delay: -5s;
+}
+.app-download__orb--3 {
+  width: 220px;
+  height: 220px;
+  top: 45%;
+  left: 38%;
+  background: rgba(232, 140, 48, 0.05);
+  animation-delay: -9s;
+}
+.app-download__grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+}
+.app-download__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 94%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 260px 260px;
+  gap: 3rem;
+  align-items: start;
+}
+.app-download__left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.35rem;
+  padding-top: 1rem;
+}
+.app-download__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(77, 217, 222, 0.12);
+  border: 0.5px solid rgba(77, 217, 222, 0.3);
+  border-radius: 999px;
+  padding: 5px 16px;
+  font-size: 11.5px;
+  font-family: "Josefin Sans", sans-serif;
+  color: #4dd9de;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.app-download__badge-dot {
+  width: 6px;
+  height: 6px;
+  background: #4dd9de;
+  border-radius: 50%;
+  animation: da-badge-pulse 2s ease infinite;
+  flex-shrink: 0;
+}
+.app-download__brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.app-download__icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.app-download__title {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  color: #eef2f7;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin: 0 0 3px;
+}
+.app-download__title em {
+  font-style: normal;
+  color: #4dd9de;
+}
+.app-download__tagname {
+  font-size: 11.5px;
+  color: rgba(238, 242, 247, 0.55);
+  font-family: "Josefin Sans", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.app-download__desc {
+  font-family: "Muli-Light", sans-serif;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: rgba(238, 242, 247, 0.55);
+  max-width: 440px;
+  margin: 0;
+}
+.app-download__desc strong {
+  color: #eef2f7;
+  font-family: "Muli", sans-serif;
+}
+.app-download__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.app-download__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "Josefin Sans", sans-serif;
+  border: 0.5px solid;
+}
+.app-download__pill--red {
+  background: rgba(220, 60, 60, 0.1);
+  border-color: rgba(220, 60, 60, 0.28);
+  color: #f08585;
+}
+.app-download__pill--green {
+  background: rgba(30, 185, 110, 0.1);
+  border-color: rgba(30, 185, 110, 0.28);
+  color: #5cdda0;
+}
+.app-download__pill--amber {
+  background: rgba(230, 155, 30, 0.1);
+  border-color: rgba(230, 155, 30, 0.28);
+  color: #f0bb65;
+}
+.app-download__features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.app-download__feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Muli-Light", sans-serif;
+  font-size: 13.5px;
+  color: rgba(238, 242, 247, 0.55);
+  line-height: 1.5;
+}
+.app-download__feature-icon {
+  font-size: 1.05rem;
+  color: #4dd9de;
+  flex-shrink: 0;
+}
+.app-download__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: 0.1rem;
+}
+.app-download__btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #4dd9de;
+  color: #062030;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: "Josefin Sans", sans-serif;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.app-download__btn-primary i {
+  font-size: 1.1rem;
+}
+.app-download__btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(77, 217, 222, 0.3);
+}
+.app-download__btn-primary:active {
+  transform: translateY(0);
+}
+.app-download__btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(238, 242, 247, 0.55);
+  font-size: 13px;
+  font-family: "Muli", sans-serif;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+.app-download__btn-ghost i {
+  font-size: 1rem;
+}
+.app-download__btn-ghost:hover {
+  color: #eef2f7;
+}
+.app-download__law-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: "Muli-Light", sans-serif;
+  font-size: 11.5px;
+  color: rgba(238, 242, 247, 0.35);
+  line-height: 1.55;
+  max-width: 420px;
+}
+.app-download__law-note i {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.app-download__law-note strong {
+  color: rgba(238, 242, 247, 0.55);
+  font-family: "Muli", sans-serif;
+}
+.app-download__center {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.app-download__phone-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  animation: da-float 7s ease-in-out infinite;
+}
+.app-download__phone-glow {
+  position: absolute;
+  width: 240px;
+  height: 460px;
+  border-radius: 40px;
+  background: radial-gradient(ellipse at center, rgba(77, 217, 222, 0.18) 0%, rgba(77, 217, 222, 0.06) 50%, transparent 80%);
+  filter: blur(24px);
+  pointer-events: none;
+  animation: da-glow-pulse 4s ease-in-out infinite;
+  z-index: -1;
+}
+.app-download__phone {
+  position: relative;
+  width: 220px;
+  height: 470px;
+  background: #0a0f1a;
+  border-radius: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 32px 64px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.app-download__phone-notch {
+  flex-shrink: 0;
+  height: 26px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0a0f1a;
+  position: relative;
+  z-index: 2;
+}
+.app-download__phone-notch::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  width: 76px;
+  height: 15px;
+  background: #111827;
+  border-radius: 999px;
+}
+.app-download__phone-camera {
+  width: 7px;
+  height: 7px;
+  background: #1f2937;
+  border-radius: 50%;
+  position: relative;
+  z-index: 3;
+  margin-top: 2px;
+}
+.app-download__phone-camera::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: #374151;
+  border-radius: 50%;
+}
+.app-download__phone-screen {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #07111f;
+}
+.app-download__screen-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  animation: da-screen-in 0.4s ease both;
+  transition: opacity 0.35s ease;
+}
+.app-download__screen-img--out {
+  opacity: 0;
+  transform: scale(0.97);
+}
+.app-download__phone-home {
+  flex-shrink: 0;
+  height: 20px;
+  background: #0a0f1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-download__phone-bar {
+  width: 58px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+.app-download__screen-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 4px 13px;
+  font-size: 11px;
+  font-family: "Josefin Sans", sans-serif;
+  color: rgba(238, 242, 247, 0.55);
+  letter-spacing: 0.04em;
+}
+.app-download__screen-label i {
+  font-size: 0.9rem;
+  color: #4dd9de;
+}
+.app-download__dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 200px;
+}
+.app-download__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s ease, width 0.3s ease;
+}
+.app-download__dot--active {
+  background: #4dd9de;
+  width: 18px;
+  border-radius: 3px;
+}
+.app-download__dot:hover:not(.app-download__dot--active) {
+  background: rgba(255, 255, 255, 0.45);
+}
+.app-download__right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+.app-download__info-card {
+  border-radius: 16px;
+  padding: 1.1rem;
+  border: 0.5px solid;
+  animation: da-card-in 0.4s ease both;
+  transition: border-color 0.35s ease, background 0.35s ease;
+}
+.app-download__info-card--teal {
+  background: rgba(77, 217, 222, 0.12);
+  border-color: rgba(77, 217, 222, 0.25);
+}
+.app-download__info-card--blue {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+.app-download__info-card--red {
+  background: rgba(220, 60, 60, 0.1);
+  border-color: rgba(220, 60, 60, 0.28);
+}
+.app-download__info-card--amber {
+  background: rgba(230, 155, 30, 0.1);
+  border-color: rgba(230, 155, 30, 0.28);
+}
+.app-download__info-card--green {
+  background: rgba(30, 185, 110, 0.1);
+  border-color: rgba(30, 185, 110, 0.28);
+}
+.app-download__info-card--orange {
+  background: rgba(234, 88, 12, 0.08);
+  border-color: rgba(234, 88, 12, 0.25);
+}
+.app-download__info-card--purple {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.25);
+}
+.app-download__info-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+.app-download__info-card-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.app-download__info-card-screen {
+  font-size: 10px;
+  font-family: "Josefin Sans", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(238, 242, 247, 0.55);
+  margin: 0 0 2px;
+}
+.app-download__info-card-name {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #eef2f7;
+  display: block;
+}
+.app-download__info-card-desc {
+  font-family: "Muli-Light", sans-serif;
+  font-size: 12px;
+  color: rgba(238, 242, 247, 0.55);
+  line-height: 1.6;
+  margin: 0 0 0.85rem;
+}
+.app-download__info-card-progress {
+  display: flex;
+  gap: 4px;
+}
+.app-download__info-card-pip {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 0.3s ease;
+}
+.app-download__info-card-pip--active {
+  background: #4dd9de;
+}
+.app-download__info-card-pip:hover:not(.app-download__info-card-pip--active) {
+  background: rgba(255, 255, 255, 0.28);
+}
+.app-download__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.app-download__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0.85rem 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+.app-download__stat:hover {
+  border-color: rgba(77, 217, 222, 0.3);
+}
+.app-download__stat-icon {
+  font-size: 1.2rem;
+  color: #4dd9de;
+  margin-bottom: 2px;
+}
+.app-download__stat-value {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #eef2f7;
+  line-height: 1;
+}
+.app-download__stat-label {
+  font-size: 10px;
+  font-family: "Josefin Sans", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(238, 242, 247, 0.55);
+}
+.app-download__install-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.1rem;
+}
+.app-download__install-card-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4dd9de;
+  margin-bottom: 0.85rem;
+}
+.app-download__install-card-header i {
+  font-size: 1rem;
+}
+.app-download__install-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.app-download__install-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Muli-Light", sans-serif;
+  font-size: 12px;
+  color: rgba(238, 242, 247, 0.55);
+  line-height: 1.4;
+}
+.app-download__install-steps li strong {
+  color: #eef2f7;
+  font-family: "Muli", sans-serif;
+}
+.app-download__install-num {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(77, 217, 222, 0.12);
+  border: 0.5px solid rgba(77, 217, 222, 0.25);
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #4dd9de;
+  flex-shrink: 0;
+}
+.app-download__install-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 0.7rem;
+  background: #4dd9de;
+  color: #062030;
+  border: none;
+  border-radius: 10px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.app-download__install-btn i {
+  font-size: 1rem;
+}
+.app-download__install-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(77, 217, 222, 0.3);
+}
+.app-download__install-btn:active {
+  transform: translateY(0);
+}
+.app-download__upe-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 66, 120, 0.18);
+  border: 0.5px solid rgba(0, 140, 255, 0.2);
+  border-radius: 12px;
+}
+.app-download__upe-badge i {
+  font-size: 1.4rem;
+  color: #5ce2e7;
+  flex-shrink: 0;
+}
+.app-download__upe-badge strong {
+  display: block;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #eef2f7;
+  letter-spacing: 0.01em;
+}
+.app-download__upe-badge span {
+  display: block;
+  font-size: 10.5px;
+  font-family: "Muli-Light", sans-serif;
+  color: rgba(238, 242, 247, 0.55);
+  margin-top: 1px;
+}
+
+.app-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem;
+  animation: da-overlay-in 0.25s ease;
+}
+
+.app-modal {
+  background: #0c1e35;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  animation: da-modal-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+.app-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.4rem 1.4rem 1.1rem;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+.app-modal__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.app-modal__title {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #eef2f7;
+  margin: 0 0 2px;
+  text-transform: uppercase;
+  letter-spacing: -0.3px;
+}
+.app-modal__subtitle {
+  font-size: 0.78rem;
+  color: rgba(238, 242, 247, 0.5);
+  font-family: "Muli-Light", sans-serif;
+  margin: 0;
+}
+.app-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  color: rgba(238, 242, 247, 0.6);
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+.app-modal__close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #eef2f7;
+}
+.app-modal__body {
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+.app-modal__body::-webkit-scrollbar {
+  width: 4px;
+}
+.app-modal__body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+.app-modal__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 11px 13px;
+  border-radius: 12px;
+  border: 0.5px solid;
+}
+.app-modal__warning--warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+.app-modal__warning--warning .app-modal__warning-icon {
+  color: #f59e0b;
+}
+.app-modal__warning--safe {
+  background: rgba(30, 185, 110, 0.08);
+  border-color: rgba(30, 185, 110, 0.25);
+}
+.app-modal__warning--safe .app-modal__warning-icon {
+  color: #5cdda0;
+}
+.app-modal__warning--info {
+  background: rgba(77, 217, 222, 0.08);
+  border-color: rgba(77, 217, 222, 0.22);
+}
+.app-modal__warning--info .app-modal__warning-icon {
+  color: #4dd9de;
+}
+.app-modal__warning--neutral {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+.app-modal__warning--neutral .app-modal__warning-icon {
+  color: rgba(238, 242, 247, 0.5);
+}
+.app-modal__warning-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.app-modal__warning-title {
+  display: block;
+  font-size: 0.78rem;
+  font-family: "Josefin Sans", sans-serif;
+  font-weight: 700;
+  color: #eef2f7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+}
+.app-modal__warning-text {
+  font-family: "Muli-Light", sans-serif;
+  font-size: 0.8rem;
+  color: rgba(238, 242, 247, 0.65);
+  line-height: 1.55;
+  margin: 0;
+}
+.app-modal__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 9px 11px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  margin-top: 0.2rem;
+}
+.app-modal__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-family: "Josefin Sans", sans-serif;
+  color: rgba(238, 242, 247, 0.5);
+}
+.app-modal__meta span i {
+  font-size: 0.9rem;
+  color: #4dd9de;
+}
+.app-modal__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1.1rem 1.4rem;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+.app-modal__btn-cancel {
+  flex: 1;
+  padding: 0.75rem;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(238, 242, 247, 0.55);
+  font-family: "Muli", sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.app-modal__btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef2f7;
+}
+.app-modal__btn-download {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 0.8rem;
+  background: #4dd9de;
+  color: #062030;
+  border: none;
+  border-radius: 12px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.app-modal__btn-download i {
+  font-size: 1.05rem;
+}
+.app-modal__btn-download:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(77, 217, 222, 0.3);
+}
+.app-modal__btn-download:active:not(:disabled) {
+  transform: translateY(0);
+}
+.app-modal__btn-download--loading {
+  background: rgba(77, 217, 222, 0.5);
+  cursor: not-allowed;
+}
+.app-modal__spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(6, 32, 48, 0.3);
+  border-top-color: #062030;
+  border-radius: 50%;
+  animation: da-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@media screen and (max-width: 1100px) {
+  .app-download__inner {
+    grid-template-columns: 1fr 240px 220px;
+    gap: 2.25rem;
+  }
+}
+@media screen and (max-width: 900px) {
+  .app-download {
+    padding: 5rem 0 4rem;
+  }
+  .app-download__inner {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .app-download__left {
+    grid-column: 1/-1;
+    align-items: center;
+    text-align: center;
+  }
+  .app-download__desc, .app-download__law-note {
+    text-align: left;
+  }
+  .app-download__center {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .app-download__right {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .app-download__phone-wrap {
+    animation: none;
+  }
+}
+@media screen and (max-width: 640px) {
+  .app-download {
+    padding: 4rem 0 3.5rem;
+  }
+  .app-download__inner {
+    grid-template-columns: 1fr;
+  }
+  .app-download__left {
+    grid-column: 1;
+  }
+  .app-download__center {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .app-download__right {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .app-download__title {
+    font-size: 24px;
+  }
+  .app-download__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .app-download__actions .app-download__btn-primary,
+  .app-download__actions .app-download__btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+  .app-download__phone {
+    width: 195px;
+    height: 415px;
+  }
+  .app-download__stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .app-modal {
+    border-radius: 20px;
+  }
+  .app-modal__body {
+    max-height: 46vh;
+  }
+  .app-modal__footer {
+    flex-direction: column;
+  }
+  .app-modal__footer .app-modal__btn-cancel,
+  .app-modal__footer .app-modal__btn-download {
+    flex: none;
+    width: 100%;
+  }
+}
+@media screen and (max-width: 380px) {
+  .app-download__phone {
+    width: 170px;
+    height: 363px;
+    border-radius: 28px;
+  }
+  .app-download__stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 /*============(Media-Query)============*/
 @media screen and (max-width: 1094px) {
   .video {

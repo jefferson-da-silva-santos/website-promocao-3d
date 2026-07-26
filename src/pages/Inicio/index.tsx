@@ -3,49 +3,17 @@ import chat from "/agente_logo.png";
 
 const FULL_TITLE = "Doações, Transfusão & Transplantes";
 
-/* ── Roteiro da conversa animada ── */
 const CHAT_SCRIPT = [
-  {
-    role: "bot" as const,
-    text: "Olá! Eu sou o assistente oficial da Promoção 3D. 👋",
-    delay: 800,
-    typing: 1100,
-  },
-  {
-    role: "bot" as const,
-    text: "Posso te ajudar com dúvidas sobre doação de sangue, órgãos e leite humano.",
-    delay: 500,
-    typing: 1500,
-  },
-  {
-    role: "user" as const,
-    text: "Como posso me tornar doador de sangue?",
-    delay: 1000,
-    typing: 0,
-  },
-  {
-    role: "bot" as const,
-    text: "Para doar sangue basta ter entre 16 e 69 anos, pesar mais de 50 kg e estar em bom estado de saúde. 🩸",
-    delay: 700,
-    typing: 1900,
-  },
-  {
-    role: "user" as const,
-    text: "E sobre doação de órgãos?",
-    delay: 1000,
-    typing: 0,
-  },
-  {
-    role: "bot" as const,
-    text: "Qualquer pessoa pode ser doadora! O mais importante é comunicar sua decisão à família. 💚",
-    delay: 700,
-    typing: 1700,
-  },
+  { role: "bot" as const, text: "Olá! Eu sou o assistente oficial da Promoção 3D. 👋", delay: 800, typing: 1100 },
+  { role: "bot" as const, text: "Posso te ajudar com dúvidas sobre doação de sangue, órgãos e leite humano.", delay: 500, typing: 1500 },
+  { role: "user" as const, text: "Como posso me tornar doador de sangue?", delay: 1000, typing: 0 },
+  { role: "bot" as const, text: "Para doar sangue basta ter entre 16 e 69 anos, pesar mais de 50 kg e estar em bom estado de saúde. 🩸", delay: 700, typing: 1900 },
+  { role: "user" as const, text: "E sobre doação de órgãos?", delay: 1000, typing: 0 },
+  { role: "bot" as const, text: "Qualquer pessoa pode ser doadora! O mais importante é comunicar sua decisão à família. 💚", delay: 700, typing: 1700 },
 ];
 
 type Message = { role: "bot" | "user"; text: string };
 
-/* ── Subcomponente do card de chat ── */
 const ChatCard = ({ chatImg }: { chatImg: string }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -55,7 +23,6 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
   useEffect(() => {
     if (scriptIndex >= CHAT_SCRIPT.length) return;
     const step = CHAT_SCRIPT[scriptIndex];
-
     const delayTimer = setTimeout(() => {
       if (step.role === "bot" && step.typing > 0) {
         setIsTyping(true);
@@ -70,7 +37,6 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
         setScriptIndex((i) => i + 1);
       }
     }, step.delay);
-
     return () => clearTimeout(delayTimer);
   }, [scriptIndex]);
 
@@ -82,7 +48,6 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
 
   return (
     <div className="hero__bot-card">
-      {/* Header */}
       <div className="hero__bot-header">
         <div className="hero__bot-avatar">
           <img src={chatImg} alt="Assistente Promoção 3D" />
@@ -98,14 +63,9 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
           <span /><span /><span />
         </div>
       </div>
-
-      {/* Área de mensagens */}
       <div className="hero__bot-messages" ref={messagesRef}>
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`hero__bot-row hero__bot-row--${msg.role}`}
-          >
+          <div key={i} className={`hero__bot-row hero__bot-row--${msg.role}`}>
             {msg.role === "bot" && (
               <div className="hero__bot-avatar-mini">
                 <img src={chatImg} alt="" aria-hidden="true" />
@@ -116,7 +76,6 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
             </div>
           </div>
         ))}
-
         {isTyping && (
           <div className="hero__bot-row hero__bot-row--bot">
             <div className="hero__bot-avatar-mini">
@@ -127,10 +86,7 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
             </div>
           </div>
         )}
-
       </div>
-
-      {/* Input falso */}
       <div className="hero__bot-inputbar">
         <span className="hero__bot-inputbar-text">Digite sua dúvida...</span>
         <a
@@ -146,8 +102,6 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
           </svg>
         </a>
       </div>
-
-      {/* Stats rodapé */}
       <div className="hero__bot-stats">
         <div className="hero__stat"><strong>3</strong><small>Dimensões</small></div>
         <div className="hero__stat-divider" />
@@ -159,7 +113,6 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
   );
 };
 
-/* ── Componente principal ── */
 const Inicio = () => {
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -190,7 +143,6 @@ const Inicio = () => {
       </div>
 
       <div className="hero__content">
-        {/* Coluna esquerda */}
         <section className="hero__left" data-aos="fade-right">
           <div className="hero__badge">
             <span className="hero__badge-dot" />
@@ -250,9 +202,31 @@ const Inicio = () => {
               </svg>
             </a>
           </div>
+
+          {/* App Memória e Vida */}
+          <a href="/app" className="hero__app-btn">
+            <img src="/iconApp.png" alt="" className="hero__app-btn-icon" aria-hidden="true" />
+            <div className="hero__app-btn-text">
+              <span className="hero__app-btn-label">Baixar o app</span>
+              <span className="hero__app-btn-name">Memória e Vida</span>
+            </div>
+            <svg
+              className="hero__app-btn-arrow"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              aria-hidden="true"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+
         </section>
 
-        {/* Coluna direita — chat animado */}
         <section className="hero__right" data-aos="fade-left">
           <ChatCard chatImg={chat} />
         </section>

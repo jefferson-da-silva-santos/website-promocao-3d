@@ -1,36 +1,39 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import P3D from "../../assets/image/P3D.jpg";
-import logo from "../../assets/image/logo.png";
+import SectionHeader from "../../components/SectionHeader";
+import { c, dots, frame, inner, section } from "../../theme";
 
-type FormValues = {
-  nome: string;
-  email: string;
-  assunto: string;
-  mensagem: string;
-};
+type FormValues = { nome: string; email: string; assunto: string; mensagem: string };
 
-// Definição do Schema de Validação com Yup (mantido o mesmo)
 const ContatoSchema = Yup.object().shape({
-  nome: Yup.string()
-    .min(2, "Nome muito curto!")
-    .max(50, "Nome muito longo!")
-    .required("O nome é obrigatório"),
-  email: Yup.string()
-    .email("E-mail inválido")
-    .required("O e-mail é obrigatório"),
+  nome: Yup.string().min(2, "Nome muito curto!").max(50, "Nome muito longo!").required("O nome é obrigatório"),
+  email: Yup.string().email("E-mail inválido").required("O e-mail é obrigatório"),
   assunto: Yup.string().required("O assunto é obrigatório"),
   mensagem: Yup.string().required("A mensagem é obrigatória"),
 });
 
+const field = (invalid?: boolean): React.CSSProperties => ({
+  width: "100%",
+  padding: "14px 16px",
+  fontSize: 15,
+  color: c.ink,
+  background: c.white,
+  border: `2px solid ${invalid ? c.red : c.ink}`,
+  borderRadius: 12,
+  outline: "none",
+  fontFamily: "inherit",
+});
+
+const SOCIAL = [
+  { icon: "bxl-instagram", label: "Instagram", hover: c.red },
+  { icon: "bxl-twitter", label: "Twitter / X", hover: c.yellow },
+  { icon: "bxl-whatsapp", label: "WhatsApp", hover: c.green },
+];
+
 const Contato = () => {
   const formik = useFormik<FormValues>({
-    initialValues: {
-      nome: "",
-      email: "",
-      assunto: "",
-      mensagem: "",
-    },
+    initialValues: { nome: "", email: "", assunto: "", mensagem: "" },
     validationSchema: ContatoSchema,
     onSubmit: (values, { resetForm }) => {
       console.log(values);
@@ -38,116 +41,45 @@ const Contato = () => {
     },
   });
 
-  // Função auxiliar para determinar se o campo tem erro e foi tocado
-  const isInvalid = (field: keyof FormValues) =>
-    formik.errors[field] && formik.touched[field];
+  const isInvalid = (f: keyof FormValues) => Boolean(formik.errors[f] && formik.touched[f]);
 
   return (
-    <div className="contato" id="contato">
-      <section className="contato__content" data-aos="fade-up">
-        <div className="contato__content__section--primary">
-          <div className="group">
-            <img src={logo} alt="Logo" />
-            <span className="contato__content__section--primary__suptitle">
-              Contato
-            </span>
+    <div className="contato" id="contato" style={section}>
+      <div aria-hidden style={dots} />
+      <section style={inner}>
+        <article className="p3d-grid-2" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.05fr) minmax(0, 0.95fr)", gap: 48, alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 22, minWidth: 0 }}>
+            <SectionHeader label="Contato" title="Você pode nos mandar um email" />
+            <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <input placeholder="Insira seu nome e sobrenome" type="text" name="nome" id="nome" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.nome} style={field(isInvalid("nome"))} />
+              <input placeholder="Insira seu email" type="email" name="email" id="email" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.email} style={field(isInvalid("email"))} />
+              <input placeholder="Insira o assunto da mensagem" type="text" name="assunto" id="assunto" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.assunto} style={field(isInvalid("assunto"))} />
+              <textarea placeholder="Sua mensagem" name="mensagem" id="mensagem" rows={5} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.mensagem} style={{ ...field(isInvalid("mensagem")), resize: "vertical" }} />
+              <input
+                type="submit"
+                value="Enviar"
+                disabled={!formik.isValid}
+                style={{ alignSelf: "flex-start", padding: "14px 30px", fontSize: 15, fontWeight: 700, color: "#fff", background: c.red, border: `2px solid ${c.ink}`, borderRadius: 999, boxShadow: `4px 4px 0 ${c.ink}`, cursor: "pointer" }}
+              />
+            </form>
           </div>
-          <h2 className="contato__content__section--primary__title">
-            Você pode nos mandar um email
-          </h2>
 
-          <form className="form" onSubmit={formik.handleSubmit}>
-            {/* Campo Nome */}
-            <input
-              placeholder="Insira seu nome e sobrenome"
-              type="text"
-              name="nome"
-              id="nome"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.nome}
-              // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid("nome") ? "input-error" : ""}
-            />
-            {/* Mensagem de erro REMOVIDA */}
-
-            {/* Campo Email */}
-            <input
-              placeholder="Insira seu email"
-              type="email"
-              name="email"
-              id="email"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.email}
-              // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid("email") ? "input-error" : ""}
-            />
-            {/* Mensagem de erro REMOVIDA */}
-
-            {/* Campo Assunto */}
-            <input
-              placeholder="Insira o assunto da mensagem"
-              type="text"
-              name="assunto"
-              id="assunto"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.assunto}
-              // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid("assunto") ? "input-error" : ""}
-            />
-            {/* Mensagem de erro REMOVIDA */}
-
-            {/* Campo Mensagem (Textarea) */}
-            <textarea
-              placeholder="Sua mensagem"
-              name="mensagem"
-              id="mensagem"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.mensagem}
-              // Aplica a classe 'input-error' se for inválido e tocado
-              className={isInvalid("mensagem") ? "input-error" : ""}
-            ></textarea>
-            {/* Mensagem de erro REMOVIDA */}
-
-            {/* Botão de Envio */}
-            <input
-              type="submit"
-              value="Enviar"
-              // Opcional: Desabilita o botão se o formulário for inválido
-              disabled={!formik.isValid}
-            />
-          </form>
-        </div>
-        <div className="contato__content__section--secundary">
-          <img
-            src={P3D}
-            alt="Imagem 3D"
-            className="contato__content__section--secundary__img"
-          />
-          <div className="contato__content__section--secundary__group">
-            <a
-              href=""
-              className="contato__content__section--secundary__group__button"
-            >
-              <i className="bx bxl-instagram"></i>
-            </a>
-            <a
-              href=""
-              className="contato__content__section--secundary__group__button"
-            >
-              <i className="bx bxl-twitter"></i>
-            </a>
-            <a
-              href=""
-              className="contato__content__section--secundary__group__button"
-            >
-              <i className="bx bxl-whatsapp"></i>{" "}
-            </a>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18, minWidth: 0 }}>
+            <div style={{ ...frame(c.green), aspectRatio: "4 / 3" }}>
+              <img src={P3D} alt="Promoção 3D" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20, background: c.ink, border: `3px solid ${c.ink}`, borderRadius: 18 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#C9C2B4" }}>Acompanhe nas redes</span>
+              <div style={{ display: "flex", gap: 10 }}>
+                {SOCIAL.map((s) => (
+                  <a key={s.label} href="#contato" aria-label={s.label} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 46, height: 46, borderRadius: 12, background: c.paper, color: c.ink, border: `2px solid ${c.paper}`, textDecoration: "none" }}>
+                    <i className={`bx ${s.icon}`} style={{ fontSize: 22 }} />
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </article>
       </section>
     </div>
   );

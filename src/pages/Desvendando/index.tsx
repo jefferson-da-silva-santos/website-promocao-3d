@@ -1,5 +1,6 @@
 import { useState } from "react";
-import logo from "../../assets/image/logo.png";
+import SectionHeader from "../../components/SectionHeader";
+import { c, dots, inner, section } from "../../theme";
 
 // Importação das 4 imagens de mapa
 import mapaMitosSangue from "../../assets/image/mapa mitos doacao de sangue.jpeg";
@@ -284,12 +285,18 @@ const BTN_POSITIONS: React.CSSProperties[] = [
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
+const DOT: Record<string, string> = {
+  "btn-01": "#D1141B",
+  "btn-02": "#16130F",
+  "btn-03": "#7CC63F",
+  "btn-04": "#F2B705",
+};
+
 const Desvendando = () => {
   const [activeKey, setActiveKey] = useState<CategoryKey>("sangue-mitos");
-  const { setShowOption, setTitleModal, setTextModal, setImgModal } =
-    useModalDesvendando();
+  const { setShowOption, setTitleModal, setTextModal, setImgModal } = useModalDesvendando();
 
-  const currentCategory = CATEGORIES.find((c) => c.key === activeKey)!;
+  const currentCategory = CATEGORIES.find((cat) => cat.key === activeKey)!;
 
   const handleOptionClick = (optionId: string) => {
     if (!optionId) return;
@@ -303,66 +310,80 @@ const Desvendando = () => {
   };
 
   return (
-    <div className="desvendando" id="desvendando">
-      <section className="desvendando__content" data-aos="fade-up">
+    <div className="desvendando" id="desvendando" style={section}>
+      <div aria-hidden style={dots} />
+      <section style={inner}>
+        <SectionHeader
+          label="Desvendando"
+          title="Mitos e medos que envolvem a promoção 3D"
+          subtitle="Escolha um tema e clique nos pontos do mapa para desvendar cada mito."
+          align="center"
+        />
 
-        {/* ── Cabeçalho ── */}
-        <div className="desvendando__content__section desvendando__content__section--primary">
-          <div className="group-sup-img">
-            <img src={logo} alt="" />
-            <span className="desvendando__content__section--primary__suptitle">
-              Desvendando
-            </span>
+        <div className="p3d-grid-2" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 340px)", gap: 44, alignItems: "start" }}>
+          <div style={{ minWidth: 0, border: `3px solid ${c.ink}`, borderRadius: 18, boxShadow: `9px 9px 0 ${c.red}`, background: c.white, padding: 18 }}>
+            <div className="group-image" style={{ position: "relative" }}>
+              <img src={currentCategory.mapSrc} alt="Mapa de mitos e medos" className="img-mapa" style={{ display: "block", width: "100%", height: "auto", borderRadius: 10 }} />
+              {BTN_POSITIONS.map((pos, idx) => {
+                const optionId = currentCategory.buttonIds[idx] ?? "";
+                return (
+                  <button
+                    key={idx}
+                    aria-label="Abrir mito"
+                    onClick={(e) => { e.preventDefault(); handleOptionClick(optionId); }}
+                    style={{
+                      ...pos,
+                      display: optionId ? "block" : "none",
+                      position: "absolute",
+                      width: "clamp(52px, 16%, 92px)",
+                      height: "clamp(52px, 16%, 92px)",
+                      borderRadius: "50%",
+                      border: `3px solid ${c.ink}`,
+                      background: "rgba(209, 20, 27, 0.14)",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
-          <h2 className="desvendando__content__section--primary__title">
-            Mitos e medos que envolvem a promoção 3D
-          </h2>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: c.muted }}>Temas</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {CATEGORIES.map((cat) => {
+                const active = cat.key === activeKey;
+                const dot = DOT[cat.btnClass];
+                return (
+                  <button
+                    key={cat.key}
+                    onClick={() => setActiveKey(cat.key)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 10, width: "100%",
+                      textAlign: "left", cursor: "pointer", padding: "13px 15px", borderRadius: 12,
+                      border: `2px solid ${c.ink}`, borderBottomWidth: active ? 2 : 4,
+                      background: active ? c.ink : c.white,
+                      color: active ? c.paper : c.ink,
+                      fontSize: 14.5, fontWeight: 700, lineHeight: 1.35,
+                      boxShadow: active ? `4px 4px 0 ${dot}` : "none",
+                    }}
+                  >
+                    <span style={{ display: "inline-flex", width: 26, height: 26, borderRadius: "50%", background: dot, border: `2px solid ${c.ink}`, flex: "none" }} />
+                    <span style={{ flex: 1 }}>{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 6, padding: 14, background: c.cream, border: `2px dashed ${c.ink}`, borderRadius: 12 }}>
+              <i className="bx bx-bulb" style={{ fontSize: 20, color: c.red, flex: "none" }} />
+              <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: c.text }}>
+                Cada ponto do mapa abre a explicação do mito ou medo — ideal para usar em sala de aula.
+              </p>
+            </div>
+          </div>
         </div>
-
-        {/* ── Mapa + botões de categoria ── */}
-        <div className="desvendando__content__section desvendando__content__section--secundary">
-
-          {/* Mapa — imagem troca conforme categoria ativa */}
-          <div className="group-image">
-            <img
-              src={currentCategory.mapSrc}
-              alt="Mapa de mitos e medos"
-              className="img-mapa"
-            />
-
-            {/* 8 botões flutuantes do mapa */}
-            {BTN_POSITIONS.map((style, idx) => {
-              const optionId = currentCategory.buttonIds[idx] ?? "";
-              const isVisible = optionId !== "";
-
-              return (
-                <button
-                  key={idx}
-                  className={`btn-mapa btn-mapa-${idx + 1} ${optionId}`}
-                  style={{ ...style, display: isVisible ? "inline-block" : "none" }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleOptionClick(optionId);
-                  }}
-                />
-              );
-            })}
-          </div>
-
-          {/* Botões de filtro de categoria */}
-          <div className="group-buttons">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.key}
-                className={`group-buttons__btn ${cat.btnClass}${activeKey === cat.key ? " active" : ""}`}
-                onClick={() => setActiveKey(cat.key)}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
       </section>
     </div>
   );

@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from "react";
 import chat from "/agente_logo.png";
+import iconApp from "/iconApp.png";
+import logo from "../../assets/image/logo.png";
+import { c, display, pillBtn } from "../../theme";
 
 const FULL_TITLE = "Doações, Transfusão & Transplantes";
 
@@ -12,9 +14,19 @@ const CHAT_SCRIPT = [
   { role: "bot" as const, text: "Qualquer pessoa pode ser doadora! O mais importante é comunicar sua decisão à família. 💚", delay: 700, typing: 1700 },
 ];
 
+const CHATBOT_URL = "https://chatgpt.com/g/g-67791d9bb8008191982ec1f0f492a4d6-promocao-3d";
+
 type Message = { role: "bot" | "user"; text: string };
 
-const ChatCard = ({ chatImg }: { chatImg: string }) => {
+const STUDY_CARDS = [
+  { href: "#desvendando", accent: c.red, iconBg: c.red, iconColor: "#fff", icon: "bx-droplet", title: "Doação de Sangue", text: "6 mitos e 6 medos para estudar" },
+  { href: "#informacoes", accent: c.yellow, iconBg: c.yellow, iconColor: c.ink, icon: "bx-heart", title: "Órgãos e Tecidos", text: "Como funciona a fila única do SUS" },
+  { href: "#material", accent: c.green, iconBg: c.green, iconColor: c.ink, icon: "bx-donate-heart", title: "Leite Materno", text: "1 ml pode salvar um prematuro" },
+];
+
+import { useEffect, useRef, useState } from "react";
+
+const ChatCard = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [scriptIndex, setScriptIndex] = useState(0);
@@ -32,207 +44,154 @@ const ChatCard = ({ chatImg }: { chatImg: string }) => {
           setScriptIndex((i) => i + 1);
         }, step.typing);
         return () => clearTimeout(typingTimer);
-      } else {
-        setMessages((prev) => [...prev, { role: step.role, text: step.text }]);
-        setScriptIndex((i) => i + 1);
       }
+      setMessages((prev) => [...prev, { role: step.role, text: step.text }]);
+      setScriptIndex((i) => i + 1);
     }, step.delay);
     return () => clearTimeout(delayTimer);
   }, [scriptIndex]);
 
   useEffect(() => {
     const el = messagesRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, isTyping]);
 
+  const bubble = (role: "bot" | "user"): React.CSSProperties => ({
+    maxWidth: "86%",
+    padding: "10px 13px",
+    background: role === "bot" ? c.white : c.red,
+    color: role === "bot" ? c.ink : "#fff",
+    border: `2px solid ${c.ink}`,
+    borderRadius: role === "bot" ? "14px 14px 14px 4px" : "14px 14px 4px 14px",
+    fontSize: 13.5,
+    lineHeight: 1.5,
+  });
+
   return (
-    <div className="hero__bot-card">
-      <div className="hero__bot-header">
-        <div className="hero__bot-avatar">
-          <img src={chatImg} alt="Assistente Promoção 3D" />
-        </div>
-        <div className="hero__bot-header-info">
-          <p className="hero__bot-name">Assistente 3D</p>
-          <span className="hero__bot-status">
-            <span className="hero__bot-dot" />
+    <div style={{ background: c.white, border: `3px solid ${c.ink}`, borderRadius: 20, boxShadow: `8px 8px 0 ${c.ink}`, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "16px 18px", background: c.ink }}>
+        <img src={chat} alt="Assistente Promoção 3D" style={{ width: 38, height: 38, borderRadius: 10, border: `2px solid ${c.paper}` }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, minWidth: 0 }}>
+          <strong style={{ fontSize: 14.5, color: c.paper, lineHeight: 1.2 }}>Assistente 3D</strong>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "#C9C2B4" }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: c.green }} />
             Online agora
           </span>
         </div>
-        <div className="hero__bot-dots">
-          <span /><span /><span />
-        </div>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: c.yellow, textTransform: "uppercase" }}>IA</span>
       </div>
-      <div className="hero__bot-messages" ref={messagesRef}>
+
+      <div ref={messagesRef} style={{ display: "flex", flexDirection: "column", gap: 10, height: 274, overflowY: "auto", padding: "16px 16px 14px", background: c.paper }}>
         {messages.map((msg, i) => (
-          <div key={i} className={`hero__bot-row hero__bot-row--${msg.role}`}>
-            {msg.role === "bot" && (
-              <div className="hero__bot-avatar-mini">
-                <img src={chatImg} alt="" aria-hidden="true" />
-              </div>
-            )}
-            <div className={`hero__bot-bubble hero__bot-bubble--${msg.role}`}>
-              {msg.text}
-            </div>
+          <div key={i} style={{ display: "flex", justifyContent: msg.role === "bot" ? "flex-start" : "flex-end" }}>
+            <div style={bubble(msg.role)}>{msg.text}</div>
           </div>
         ))}
         {isTyping && (
-          <div className="hero__bot-row hero__bot-row--bot">
-            <div className="hero__bot-avatar-mini">
-              <img src={chatImg} alt="" aria-hidden="true" />
-            </div>
-            <div className="hero__bot-bubble hero__bot-bubble--bot hero__bot-bubble--typing">
-              <span /><span /><span />
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "11px 14px", background: c.white, border: `2px solid ${c.ink}`, borderRadius: "14px 14px 14px 4px" }}>
+              {[c.red, c.yellow, c.green].map((color, i) => (
+                <span key={color} style={{ width: 6, height: 6, borderRadius: "50%", background: color, animation: `p3dblink 1s infinite ${i * 0.18}s` }} />
+              ))}
             </div>
           </div>
         )}
       </div>
-      <div className="hero__bot-inputbar">
-        <span className="hero__bot-inputbar-text">Digite sua dúvida...</span>
-        <a
-          href="https://chatgpt.com/g/g-67791d9bb8008191982ec1f0f492a4d6-promocao-3d"
-          target="_blank"
-          rel="noreferrer"
-          className="hero__bot-send"
-          aria-label="Abrir chatbot"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-            <line x1="22" y1="2" x2="11" y2="13" />
-            <polygon points="22 2 15 22 11 13 2 9 22 2" />
-          </svg>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderTop: `2px dashed ${c.dash}`, background: c.white }}>
+        <span style={{ flex: 1, fontSize: 13.5, color: "#9A9284" }}>Digite sua dúvida...</span>
+        <a href={CHATBOT_URL} target="_blank" rel="noreferrer" aria-label="Abrir chatbot" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", background: c.red, color: "#fff", border: `2px solid ${c.ink}` }}>
+          <i className="bx bx-send" style={{ fontSize: 17 }} />
         </a>
       </div>
-      <div className="hero__bot-stats">
-        <div className="hero__stat"><strong>3</strong><small>Dimensões</small></div>
-        <div className="hero__stat-divider" />
-        <div className="hero__stat"><strong>24h</strong><small>Disponível</small></div>
-        <div className="hero__stat-divider" />
-        <div className="hero__stat"><strong>PT-BR</strong><small>Idioma</small></div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", textAlign: "center", borderTop: `2px solid ${c.ink}` }}>
+        {[["26", "mitos"], ["6", "jogos da vida"], ["3", "projetos de lei"]].map(([n, l], i) => (
+          <div key={l} style={{ display: "flex", flexDirection: "column", gap: 1, padding: "12px 6px", borderLeft: i === 1 ? "2px solid #F0EADA" : undefined, borderRight: i === 1 ? "2px solid #F0EADA" : undefined }}>
+            <strong style={{ fontSize: 18, color: c.ink }}>{n}</strong>
+            <span style={{ fontSize: 11.5, color: c.muted, lineHeight: 1.3 }}>{l}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-const Inicio = () => {
-  const titleRef = useRef<HTMLHeadingElement>(null);
+const Inicio = () => (
+  <div id="hero" style={{ position: "relative", overflow: "hidden", background: c.paper, padding: "124px 24px 68px", borderBottom: `3px solid ${c.ink}` }}>
+    <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(${c.ink} 1px, transparent 1px)`, backgroundSize: "26px 26px", opacity: 0.07, pointerEvents: "none" }} />
+    <div aria-hidden style={{ position: "absolute", top: -180, right: -140, width: 440, height: 440, borderRadius: "50%", background: c.green, opacity: 0.16, pointerEvents: "none" }} />
+    <div aria-hidden style={{ position: "absolute", bottom: -220, left: -160, width: 400, height: 400, borderRadius: "50%", background: c.yellow, opacity: 0.18, pointerEvents: "none" }} />
 
-  useEffect(() => {
-    const el = titleRef.current;
-    if (!el) return;
-    el.textContent = "";
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < FULL_TITLE.length) {
-        el.textContent += FULL_TITLE[i];
-        i++;
-      } else {
-        clearInterval(interval);
-        el.classList.add("typing-done");
-      }
-    }, 38);
-    return () => clearInterval(interval);
-  }, []);
+    <div className="p3d-grid-2" style={{ position: "relative", maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 380px)", gap: 56, alignItems: "center" }}>
+      <section style={{ display: "flex", flexDirection: "column", gap: 22, minWidth: 0 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9, alignItems: "center" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, background: c.ink, color: c.paper, fontSize: 11.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", padding: "6px 13px", borderRadius: 999 }}>
+            <i className="bx bx-book-open" style={{ fontSize: 14, color: c.green }} />
+            Material educativo
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, border: `2px solid ${c.ink}`, color: c.ink, fontSize: 11.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 999 }}>
+            Lei nº 18.359/2023 · PE
+          </span>
+        </div>
 
-  return (
-    <div className="hero" id="hero">
-      <div className="hero__bg">
-        <div className="hero__bg-orb hero__bg-orb--1" />
-        <div className="hero__bg-orb hero__bg-orb--2" />
-        <div className="hero__bg-orb hero__bg-orb--3" />
-        <div className="hero__bg-grid" />
-      </div>
-
-      <div className="hero__content">
-        <section className="hero__left" data-aos="fade-right">
-          <div className="hero__badge">
-            <span className="hero__badge-dot" />
-            Política Pública de Saúde
-          </div>
-
-          <p className="hero__eyebrow">Promoção 3D</p>
-
-          <h1 className="hero__title hero__title--typing" ref={titleRef} />
-
-          <p className="hero__text">
-            Conscientização sobre mitos, tabus e preconceitos para fortalecer os
-            direitos humanos e a cidadania — respeitando contextos interétnico e
-            interculturais.
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: c.red }}>Promoção 3D</p>
+          <h1 style={{ margin: 0, fontFamily: display, fontSize: "clamp(33px, 3.9vw, 56px)", lineHeight: 1.04, fontWeight: 700, letterSpacing: "-0.015em", color: c.ink, textWrap: "balance" as never }}>
+            {FULL_TITLE}
+          </h1>
+          <p style={{ margin: 0, maxWidth: "52ch", fontSize: 16.5, lineHeight: 1.62, color: c.text, textWrap: "pretty" as never }}>
+            Um percurso de aprendizagem sobre doação de sangue, órgãos, tecidos e leite
+            materno — para estudantes, professores e escolas desvendarem os mitos, medos
+            e preconceitos que ainda impedem vidas de serem salvas.
           </p>
+        </div>
 
-          <div className="hero__pills">
-            <span className="hero__pill hero__pill--red">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M12 2C8 2 5 8 5 12c0 4.4 3.1 8 7 8s7-3.6 7-8c0-4-3-10-7-10z" />
-              </svg>
-              Sangue &amp; Transfusão
-            </span>
-            <span className="hero__pill hero__pill--green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-              Órgãos &amp; Tecidos
-            </span>
-            <span className="hero__pill hero__pill--amber">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" />
-              </svg>
-              Leite Humano
-            </span>
-          </div>
-
-          <div className="hero__actions">
-            <a
-              href="https://chatgpt.com/g/g-67791d9bb8008191982ec1f0f492a4d6-promocao-3d"
-              target="_blank"
-              rel="noreferrer"
-              className="hero__cta"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              Converse com o Chatbot
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-              </svg>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(152px, 1fr))", gap: 12 }}>
+          {STUDY_CARDS.map((card) => (
+            <a key={card.title} href={card.href} style={{ display: "flex", flexDirection: "column", gap: 5, padding: "14px 14px 13px", background: c.white, border: `2px solid ${c.ink}`, borderRadius: 13, borderBottomWidth: 5, borderBottomColor: card.accent, textDecoration: "none" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: "50%", background: card.iconBg, color: card.iconColor }}>
+                <i className={`bx ${card.icon}`} style={{ fontSize: 17 }} />
+              </span>
+              <strong style={{ fontSize: 14.5, color: c.ink, lineHeight: 1.25 }}>{card.title}</strong>
+              <span style={{ fontSize: 12.5, color: c.muted, lineHeight: 1.45 }}>{card.text}</span>
             </a>
-            <a href="/saiba-mais" className="hero__link">
-              Saiba mais
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </a>
-          </div>
+          ))}
+        </div>
 
-          {/* App Memória e Vida */}
-          <a href="/app" className="hero__app-btn">
-            <img src="/iconApp.png" alt="" className="hero__app-btn-icon" aria-hidden="true" />
-            <div className="hero__app-btn-text">
-              <span className="hero__app-btn-label">Baixar o app</span>
-              <span className="hero__app-btn-name">Memória e Vida</span>
-            </div>
-            <svg
-              className="hero__app-btn-arrow"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              aria-hidden="true"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+          <a href="#desvendando" style={pillBtn(c.red, "#fff")}>
+            <i className="bx bx-play-circle" style={{ fontSize: 19 }} />
+            Começar a aprender
           </a>
+          <a href="#material" style={{ ...pillBtn(c.white, c.ink), boxShadow: "none" }}>
+            <i className="bx bx-folder-open" style={{ fontSize: 19, color: c.red }} />
+            Material para aula
+          </a>
+          <a href="/app" style={{ display: "inline-flex", alignItems: "center", gap: 11, background: c.ink, padding: "9px 18px 9px 10px", border: `2px solid ${c.ink}`, borderRadius: 999, textDecoration: "none" }}>
+            <img src={iconApp} alt="" aria-hidden style={{ width: 32, height: 32, borderRadius: 9, border: `2px solid ${c.paper}` }} />
+            <span style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: c.yellow }}>Baixe o app</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: c.paper, lineHeight: 1.2 }}>Memória e Vida</span>
+            </span>
+            <i className="bx bx-download" style={{ fontSize: 18, color: c.green }} />
+          </a>
+        </div>
 
-        </section>
+        <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.5, color: c.faint }}>
+          Conteúdo alinhado ao PL 110/2024, que propõe a Promoção 3D no currículo escolar e acadêmico brasileiro.
+        </p>
+      </section>
 
-        <section className="hero__right" data-aos="fade-left">
-          <ChatCard chatImg={chat} />
-        </section>
-      </div>
+      <section style={{ minWidth: 0 }}>
+        <ChatCard />
+        <p style={{ margin: "12px 4px 0", fontSize: 11.5, lineHeight: 1.5, color: c.faint, textAlign: "center" }}>
+          Tire dúvidas em linguagem simples, a qualquer hora, em português.
+        </p>
+        <img src={logo} alt="" aria-hidden style={{ display: "none" }} />
+      </section>
     </div>
-  );
-};
+  </div>
+);
 
 export default Inicio;

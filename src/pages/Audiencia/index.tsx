@@ -1,92 +1,100 @@
-import React, { useState } from "react";
-import logo from "../../assets/image/logo.png";
+import React from "react";
+import SectionHeader from "../../components/SectionHeader";
+import { c, dots, inner, section } from "../../theme";
+
+const VideoRow: React.FC<{
+  index: string;
+  eyebrow: string;
+  description: string;
+  accent: string;
+  reverse?: boolean;
+  media: React.ReactNode;
+  watchHref?: string;
+}> = ({ index, eyebrow, description, accent, reverse, media, watchHref }) => (
+  <article className="p3d-grid-media" style={{ display: "grid", gridTemplateColumns: reverse ? "minmax(0, 0.85fr) minmax(0, 1.15fr)" : "minmax(0, 1.15fr) minmax(0, 0.85fr)", gap: 44, alignItems: "center" }}>
+    <div style={{ minWidth: 0, order: reverse ? 2 : 1 }}>
+      <div style={{ border: `3px solid ${c.ink}`, borderRadius: 18, boxShadow: `9px 9px 0 ${accent}`, overflow: "hidden", background: c.ink, aspectRatio: "16 / 9" }}>
+        {media}
+      </div>
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0, order: reverse ? 1 : 2 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: accent, border: `3px solid ${c.ink}`, fontSize: 16, fontWeight: 800, color: c.ink }}>{index}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: c.muted }}>{eyebrow}</span>
+      </div>
+      <p style={{ margin: 0, fontSize: 16, lineHeight: 1.65, color: c.text, textWrap: "pretty" as never }}>{description}</p>
+      {watchHref && (
+        <a href={watchHref} target="_blank" rel="noreferrer" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: c.ink, textDecoration: "none", borderBottom: `2px solid ${accent}`, paddingBottom: 3 }}>
+          Assistir no YouTube <i className="bx bx-link-external" style={{ fontSize: 16 }} />
+        </a>
+      )}
+    </div>
+  </article>
+);
+
+const divider = (
+  <div aria-hidden style={{ height: 2, background: "repeating-linear-gradient(90deg, #E3DCCB 0 10px, transparent 10px 20px)" }} />
+);
+
+const ytFrame = (id: string, title: string) => (
+  <iframe
+    src={`https://www.youtube.com/embed/${id}`}
+    title={title}
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerPolicy="strict-origin-when-cross-origin"
+    allowFullScreen
+    style={{ display: "block", width: "100%", height: "100%", border: 0 }}
+  />
+);
 
 const VIDEOS = [
-  { id: "cgEkDVPqyYU", label: "Vídeo 1 – Audiência Pública" },
-  { id: "QuJeJ8jG4Jo", label: "Vídeo 2 – Audiência Pública" },
+  {
+    id: "cgEkDVPqyYU",
+    eyebrow: "Registro em vídeo",
+    description:
+      "Primeira parte da audiência pública, com a apresentação da Promoção 3D e de seus objetivos de conscientização sobre doação de sangue, órgãos, tecidos e leite materno.",
+    accent: c.red,
+  },
+  {
+    id: "QuJeJ8jG4Jo",
+    eyebrow: "Registro em vídeo",
+    description:
+      "Segunda parte da audiência pública, com o debate entre os participantes e os encaminhamentos para a implantação da política no ensino.",
+    accent: c.yellow,
+  },
 ];
 
-const Audiencia: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  return (
-    <div className="audiencia" id="audiencia">
-      <div className="audiencia__overlay"></div>
-
-      <section className="audiencia__content" data-aos="fade-up">
-        {/* Cabeçalho */}
-        <div className="audiencia__content--primary">
-          <div className="group-sup-img">
-            <img src={logo} alt="Logo Promoção 3D" />
-            <span className="audiencia__content--primary__suptitle">
-              Audiência Pública
-            </span>
-          </div>
-          <h2 className="audiencia__content--primary__title">
-            Audiência Pública da Promoção 3D
-          </h2>
-        </div>
-
-        {/* Player */}
-        <div className="audiencia__content--secundary">
-
-          {/*
-            Renderiza apenas o iframe do índice atual.
-            A prop `key` força o React a desmontar/remontar o iframe
-            ao trocar de vídeo, evitando que o player antigo fique preso.
-          */}
-          <div className="video-audiencia-wrapper">
-            <iframe
-              key={VIDEOS[currentIndex].id}
-              className="audiencia-iframe"
-              src={`https://www.youtube.com/embed/${VIDEOS[currentIndex].id}`}
-              title={VIDEOS[currentIndex].label}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
-          </div>
-
-          {/* Dots de navegação */}
-          <div className="audiencia-dots">
-            {VIDEOS.map((_, idx) => (
-              <button
-                key={idx}
-                className={`audiencia-dot${idx === currentIndex ? " audiencia-dot--active" : ""}`}
-                onClick={() => setCurrentIndex(idx)}
-                aria-label={`Ir para vídeo ${idx + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Botões prev / next */}
-          <div className="buttons_audiencia">
-            <button
-              className="btn-audience-prev"
-              onClick={() => setCurrentIndex((i) => i - 1)}
-              disabled={currentIndex === 0}
-            >
-              <i className="bx bxs-chevrons-left"></i> Vídeo anterior
-            </button>
-
-            <span className="audiencia-counter">
-              {currentIndex + 1}&nbsp;/&nbsp;{VIDEOS.length}
-            </span>
-
-            <button
-              className="btn-audience-next"
-              onClick={() => setCurrentIndex((i) => i + 1)}
-              disabled={currentIndex === VIDEOS.length - 1}
-            >
-              Próximo vídeo <i className="bx bxs-chevrons-right"></i>
-            </button>
-          </div>
-
-        </div>
-      </section>
-    </div>
-  );
-};
+const Audiencia: React.FC = () => (
+  <div className="audiencia" id="audiencia" style={{ ...section, borderTop: `3px solid ${c.ink}` }}>
+    <div aria-hidden style={dots} />
+    <section style={{ ...inner, gap: 56 }}>
+      <SectionHeader
+        label="Audiência Pública"
+        title="Audiência Pública da Promoção 3D"
+        subtitle="Assista aos registros da audiência em que a política foi apresentada e debatida publicamente."
+        align="center"
+      />
+      <VideoRow
+        index="01"
+        eyebrow={VIDEOS[0].eyebrow}
+        description={VIDEOS[0].description}
+        accent={VIDEOS[0].accent}
+        media={ytFrame(VIDEOS[0].id, "Audiência Pública — parte 1")}
+        watchHref={`https://www.youtube.com/watch?v=${VIDEOS[0].id}`}
+      />
+      {divider}
+      <VideoRow
+        index="02"
+        reverse
+        eyebrow={VIDEOS[1].eyebrow}
+        description={VIDEOS[1].description}
+        accent={VIDEOS[1].accent}
+        media={ytFrame(VIDEOS[1].id, "Audiência Pública — parte 2")}
+        watchHref={`https://www.youtube.com/watch?v=${VIDEOS[1].id}`}
+      />
+    </section>
+  </div>
+);
 
 export default Audiencia;

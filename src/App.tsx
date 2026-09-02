@@ -29,15 +29,15 @@ import ModalDesvendandoProvider from "./providers/ModalDesvendandoProvider";
 // Blog & Admin
 import { AdminProvider } from "./contexts/AdminContext";
 import { BlogProvider } from "./contexts/BlogContext";
-import BlogPage from "./pages/Blog";
-import BlogPostPage from "./components/BlogPost";
-import AdminPage from "./pages/AdminBlog";
-import AdminDashboard from "./pages/DashboardAdmin";
-import IA from "./pages/IA";
-import SaibaMais from "./pages/SaibaMais";
+// import BlogPage from "./pages/Blog";
+// import BlogPostPage from "./components/BlogPost";
+// import AdminPage from "./pages/AdminBlog";
+// import AdminDashboard from "./pages/DashboardAdmin";
+// import IA from "./pages/IA";
+// import SaibaMais from "./pages/SaibaMais";
 
 // App Memória e Vida — download
-import DownloadAppSection from "./components/DownloadAppSection";
+// import DownloadAppSection from "./components/DownloadAppSection";
 
 // ─── Home ─────────────────────────────────────────────────────────────────────
 
@@ -76,16 +76,16 @@ const App: React.FC = () => (
       <BlogProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/blog" element={<BlogPage />} />
+          {/* <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:id" element={<BlogPostPage />} />
           {/* Admin do blog — login + editor de posts */}
-          <Route path="/admin" element={<AdminPage />} />
+          {/* <Route path="/admin" element={<AdminPage />} /> */}
           {/* Dashboard analytics — requer login admin */}
-          <Route path="/admin-dash" element={<AdminDashboard />} />
+          {/* <Route path="/admin-dash" element={<AdminDashboard />} />
           <Route path="/agente" element={<IA />} />
-          <Route path="/saiba-mais" element={<SaibaMais />} />
+          <Route path="/saiba-mais" element={<SaibaMais />} /> */}
           {/* Página de download do app Memória e Vida */}
-          <Route path="/app" element={<DownloadAppSection />} />
+          {/* <Route path="/app" element={<DownloadAppSection />} /> */}
           <Route path="*" element={<HomePage />} />
         </Routes>
       </BlogProvider>

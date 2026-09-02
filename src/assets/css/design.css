@@ -1,0 +1,16 @@
+/* Promoção 3D — regras responsivas do novo design (o resto do estilo é inline) */
+@media (max-width: 1000px) {
+  .p3d-nav-links { display: none !important; }
+  .p3d-nav-burger { display: inline-flex !important; }
+  .p3d-grid-2, .p3d-grid-media { grid-template-columns: minmax(0, 1fr) !important; }
+  .p3d-grid-media > * { order: 0 !important; }
+}
+@media (min-width: 1001px) {
+  .p3d-nav-drawer { display: none !important; }
+}
+
+@keyframes p3dblink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+@media (max-width: 720px) {
+  .p3d-grid-media { grid-template-columns: minmax(0, 1fr) !important; }
+}

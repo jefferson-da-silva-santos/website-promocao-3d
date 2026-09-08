@@ -1,0 +1,710 @@
+// ═══════════════════════════════════════════════════════════════
+//  HERO 3D — Promoção 3D
+//  Uso:  import "./hero3d.scss";  (ou @import "hero3d"; no index.scss)
+//  Prefixo próprio (.hero3d) para não colidir com o .hero antigo.
+// ═══════════════════════════════════════════════════════════════
+
+// ── Tokens locais ──────────────────────────────────────────────
+$h3-paper:   rgb(255, 252, 244);
+$h3-white:   #ffffff;
+$h3-ink:     #14110d;
+$h3-text:    #4a443a;
+$h3-muted:   #605949;
+$h3-faint:   #6b6355;
+$h3-line:    #efe7d2;
+$h3-dash:    #ded4bc;
+
+$h3-red:      #c81e25;
+$h3-red-dark: #a8161c;
+$h3-red-text: #b3121b;
+$h3-yellow:   #f2c10e;
+$h3-yellow-t: #8a6a00;
+$h3-green:    #2e9e52;
+$h3-green-t:  #1e7a3c;
+$h3-green-on: #4fd07a;
+
+$h3-display: "Josefin Sans", sans-serif;
+$h3-body:    "Mulish", "Muli", sans-serif;
+
+// ── Animações ──────────────────────────────────────────────────
+@keyframes hero3dBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+@keyframes hero3dInBot {
+  from { opacity: 0; transform: translate(-10px, 4px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes hero3dInUser {
+  from { opacity: 0; transform: translate(10px, 4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVBAR
+// ═══════════════════════════════════════════════════════════════
+
+.hero3d-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(252, 247, 232, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid $h3-ink;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 24px;
+  }
+
+  // Logo em pílula escura
+  &__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    flex-shrink: 0;
+    padding: 9px 20px 9px 13px;
+    border-radius: 999px;
+    background: $h3-ink;
+    text-decoration: none;
+    transition: background 0.2s ease;
+
+    img {
+      width: 26px;
+      height: auto;
+      flex-shrink: 0;
+    }
+
+    strong {
+      font-family: $h3-body;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: $h3-paper;
+      white-space: nowrap;
+    }
+
+    &:hover { background: #23201a; }
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+
+    a {
+      font-family: $h3-body;
+      font-size: 14px;
+      font-weight: 500;
+      color: $h3-text;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color 0.2s ease;
+
+      &:hover     { color: $h3-ink; }
+      &.is-active { color: $h3-ink; font-weight: 600; }
+    }
+  }
+
+  &__blog {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: $h3-red;
+    color: $h3-white !important;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease;
+
+    i { font-size: 16px; }
+    &:hover { background: $h3-red-dark; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HERO
+// ═══════════════════════════════════════════════════════════════
+
+.hero3d {
+  position: relative;
+  overflow: hidden;
+  background: $h3-paper;
+  border-bottom: 2px solid $h3-ink;
+  font-family: $h3-body;
+
+  // Fundos decorativos
+  &__dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient($h3-ink 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+
+  &__orb {
+    position: absolute;
+    top: -220px;
+    right: -160px;
+    width: 460px;
+    height: 460px;
+    border-radius: 50%;
+    background: $h3-green;
+    opacity: 0.1;
+    pointer-events: none;
+  }
+
+  // ── Grade principal ──
+  &__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 400px);
+    gap: 64px;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 88px 24px 96px;
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    min-width: 0;
+  }
+
+  // ── Meta (badge + lei) ──
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: $h3-ink;
+    color: $h3-paper;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    i { font-size: 14px; color: $h3-yellow; }
+  }
+
+  &__law {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: $h3-faint;
+  }
+
+  // ── Título ──
+  &__headline {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: $h3-red-text;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $h3-display;
+    font-size: clamp(38px, 4.6vw, 62px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: $h3-ink;
+    text-wrap: balance;
+  }
+
+  &__lede {
+    margin: 0;
+    max-width: 48ch;
+    font-size: 17px;
+    line-height: 1.65;
+    color: $h3-text;
+    text-wrap: pretty;
+  }
+
+  // ── CTAs ──
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 26px;
+    border: 2px solid $h3-ink;
+    border-radius: 999px;
+    background: $h3-red;
+    color: $h3-white !important;
+    font-size: 15.5px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 $h3-ink;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease,
+      color 0.2s ease;
+
+    i { font-size: 20px; }
+
+    &:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 $h3-ink;
+    }
+
+    &--ghost {
+      padding: 15px 24px;
+      background: transparent;
+      color: $h3-ink !important;
+      box-shadow: none;
+
+      &:hover {
+        transform: none;
+        background: $h3-ink;
+        color: $h3-paper !important;
+      }
+    }
+  }
+
+  // ── Faixa dos 3 temas ──
+  &__topics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    max-width: 620px;
+    background: $h3-white;
+    border: 2px solid $h3-ink;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  &__topic {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 18px 20px;
+    text-decoration: none;
+    border-top: 5px solid $h3-ink;
+    transition: background 0.2s ease;
+
+    & + & { border-left: 2px solid $h3-line; }
+
+    &:hover { background: #fdfaf1; }
+
+    &--sangue { border-top-color: $h3-red; .hero3d__topic-kicker { color: $h3-red-text; } }
+    &--orgaos { border-top-color: $h3-yellow; .hero3d__topic-kicker { color: $h3-yellow-t; } }
+    &--leite  { border-top-color: $h3-green; .hero3d__topic-kicker { color: $h3-green-t; } }
+  }
+
+  &__topic-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    i { font-size: 15px; }
+  }
+
+  &__topic-title {
+    font-size: 15px;
+    line-height: 1.3;
+    color: $h3-ink;
+  }
+
+  &__topic-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: $h3-muted;
+  }
+
+  // ── Números ──
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 28px;
+    width: 100%;
+    max-width: 620px;
+    padding-top: 24px;
+    border-top: 2px dashed $h3-dash;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+
+    strong {
+      font-family: $h3-display;
+      font-size: 26px;
+      font-weight: 700;
+      color: $h3-ink;
+    }
+
+    span {
+      font-size: 13px;
+      color: $h3-muted;
+    }
+  }
+
+  &__note {
+    margin: 0;
+    max-width: 58ch;
+    font-size: 13px;
+    line-height: 1.55;
+    color: $h3-faint;
+  }
+
+  // ── Coluna direita ──
+  &__aside {
+    position: sticky;
+    top: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  &__caption {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: $h3-faint;
+    text-align: center;
+
+    a { color: $h3-red-text; }
+  }
+
+  // ── Botão do app ──
+  &__app {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: $h3-ink;
+    border: 2px solid $h3-ink;
+    border-radius: 16px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+
+    &:hover { background: #23201a; }
+
+    img {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 9px;
+      object-fit: cover;
+    }
+
+    span {
+      display: flex;
+      flex: 1;
+      min-width: 0;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    small {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: $h3-yellow;
+    }
+
+    strong {
+      font-size: 14.5px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: $h3-paper;
+    }
+
+    > i {
+      font-size: 20px;
+      color: $h3-green-on;
+    }
+  }
+
+  // ═════════════════════════════════════════════════════════════
+  //  CARD DO CHAT
+  // ═════════════════════════════════════════════════════════════
+
+  &__chat {
+    background: $h3-white;
+    border: 2px solid $h3-ink;
+    border-radius: 20px;
+    box-shadow: 6px 6px 0 $h3-ink;
+    overflow: hidden;
+  }
+
+  &__chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    background: $h3-ink;
+  }
+
+  &__chat-avatar {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 11px;
+    background: $h3-paper;
+    object-fit: cover;
+  }
+
+  &__chat-id {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: 15px;
+      line-height: 1.2;
+      color: $h3-paper;
+    }
+  }
+
+  &__chat-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #c9c2b4;
+
+    i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: $h3-green-on;
+    }
+  }
+
+  &__chat-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $h3-yellow;
+  }
+
+  // Lista de mensagens — sem barra de scroll visível
+  &__chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 320px;
+    padding: 18px 16px;
+    background: $h3-paper;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  }
+
+  &__chat-row {
+    display: flex;
+
+    &--bot  { justify-content: flex-start; }
+    &--user { justify-content: flex-end; }
+  }
+
+  &__bubble {
+    max-width: 86%;
+    margin: 0;
+    padding: 11px 14px;
+    border: 2px solid $h3-ink;
+    font-size: 13.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+
+    &--bot {
+      background: $h3-white;
+      color: $h3-ink;
+      border-radius: 14px 14px 14px 4px;
+      animation: hero3dInBot 0.3s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+    }
+
+    &--user {
+      background: $h3-red;
+      color: $h3-white;
+      border-radius: 14px 14px 4px 14px;
+      animation: hero3dInUser 0.3s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+    }
+  }
+
+  &__typing {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 15px;
+    background: $h3-white;
+    border: 2px solid $h3-ink;
+    border-radius: 14px 14px 14px 4px;
+
+    span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: hero3dBlink 1s infinite;
+
+      &:nth-child(1) { background: #e63946; }
+      &:nth-child(2) { background: $h3-yellow; animation-delay: 0.18s; }
+      &:nth-child(3) { background: $h3-green; animation-delay: 0.36s; }
+    }
+  }
+
+  // Sugestões rápidas
+  &__chat-suggestions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px 0;
+    background: $h3-white;
+    border-top: 2px solid $h3-ink;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+    button {
+      flex-shrink: 0;
+      padding: 7px 13px;
+      border: 2px solid $h3-dash;
+      border-radius: 999px;
+      background: $h3-paper;
+      color: $h3-text;
+      font-family: $h3-body;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        border-color: $h3-ink;
+        color: $h3-ink;
+      }
+    }
+  }
+
+  // Campo de envio
+  &__chat-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: $h3-white;
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 11px 14px;
+      border: 2px solid $h3-dash;
+      border-radius: 999px;
+      background: $h3-paper;
+      font-family: $h3-body;
+      font-size: 13.5px;
+      color: $h3-ink;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+
+      &::placeholder { color: #9a9284; }
+
+      &:focus {
+        border-color: $h3-ink;
+        background: $h3-white;
+      }
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+      padding: 0;
+      border: 2px solid $h3-ink;
+      border-radius: 50%;
+      background: $h3-red;
+      color: $h3-white;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      i { font-size: 17px; }
+      &:hover { background: $h3-red-dark; }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RESPONSIVIDADE
+// ═══════════════════════════════════════════════════════════════
+
+@media screen and (max-width: 1040px) {
+  .hero3d__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    padding: 64px 24px 72px;
+  }
+
+  .hero3d__aside {
+    position: static;
+    max-width: 440px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .hero3d-nav__links a[data-secondary] { display: none; }
+}
+
+@media screen and (max-width: 620px) {
+  .hero3d__topics { grid-template-columns: minmax(0, 1fr); }
+
+  .hero3d__topic + .hero3d__topic {
+    border-left: none;
+    border-top: 2px solid $h3-line;
+  }
+
+  .hero3d__actions .hero3d__cta { width: 100%; justify-content: center; }
+
+  .hero3d__stats { gap: 20px; }
+}

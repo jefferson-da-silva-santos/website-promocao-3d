@@ -5,7 +5,7 @@
 //  O token é enviado em x-admin-token em todas as requisições protegidas.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import type { AxiosInstance } from "axios";
 
@@ -55,8 +55,7 @@ const loadSession = (): AdminSession | null => {
   }
 };
 
-const saveSession = (session: AdminSession) =>
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+const saveSession = (session: AdminSession) => sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
 
 const clearSession = () => sessionStorage.removeItem(SESSION_KEY);
 
@@ -64,6 +63,7 @@ const clearSession = () => sessionStorage.removeItem(SESSION_KEY);
 
 const AdminContext = createContext<AdminContextValue>({} as AdminContextValue);
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook e provider do mesmo contexto ficam juntos
 export const useAdmin = () => useContext(AdminContext);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -72,12 +72,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Cria instância axios com token injetado dinamicamente
-  const api = axios.create({ baseURL: API_BASE });
-  api.interceptors.request.use((config) => {
-    const s = loadSession();
-    if (s?.token) config.headers['x-admin-token'] = s.token;
-    return config;
-  });
+  const api = useMemo(() => {
+    const instance = axios.create({ baseURL: API_BASE });
+    instance.interceptors.request.use((config) => {
+      const s = loadSession();
+      if (s?.token) config.headers["x-admin-token"] = s.token;
+      return config;
+    });
+    return instance;
+  }, []);
 
   // Inicialização — verifica sessão salva
   useEffect(() => {
@@ -89,12 +92,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const login = useCallback(async (password: string) => {
     setLoginError(null);
     try {
-      const { data } = await baseHttp.post<{ token: string; expiresAt: string }>('/api/admin/login', { password });
+      const { data } = await baseHttp.post<{ token: string; expiresAt: string }>("/api/admin/login", { password });
       const newSession: AdminSession = { token: data.token, expiresAt: data.expiresAt };
       saveSession(newSession);
       setSession(newSession);
-    } catch (err: any) {
-      const msg = err?.response?.data?.error ?? 'Erro ao fazer login.';
+    } catch (err: unknown) {
+      const msg =
+        (axios.isAxiosError<{ error?: string }>(err) ? err.response?.data?.error : undefined) ?? "Erro ao fazer login.";
       setLoginError(msg);
       throw new Error(msg);
     }
@@ -104,26 +108,34 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const s = loadSession();
     if (s?.token) {
       try {
-        await baseHttp.post('/api/admin/logout', {}, {
-          headers: { 'x-admin-token': s.token },
-        });
-      } catch { /* ignora erros de rede no logout */ }
+        await baseHttp.post(
+          "/api/admin/logout",
+          {},
+          {
+            headers: { "x-admin-token": s.token },
+          },
+        );
+      } catch {
+        /* ignora erros de rede no logout */
+      }
     }
     clearSession();
     setSession(null);
   }, []);
 
   return (
-    <AdminContext.Provider value={{
-      isAuthenticated: !!session,
-      isLoading,
-      token: session?.token ?? null,
-      api,
-      login,
-      logout,
-      loginError,
-      clearLoginError: () => setLoginError(null),
-    }}>
+    <AdminContext.Provider
+      value={{
+        isAuthenticated: !!session,
+        isLoading,
+        token: session?.token ?? null,
+        api,
+        login,
+        logout,
+        loginError,
+        clearLoginError: () => setLoginError(null),
+      }}
+    >
       {children}
     </AdminContext.Provider>
   );

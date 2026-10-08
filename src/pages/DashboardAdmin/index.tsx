@@ -8,13 +8,26 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmin } from "../../contexts/AdminContext";
+import "boxicons/css/boxicons.min.css";
+import "../../styles/legacy/admin.scss";
 import {
-  AreaChart, Area,
-  BarChart, Bar,
-  PieChart, Pie, Cell,
-  RadarChart, Radar, PolarGrid, PolarAngleAxis,
-  XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -26,17 +39,72 @@ interface Summary {
   lastWeekNewUsers: number;
   byRole: { teachers: number; students: number; others: number };
 }
-interface StateRow { state: string; total: number }
-interface CityRow { city: string; state: string; total: number }
-interface SubjectRow { subject: string; total: number }
-interface TimeRow { period: string; total: number }
-interface ThemeRow { theme: string; plays: number; avg_score: number; max_score: number; avg_time_s: number }
-interface PlayerRow { player_name: string; total_score: number; games_played: number; avg_score: number }
-interface HeatRow { hour: number; plays: number }
-interface AgeRow { faixa: string; total: number }
-interface UserRow { id: string; name: string; role: string; role_detail: string | null; subject: string | null; age: number | null; city: string; state: string; created_at: string }
-interface AuditRow { id: number; event: string; entity: string | null; entity_id: string | null; ip: string | null; created_at: string }
-interface ScoreRow { id: string; player_name: string; theme: string; score: number; attempts: number; time_seconds: number; played_at: string }
+interface StateRow {
+  state: string;
+  total: number;
+}
+interface CityRow {
+  city: string;
+  state: string;
+  total: number;
+}
+interface SubjectRow {
+  subject: string;
+  total: number;
+}
+interface TimeRow {
+  period: string;
+  total: number;
+}
+interface ThemeRow {
+  theme: string;
+  plays: number;
+  avg_score: number;
+  max_score: number;
+  avg_time_s: number;
+}
+interface PlayerRow {
+  player_name: string;
+  total_score: number;
+  games_played: number;
+  avg_score: number;
+}
+interface HeatRow {
+  hour: number;
+  plays: number;
+}
+interface AgeRow {
+  faixa: string;
+  total: number;
+}
+interface UserRow {
+  id: string;
+  name: string;
+  role: string;
+  role_detail: string | null;
+  subject: string | null;
+  age: number | null;
+  city: string;
+  state: string;
+  created_at: string;
+}
+interface AuditRow {
+  id: number;
+  event: string;
+  entity: string | null;
+  entity_id: string | null;
+  ip: string | null;
+  created_at: string;
+}
+interface ScoreRow {
+  id: string;
+  player_name: string;
+  theme: string;
+  score: number;
+  attempts: number;
+  time_seconds: number;
+  played_at: string;
+}
 
 type Tab = "overview" | "users" | "scores" | "audit";
 type Interval = "day" | "week" | "month";
@@ -44,15 +112,15 @@ type Interval = "day" | "week" | "month";
 // ─── Paleta ──────────────────────────────────────────────────────────────────
 
 const PALETTE = {
-  navy: "#004278",
-  navyD: "#002a4e",
-  sky: "#5ce2e7",
-  blood: "#dc2626",
-  organs: "#2563eb",
-  milk: "#16a34a",
-  teacher: "#004278",
-  student: "#0ea5e9",
-  other: "#9ca3af",
+  navy: "#13221f",
+  navyD: "#0a1513",
+  sky: "#7ed958",
+  blood: "#d20101",
+  organs: "#5fb83a",
+  milk: "#ecbe08",
+  teacher: "#13221f",
+  student: "#ecbe08",
+  other: "#9aa8a4",
 };
 
 const THEME_LABEL: Record<string, string> = { blood: "Sangue", organs: "Órgãos", milk: "Leite" };
@@ -69,13 +137,16 @@ const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 
 const fmtTime = (s: number) => {
-  const m = Math.floor(s / 60), sec = s % 60;
+  const m = Math.floor(s / 60),
+    sec = s % 60;
   return `${m}m ${sec}s`;
 };
 
 function useAutoRefresh(fn: () => void, ms: number) {
   const ref = useRef(fn);
-  useEffect(() => { ref.current = fn; }, [fn]);
+  useEffect(() => {
+    ref.current = fn;
+  }, [fn]);
   useEffect(() => {
     const id = setInterval(() => ref.current(), ms);
     return () => clearInterval(id);
@@ -105,15 +176,27 @@ function Spinner({ size = 24 }: { size?: number }) {
   return <span className="adm-spinner" style={{ width: size, height: size }} />;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipEntry {
+  dataKey?: string | number;
+  name?: string | number;
+  value?: number | string;
+  color?: string;
+}
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: readonly TooltipEntry[];
+  label?: string | number;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="adm-tooltip">
       <p className="adm-tooltip__label">{label}</p>
-      {payload.map((p: any) => (
-        <p key={p.dataKey} className="adm-tooltip__row" style={{ color: p.color }}>
+      {payload.map((p) => (
+        <p key={String(p.dataKey)} className="adm-tooltip__row" style={{ color: p.color }}>
           <span className="adm-tooltip__key">{p.name ?? p.dataKey}</span>
-          <span className="adm-tooltip__val">{fmt(p.value)}</span>
+          <span className="adm-tooltip__val">{fmt(Number(p.value ?? 0))}</span>
         </p>
       ))}
     </div>
@@ -129,8 +212,16 @@ function RoleBadge({ role }: { role: string }) {
   return <span className={`adm-role adm-role--${role}`}>{map[role] ?? role}</span>;
 }
 
-function Pager({ page, total, limit, onChange }: {
-  page: number; total: number; limit: number; onChange: (p: number) => void;
+function Pager({
+  page,
+  total,
+  limit,
+  onChange,
+}: {
+  page: number;
+  total: number;
+  limit: number;
+  onChange: (p: number) => void;
 }) {
   const pages = Math.ceil(total / limit);
   if (pages <= 1) return null;
@@ -139,7 +230,9 @@ function Pager({ page, total, limit, onChange }: {
       <button className="adm-pager__btn" disabled={page <= 1} onClick={() => onChange(page - 1)}>
         <i className="bx bx-chevron-left" />
       </button>
-      <span className="adm-pager__info">{page} / {pages}</span>
+      <span className="adm-pager__info">
+        {page} / {pages}
+      </span>
       <button className="adm-pager__btn" disabled={page >= pages} onClick={() => onChange(page + 1)}>
         <i className="bx bx-chevron-right" />
       </button>
@@ -205,18 +298,17 @@ const AdminDashboard: React.FC = () => {
 
   // ── Fetches ───────────────────────────────────────────────
   const fetchOverview = useCallback(async () => {
-    const [sumR, stateR, cityR, subjectR, timeR, themeR, playerR, heatR, ageR] =
-      await Promise.all([
-        api.get("/api/dashboard/summary"),
-        api.get("/api/dashboard/users-by-state"),
-        api.get("/api/dashboard/users-by-city?limit=8"),
-        api.get("/api/dashboard/users-by-subject"),
-        api.get(`/api/dashboard/registrations-over-time?interval=${interval_}`),
-        api.get("/api/dashboard/scores-by-theme"),
-        api.get("/api/dashboard/top-players?n=10"),
-        api.get("/api/dashboard/activity-heatmap"),
-        api.get("/api/dashboard/users-by-age"),
-      ]);
+    const [sumR, stateR, cityR, subjectR, timeR, themeR, playerR, heatR, ageR] = await Promise.all([
+      api.get("/api/dashboard/summary"),
+      api.get("/api/dashboard/users-by-state"),
+      api.get("/api/dashboard/users-by-city?limit=8"),
+      api.get("/api/dashboard/users-by-subject"),
+      api.get(`/api/dashboard/registrations-over-time?interval=${interval_}`),
+      api.get("/api/dashboard/scores-by-theme"),
+      api.get("/api/dashboard/top-players?n=10"),
+      api.get("/api/dashboard/activity-heatmap"),
+      api.get("/api/dashboard/users-by-age"),
+    ]);
     setSummary(sumR.data);
     setByState(stateR.data.data);
     setByCity(cityR.data.data);
@@ -247,10 +339,7 @@ const AdminDashboard: React.FC = () => {
   const fetchAudit = useCallback(async () => {
     const p = new URLSearchParams({ page: String(auditPage), limit: "20" });
     if (auditEvent) p.set("event", auditEvent);
-    const [logR, evR] = await Promise.all([
-      api.get(`/api/audit?${p}`),
-      api.get("/api/audit/events"),
-    ]);
+    const [logR, evR] = await Promise.all([api.get(`/api/audit?${p}`), api.get("/api/audit/events")]);
     setAudit(logR.data.data);
     setAuditTotal(logR.data.total);
     setAuditEvents(evR.data.data);
@@ -261,23 +350,29 @@ const AdminDashboard: React.FC = () => {
     if (!isAuthenticated) return;
     (async () => {
       setLoading(true);
-      try { await fetchOverview(); } catch { }
+      try {
+        await fetchOverview();
+      } catch {
+        /* falha de rede: os cards exibem o estado vazio */
+      }
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- carrega apenas ao autenticar
   }, [isAuthenticated]);
 
   // Re-fetch por aba / filtros
   useEffect(() => {
     if (!isAuthenticated) return;
-    if (tab === "overview") fetchOverview().catch(() => { });
-    if (tab === "users") fetchUsers().catch(() => { });
-    if (tab === "scores") fetchScores().catch(() => { });
-    if (tab === "audit") fetchAudit().catch(() => { });
+    if (tab === "overview") fetchOverview().catch(() => {});
+    if (tab === "users") fetchUsers().catch(() => {});
+    if (tab === "scores") fetchScores().catch(() => {});
+    if (tab === "audit") fetchAudit().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- os filtros listados já cobrem as dependências reais
   }, [tab, interval_, userPage, userQ, userRole, userState, scorePage, auditPage, auditEvent, isAuthenticated]);
 
   // Auto-refresh 60s
   useAutoRefresh(() => {
-    if (tab === "overview" && isAuthenticated) fetchOverview().catch(() => { });
+    if (tab === "overview" && isAuthenticated) fetchOverview().catch(() => {});
     setLastUpdated(new Date());
   }, 60_000);
 
@@ -291,7 +386,9 @@ const AdminDashboard: React.FC = () => {
       if (tab === "audit") await fetchAudit();
       setLastUpdated(new Date());
       showToast("Dados atualizados!");
-    } catch { showToast("Erro ao atualizar."); }
+    } catch {
+      showToast("Erro ao atualizar.");
+    }
     setRefreshing(false);
   };
 
@@ -303,7 +400,9 @@ const AdminDashboard: React.FC = () => {
       showToast(`"${name}" removido.`);
       fetchUsers();
       fetchOverview();
-    } catch { showToast("Erro ao remover usuário."); }
+    } catch {
+      showToast("Erro ao remover usuário.");
+    }
   };
 
   const handleDeleteScore = async (id: string) => {
@@ -313,7 +412,9 @@ const AdminDashboard: React.FC = () => {
       showToast("Pontuação removida.");
       fetchScores();
       fetchOverview();
-    } catch { showToast("Erro ao remover pontuação."); }
+    } catch {
+      showToast("Erro ao remover pontuação.");
+    }
   };
 
   const handleLogout = async () => {
@@ -329,12 +430,12 @@ const AdminDashboard: React.FC = () => {
   ];
 
   const heatFull = Array.from({ length: 24 }, (_, i) => {
-    const found = heatmap.find(h => Number(h.hour) === i);
+    const found = heatmap.find((h) => Number(h.hour) === i);
     return { hour: `${String(i).padStart(2, "0")}h`, plays: found ? Number(found.plays) : 0 };
   });
-  const heatMax = Math.max(...heatFull.map(h => h.plays), 1);
+  const heatMax = Math.max(...heatFull.map((h) => h.plays), 1);
 
-  const radarData = themeStats.map(t => ({
+  const radarData = themeStats.map((t) => ({
     tema: THEME_LABEL[t.theme] ?? t.theme,
     Partidas: Number(t.plays),
     "Méd. Pts": Number(t.avg_score),
@@ -354,7 +455,6 @@ const AdminDashboard: React.FC = () => {
   // ─────────────────────────────────────────────────────────
   return (
     <div className="adm">
-
       {/* Toast */}
       {toast && <div className="adm-toast">{toast}</div>}
 
@@ -387,12 +487,7 @@ const AdminDashboard: React.FC = () => {
             >
               <i className="bx bx-refresh" />
             </button>
-            <button
-              className="adm-header__refresh"
-              onClick={handleLogout}
-              title="Sair"
-              style={{ color: "#dc2626" }}
-            >
+            <button className="adm-header__refresh" onClick={handleLogout} title="Sair" style={{ color: "#dc2626" }}>
               <i className="bx bx-log-out" />
             </button>
           </div>
@@ -402,12 +497,14 @@ const AdminDashboard: React.FC = () => {
       {/* ── Tabs ── */}
       <nav className="adm-tabs">
         <div className="adm-tabs__inner">
-          {([
-            { key: "overview", label: "Visão Geral", icon: "bx-grid-alt" },
-            { key: "users", label: "Usuários", icon: "bx-group", badge: summary?.totalUsers },
-            { key: "scores", label: "Pontuações", icon: "bx-trophy", badge: summary?.totalScores },
-            { key: "audit", label: "Auditoria", icon: "bx-shield-alt-2" },
-          ] as { key: Tab; label: string; icon: string; badge?: number }[]).map(t => (
+          {(
+            [
+              { key: "overview", label: "Visão Geral", icon: "bx-grid-alt" },
+              { key: "users", label: "Usuários", icon: "bx-group", badge: summary?.totalUsers },
+              { key: "scores", label: "Pontuações", icon: "bx-trophy", badge: summary?.totalScores },
+              { key: "audit", label: "Auditoria", icon: "bx-shield-alt-2" },
+            ] as { key: Tab; label: string; icon: string; badge?: number }[]
+          ).map((t) => (
             <button
               key={t.key}
               className={`adm-tab${tab === t.key ? " adm-tab--active" : ""}`}
@@ -422,42 +519,52 @@ const AdminDashboard: React.FC = () => {
       </nav>
 
       <main className="adm-main">
-
         {/* ══════════════════════════════════════════════════════
             OVERVIEW
         ══════════════════════════════════════════════════════ */}
         {tab === "overview" && (
           <div className="adm-overview">
-
             {/* KPI Cards */}
             <section className="adm-kpis">
               {[
                 {
-                  icon: "bx-group", label: "Usuários cadastrados",
-                  value: summary?.totalUsers ?? 0, color: "blue",
+                  icon: "bx-group",
+                  label: "Usuários cadastrados",
+                  value: summary?.totalUsers ?? 0,
+                  color: "blue",
                   sub: `+${summary?.lastWeekNewUsers ?? 0} esta semana`,
                 },
                 {
-                  icon: "bx-trophy", label: "Partidas jogadas",
-                  value: summary?.totalScores ?? 0, color: "red",
+                  icon: "bx-trophy",
+                  label: "Partidas jogadas",
+                  value: summary?.totalScores ?? 0,
+                  color: "red",
                   sub: `Média ${fmt(summary?.avgScore, 0)} pts`,
                 },
                 {
-                  icon: "bx-book-open", label: "Professores",
-                  value: summary?.byRole.teachers ?? 0, color: "navy",
+                  icon: "bx-book-open",
+                  label: "Professores",
+                  value: summary?.byRole.teachers ?? 0,
+                  color: "navy",
                   sub: `de ${summary?.totalUsers ?? 0} usuários`,
                 },
                 {
-                  icon: "bx-graduation", label: "Alunos",
-                  value: summary?.byRole.students ?? 0, color: "sky",
+                  icon: "bx-graduation",
+                  label: "Alunos",
+                  value: summary?.byRole.students ?? 0,
+                  color: "sky",
                   sub: `de ${summary?.totalUsers ?? 0} usuários`,
                 },
               ].map((k, i) => (
                 <div key={i} className={`adm-kpi adm-kpi--${k.color}`} style={{ animationDelay: `${i * 80}ms` }}>
-                  <div className="adm-kpi__icon-wrap"><i className={`bx ${k.icon}`} /></div>
+                  <div className="adm-kpi__icon-wrap">
+                    <i className={`bx ${k.icon}`} />
+                  </div>
                   <div className="adm-kpi__body">
                     <span className="adm-kpi__label">{k.label}</span>
-                    <strong className="adm-kpi__value"><AnimNumber value={k.value} /></strong>
+                    <strong className="adm-kpi__value">
+                      <AnimNumber value={k.value} />
+                    </strong>
                     <span className="adm-kpi__sub">{k.sub}</span>
                   </div>
                 </div>
@@ -472,7 +579,7 @@ const AdminDashboard: React.FC = () => {
                   <p className="adm-card__sub">Novos usuários por período</p>
                 </div>
                 <div className="adm-interval-btns">
-                  {(["day", "week", "month"] as Interval[]).map(iv => (
+                  {(["day", "week", "month"] as Interval[]).map((iv) => (
                     <button
                       key={iv}
                       className={`adm-interval-btn${interval_ === iv ? " adm-interval-btn--active" : ""}`}
@@ -492,13 +599,27 @@ const AdminDashboard: React.FC = () => {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="period" tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <XAxis
+                    dataKey="period"
+                    tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
                   <Tooltip content={<CustomTooltip />} />
                   <Area
-                    type="monotone" dataKey="total" name="Cadastros"
-                    stroke={PALETTE.navy} strokeWidth={2.5}
-                    fill="url(#gradUsers)" dot={false}
+                    type="monotone"
+                    dataKey="total"
+                    name="Cadastros"
+                    stroke={PALETTE.navy}
+                    strokeWidth={2.5}
+                    fill="url(#gradUsers)"
+                    dot={false}
                     activeDot={{ r: 5, fill: PALETTE.navy }}
                   />
                 </AreaChart>
@@ -516,16 +637,28 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart
-                    data={themeStats.map(t => ({ ...t, tema: THEME_LABEL[t.theme] ?? t.theme }))}
+                    data={themeStats.map((t) => ({ ...t, tema: THEME_LABEL[t.theme] ?? t.theme }))}
                     margin={{ top: 8, right: 8, bottom: 0, left: -8 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="tema" tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <XAxis
+                      dataKey="tema"
+                      tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
+                      tickLine={false}
+                      axisLine={false}
+                      allowDecimals={false}
+                    />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Muli" }} />
                     <Bar dataKey="plays" name="Partidas" radius={[4, 4, 0, 0]}>
-                      {themeStats.map(t => <Cell key={t.theme} fill={THEME_COLOR[t.theme] ?? PALETTE.navy} />)}
+                      {themeStats.map((t) => (
+                        <Cell key={t.theme} fill={THEME_COLOR[t.theme] ?? PALETTE.navy} />
+                      ))}
                     </Bar>
                     <Bar dataKey="avg_score" name="Méd. Pts" fill={PALETTE.sky} radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -544,21 +677,22 @@ const AdminDashboard: React.FC = () => {
                     <PieChart>
                       <Pie
                         data={rolePieData}
-                        cx="50%" cy="50%"
-                        innerRadius={55} outerRadius={85}
-                        paddingAngle={4} dataKey="value"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={85}
+                        paddingAngle={4}
+                        dataKey="value"
                       >
-                        {rolePieData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                        {rolePieData.map((d, i) => (
+                          <Cell key={i} fill={d.color} />
+                        ))}
                       </Pie>
-                      <Tooltip
-                        formatter={(v: any) =>
-                          fmt(typeof v === "number" ? v : Number(v))
-                        }
-                      />
+                      <Tooltip formatter={(v: unknown) => fmt(typeof v === "number" ? v : Number(v))} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="adm-pie-legend">
-                    {rolePieData.map(d => (
+                    {rolePieData.map((d) => (
                       <div key={d.name} className="adm-pie-legend__row">
                         <span className="adm-pie-legend__dot" style={{ background: d.color }} />
                         <span className="adm-pie-legend__label">{d.name}</span>
@@ -591,7 +725,8 @@ const AdminDashboard: React.FC = () => {
                       <XAxis
                         dataKey="faixa"
                         tick={{ fontSize: 9, fontFamily: "Muli", fill: "#9ca3af" }}
-                        tickLine={false} axisLine={false}
+                        tickLine={false}
+                        axisLine={false}
                         interval={0}
                         angle={-15}
                         textAnchor="end"
@@ -599,7 +734,8 @@ const AdminDashboard: React.FC = () => {
                       />
                       <YAxis
                         tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
-                        tickLine={false} axisLine={false}
+                        tickLine={false}
+                        axisLine={false}
                         allowDecimals={false}
                       />
                       <Tooltip content={<CustomTooltip />} />
@@ -642,12 +778,15 @@ const AdminDashboard: React.FC = () => {
               <section className="adm-card">
                 <div className="adm-card__head">
                   <div>
-                    <h2 className="adm-card__title">Matérias — Professores</h2>
+                    <h2 className="adm-card__title">Matérias dos professores</h2>
                     <p className="adm-card__sub">Por disciplina lecionada</p>
                   </div>
                 </div>
                 {bySubject.length === 0 ? (
-                  <div className="adm-empty"><i className="bx bx-data" /><p>Sem dados</p></div>
+                  <div className="adm-empty">
+                    <i className="bx bx-data" />
+                    <p>Sem dados</p>
+                  </div>
                 ) : (
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart
@@ -656,8 +795,21 @@ const AdminDashboard: React.FC = () => {
                       margin={{ top: 4, right: 16, bottom: 4, left: 8 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                      <XAxis type="number" tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                      <YAxis type="category" dataKey="subject" width={90} tick={{ fontSize: 10, fontFamily: "Muli", fill: "#4b5563" }} tickLine={false} axisLine={false} />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 11, fontFamily: "Muli", fill: "#9ca3af" }}
+                        tickLine={false}
+                        axisLine={false}
+                        allowDecimals={false}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="subject"
+                        width={90}
+                        tick={{ fontSize: 10, fontFamily: "Muli", fill: "#4b5563" }}
+                        tickLine={false}
+                        axisLine={false}
+                      />
                       <Tooltip content={<CustomTooltip />} />
                       <Bar dataKey="total" name="Professores" fill={PALETTE.navy} radius={[0, 4, 4, 0]} />
                     </BarChart>
@@ -675,17 +827,26 @@ const AdminDashboard: React.FC = () => {
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={heatFull} margin={{ top: 4, right: 8, bottom: 0, left: -24 }} barSize={10}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="hour" tick={{ fontSize: 9, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} interval={2} />
-                    <YAxis tick={{ fontSize: 10, fontFamily: "Muli", fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <XAxis
+                      dataKey="hour"
+                      tick={{ fontSize: 9, fontFamily: "Muli", fill: "#9ca3af" }}
+                      tickLine={false}
+                      axisLine={false}
+                      interval={2}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fontFamily: "Muli", fill: "#9ca3af" }}
+                      tickLine={false}
+                      axisLine={false}
+                      allowDecimals={false}
+                    />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="plays" name="Partidas" radius={[3, 3, 0, 0]}>
                       {heatFull.map((d, i) => (
                         <Cell
                           key={i}
                           fill={
-                            d.plays > 0
-                              ? `rgba(0,66,120,${(0.2 + (d.plays / heatMax) * 0.8).toFixed(2)})`
-                              : "#f0f0f0"
+                            d.plays > 0 ? `rgba(0,66,120,${(0.2 + (d.plays / heatMax) * 0.8).toFixed(2)})` : "#f0f0f0"
                           }
                         />
                       ))}
@@ -704,15 +865,39 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
               {radarData.length === 0 ? (
-                <div className="adm-empty"><i className="bx bx-data" /><p>Sem dados</p></div>
+                <div className="adm-empty">
+                  <i className="bx bx-data" />
+                  <p>Sem dados</p>
+                </div>
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="#e5e5e5" />
-                    <PolarAngleAxis dataKey="tema" tick={{ fontSize: 12, fontFamily: "Josefin Sans", fill: "#4b5563" }} />
-                    <Radar name="Partidas" dataKey="Partidas" stroke={PALETTE.navy} fill={PALETTE.navy} fillOpacity={0.2} />
-                    <Radar name="Méd. Pts" dataKey="Méd. Pts" stroke={PALETTE.sky} fill={PALETTE.sky} fillOpacity={0.15} />
-                    <Radar name="Máx. Pts" dataKey="Máx. Pts" stroke={PALETTE.blood} fill={PALETTE.blood} fillOpacity={0.1} />
+                    <PolarAngleAxis
+                      dataKey="tema"
+                      tick={{ fontSize: 12, fontFamily: "Josefin Sans", fill: "#4b5563" }}
+                    />
+                    <Radar
+                      name="Partidas"
+                      dataKey="Partidas"
+                      stroke={PALETTE.navy}
+                      fill={PALETTE.navy}
+                      fillOpacity={0.2}
+                    />
+                    <Radar
+                      name="Méd. Pts"
+                      dataKey="Méd. Pts"
+                      stroke={PALETTE.sky}
+                      fill={PALETTE.sky}
+                      fillOpacity={0.15}
+                    />
+                    <Radar
+                      name="Máx. Pts"
+                      dataKey="Máx. Pts"
+                      stroke={PALETTE.blood}
+                      fill={PALETTE.blood}
+                      fillOpacity={0.1}
+                    />
                     <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Muli" }} />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -730,7 +915,13 @@ const AdminDashboard: React.FC = () => {
               <div className="adm-rank-table-wrap">
                 <table className="adm-rank-table">
                   <thead>
-                    <tr><th>#</th><th>Jogador</th><th>Partidas</th><th>Média</th><th>Total</th></tr>
+                    <tr>
+                      <th>#</th>
+                      <th>Jogador</th>
+                      <th>Partidas</th>
+                      <th>Média</th>
+                      <th>Total</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {topPlayers.map((p, i) => (
@@ -743,11 +934,17 @@ const AdminDashboard: React.FC = () => {
                         <td className="adm-rank-table__name">{p.player_name}</td>
                         <td>{fmt(p.games_played)}</td>
                         <td>{fmt(p.avg_score, 0)}</td>
-                        <td><strong className="adm-rank-table__score">{fmt(p.total_score)}</strong></td>
+                        <td>
+                          <strong className="adm-rank-table__score">{fmt(p.total_score)}</strong>
+                        </td>
                       </tr>
                     ))}
                     {topPlayers.length === 0 && (
-                      <tr><td colSpan={5} className="adm-rank-table__empty">Nenhuma partida registrada</td></tr>
+                      <tr>
+                        <td colSpan={5} className="adm-rank-table__empty">
+                          Nenhuma partida registrada
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
@@ -775,7 +972,6 @@ const AdminDashboard: React.FC = () => {
                 ))}
               </div>
             </section>
-
           </div>
         )}
 
@@ -785,7 +981,9 @@ const AdminDashboard: React.FC = () => {
         {tab === "users" && (
           <div className="adm-section">
             <div className="adm-section__head">
-              <h2 className="adm-section__title">Usuários <em>{fmt(userTotal)}</em></h2>
+              <h2 className="adm-section__title">
+                Usuários <em>{fmt(userTotal)}</em>
+              </h2>
             </div>
 
             <div className="adm-filters">
@@ -795,11 +993,20 @@ const AdminDashboard: React.FC = () => {
                   type="text"
                   placeholder="Buscar por nome, cidade ou estado…"
                   value={userQ}
-                  onChange={e => { setUserQ(e.target.value); setUserPage(1); }}
+                  onChange={(e) => {
+                    setUserQ(e.target.value);
+                    setUserPage(1);
+                  }}
                   className="adm-filters__input"
                 />
                 {userQ && (
-                  <button className="adm-filters__clear" onClick={() => { setUserQ(""); setUserPage(1); }}>
+                  <button
+                    className="adm-filters__clear"
+                    onClick={() => {
+                      setUserQ("");
+                      setUserPage(1);
+                    }}
+                  >
                     <i className="bx bx-x" />
                   </button>
                 )}
@@ -807,7 +1014,10 @@ const AdminDashboard: React.FC = () => {
               <select
                 className="adm-filters__select"
                 value={userRole}
-                onChange={e => { setUserRole(e.target.value); setUserPage(1); }}
+                onChange={(e) => {
+                  setUserRole(e.target.value);
+                  setUserPage(1);
+                }}
               >
                 <option value="">Todos os perfis</option>
                 <option value="teacher">Professor</option>
@@ -819,7 +1029,10 @@ const AdminDashboard: React.FC = () => {
                 placeholder="UF"
                 maxLength={2}
                 value={userState}
-                onChange={e => { setUserState(e.target.value.toUpperCase()); setUserPage(1); }}
+                onChange={(e) => {
+                  setUserState(e.target.value.toUpperCase());
+                  setUserPage(1);
+                }}
                 className="adm-filters__input adm-filters__input--sm"
               />
             </div>
@@ -840,18 +1053,22 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(u => (
+                  {users.map((u) => (
                     <tr key={u.id}>
                       <td className="adm-table__name">
                         <div className="adm-table__avatar">{u.name.charAt(0).toUpperCase()}</div>
                         {u.name}
                       </td>
-                      <td><RoleBadge role={u.role} /></td>
+                      <td>
+                        <RoleBadge role={u.role} />
+                      </td>
                       <td className="adm-table__muted">{u.role_detail ?? "—"}</td>
                       <td className="adm-table__muted">{u.subject ?? "—"}</td>
                       <td className="adm-table__muted">{u.age != null ? `${u.age} anos` : "—"}</td>
                       <td>{u.city}</td>
-                      <td><span className="adm-uf">{u.state}</span></td>
+                      <td>
+                        <span className="adm-uf">{u.state}</span>
+                      </td>
                       <td className="adm-table__muted">{fmtDate(u.created_at)}</td>
                       <td>
                         <button className="adm-table__del" onClick={() => handleDeleteUser(u.id, u.name)}>
@@ -861,7 +1078,11 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   ))}
                   {users.length === 0 && (
-                    <tr><td colSpan={9} className="adm-table__empty">Nenhum usuário encontrado</td></tr>
+                    <tr>
+                      <td colSpan={9} className="adm-table__empty">
+                        Nenhum usuário encontrado
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
@@ -876,7 +1097,9 @@ const AdminDashboard: React.FC = () => {
         {tab === "scores" && (
           <div className="adm-section">
             <div className="adm-section__head">
-              <h2 className="adm-section__title">Pontuações <em>{fmt(scoreTotal)}</em></h2>
+              <h2 className="adm-section__title">
+                Pontuações <em>{fmt(scoreTotal)}</em>
+              </h2>
             </div>
             <div className="adm-table-wrap">
               <table className="adm-table">
@@ -892,7 +1115,7 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {scores.map(s => (
+                  {scores.map((s) => (
                     <tr key={s.id}>
                       <td className="adm-table__name">
                         <div className="adm-table__avatar" style={{ background: THEME_COLOR[s.theme] }}>
@@ -900,8 +1123,12 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         {s.player_name}
                       </td>
-                      <td><ThemePill theme={s.theme} /></td>
-                      <td><strong className="adm-score-val">{fmt(s.score)}</strong></td>
+                      <td>
+                        <ThemePill theme={s.theme} />
+                      </td>
+                      <td>
+                        <strong className="adm-score-val">{fmt(s.score)}</strong>
+                      </td>
                       <td>{s.attempts}</td>
                       <td className="adm-table__muted">{fmtTime(s.time_seconds)}</td>
                       <td className="adm-table__muted">{fmtDate(s.played_at)}</td>
@@ -913,7 +1140,11 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   ))}
                   {scores.length === 0 && (
-                    <tr><td colSpan={7} className="adm-table__empty">Nenhuma pontuação registrada</td></tr>
+                    <tr>
+                      <td colSpan={7} className="adm-table__empty">
+                        Nenhuma pontuação registrada
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
@@ -928,34 +1159,60 @@ const AdminDashboard: React.FC = () => {
         {tab === "audit" && (
           <div className="adm-section">
             <div className="adm-section__head">
-              <h2 className="adm-section__title">Auditoria <em>{fmt(auditTotal)}</em></h2>
+              <h2 className="adm-section__title">
+                Auditoria <em>{fmt(auditTotal)}</em>
+              </h2>
             </div>
             <div className="adm-filters">
               <select
                 className="adm-filters__select"
                 value={auditEvent}
-                onChange={e => { setAuditEvent(e.target.value); setAuditPage(1); }}
+                onChange={(e) => {
+                  setAuditEvent(e.target.value);
+                  setAuditPage(1);
+                }}
               >
                 <option value="">Todos os eventos</option>
-                {auditEvents.map(ev => <option key={ev} value={ev}>{ev}</option>)}
+                {auditEvents.map((ev) => (
+                  <option key={ev} value={ev}>
+                    {ev}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="adm-audit-list">
-              {audit.map(a => (
+              {audit.map((a) => (
                 <div key={a.id} className={`adm-audit-row adm-audit-row--${a.event.split(".")[1] ?? "info"}`}>
                   <div className="adm-audit-row__icon-wrap">
-                    <i className={`bx ${a.event.includes("created") ? "bx-plus-circle" :
-                        a.event.includes("deleted") ? "bx-minus-circle" :
-                          a.event.includes("updated") ? "bx-edit" :
-                            a.event.includes("login") ? "bx-log-in" : "bx-info-circle"
-                      }`} />
+                    <i
+                      className={`bx ${
+                        a.event.includes("created")
+                          ? "bx-plus-circle"
+                          : a.event.includes("deleted")
+                            ? "bx-minus-circle"
+                            : a.event.includes("updated")
+                              ? "bx-edit"
+                              : a.event.includes("login")
+                                ? "bx-log-in"
+                                : "bx-info-circle"
+                      }`}
+                    />
                   </div>
                   <div className="adm-audit-row__body">
                     <p className="adm-audit-row__event">{a.event}</p>
                     <p className="adm-audit-row__meta">
-                      {a.entity && <><span className="adm-audit-row__entity">{a.entity}</span> · </>}
+                      {a.entity && (
+                        <>
+                          <span className="adm-audit-row__entity">{a.entity}</span> ·{" "}
+                        </>
+                      )}
                       {a.entity_id && <span className="adm-audit-row__id">{a.entity_id.substring(0, 8)}…</span>}
-                      {a.ip && <><span className="adm-audit-row__sep">·</span><span className="adm-audit-row__ip">{a.ip}</span></>}
+                      {a.ip && (
+                        <>
+                          <span className="adm-audit-row__sep">·</span>
+                          <span className="adm-audit-row__ip">{a.ip}</span>
+                        </>
+                      )}
                     </p>
                   </div>
                   <span className="adm-audit-row__date">{fmtDate(a.created_at)}</span>
@@ -971,7 +1228,6 @@ const AdminDashboard: React.FC = () => {
             <Pager page={auditPage} total={auditTotal} limit={20} onChange={setAuditPage} />
           </div>
         )}
-
       </main>
     </div>
   );

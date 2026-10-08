@@ -1,0 +1,33 @@
+# Promoção 3D
+
+> Política pública de conscientização e incentivo à doação de sangue, órgãos, tecidos e leite humano, criada na Universidade de Pernambuco (UPE) e instituída em Pernambuco pela Lei nº 18.359/2023.
+
+## Sobre a política
+A Promoção 3D é resultado da pesquisa do doutorando em Educação Eliabi Pereira da Silva e de seu orientador, PhD Múcio Luiz Banja Fernandez, na UPE Campus Mata Norte. O nome representa as três dimensões da doação: sangue e transfusão, órgãos e tecidos, e leite humano. O foco é educativo: levar informação científica às escolas para derrubar mitos, medos e tabus e formar novos doadores.
+
+## Marcos legais
+- **Lei estadual nº 18.359/2023 (Pernambuco)**: sancionada em 27 de outubro de 2023, de autoria do Deputado Estadual Henrique Queiroz Filho (PL nº 582).
+- **PL 5.233/2023 (federal)**: propõe a Promoção 3D como Política Pública Nacional, apresentado pelo Deputado Federal Eduardo da Fonte.
+- **PL 110/2024 (federal)**: institui o Programa Nacional de Ensino da Promoção 3D no currículo escolar e acadêmico.
+- Municípios com lei sancionada incluem Nazaré da Mata, Carpina, Vitória de Santo Antão, Garanhuns, Belo Jardim, Passira, Buíque, Chã Grande, Triunfo e São José do Egito.
+
+## Recursos educativos
+- **Mitos e medos**: explicações sobre 26 mitos e medos comuns sobre doação de sangue, leite materno e órgãos.
+- **Jogos da Vida**: Tabuleiro da Vida, Memória da Vida e outros jogos pedagógicos.
+- **App Memória e Vida**: jogo da memória educativo para Android, gratuito e offline.
+- **Agente de IA**: assistente que responde dúvidas sobre doação e ajuda professores a preparar aulas.
+- **Expedição**: mapa da pesquisa de campo em escolas das 16 Gerências Regionais de Educação de Pernambuco, com 35 professores e 45 estudantes participantes.
+
+## Links importantes
+- [Início]([URL_DO_SITE]/): visão geral da política
+- [Saiba mais]([URL_DO_SITE]/saiba-mais): dimensões, metodologias, base legal e municípios
+- [Expedição]([URL_DO_SITE]/expedicao): escolas visitadas pela pesquisa nas 16 GREs
+- [Blog]([URL_DO_SITE]/blog): artigos sobre doação e políticas públicas
+- [Agente IA]([URL_DO_SITE]/agente): o assistente virtual da Promoção 3D
+- [App Memória e Vida]([URL_DO_SITE]/app): download do jogo para Android
+- [Contato]([URL_DO_SITE]/#contato): formulário para escolas e gestores
+
+## Contato
+- Instituição: Universidade de Pernambuco, Campus Mata Norte, Nazaré da Mata - PE
+- E-mail: [EMAIL_DE_CONTATO]
+- Área de atuação: Pernambuco, com proposta de alcance nacional

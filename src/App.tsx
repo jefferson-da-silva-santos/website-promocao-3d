@@ -1,96 +1,150 @@
-// src/App.tsx
-// ─────────────────────────────────────────────────────────────────────────────
-//  Promoção 3D — App principal
-//  Providers: BlogProvider (blog público + admin CRUD)
-//             AdminProvider (autenticação admin via API)
-// ─────────────────────────────────────────────────────────────────────────────
+/*
+ * Promoção 3D: aplicação principal.
+ *
+ * SEO · palavras-chave
+ *  Principal: Promoção 3D, política pública de doação de sangue, órgãos e leite humano em Pernambuco
+ *  Secundárias: educação em saúde nas escolas; Lei 18.359/2023; PL 110/2024; mitos sobre doação de sangue;
+ *               jogos educativos sobre doação
+ *  Cauda longa: "quem pode doar sangue com 16 anos"; "mitos e verdades sobre doação de órgãos";
+ *               "como ensinar doação de sangue na escola"; "banco de leite humano quanto precisa doar";
+ *               "escolas visitadas pela pesquisa Promoção 3D nas GREs de Pernambuco"
+ */
 
-import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy, useEffect } from "react";
+import type { FC } from "react";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import "boxicons/css/boxicons.min.css";
+import { IconContext } from "@phosphor-icons/react";
 
-// Páginas existentes
-import NavBar from "./components/NavBar";
-import Inicio from "./pages/Inicio";
-import Sobre from "./pages/Sobre";
-import Desvendando from "./pages/Desvendando";
-import Informacoes from "./pages/Informacoes";
-import Material from "./pages/Material";
-import Audiencia from "./pages/Audiencia";
-import JogoDaVida from "./pages/JogoDaVida";
-import Resultados from "./pages/Resultados";
-import Contato from "./pages/Contato";
-import Footer from "./components/Footer";
-import Option from "./components/Option";
-import ModalDesvendandoProvider from "./providers/ModalDesvendandoProvider";
-
-// Blog & Admin
 import { AdminProvider } from "./contexts/AdminContext";
 import { BlogProvider } from "./contexts/BlogContext";
-import BlogPage from "./pages/Blog";
-import BlogPostPage from "./components/BlogPost";
-import AdminPage from "./pages/AdminBlog";
-import AdminDashboard from "./pages/DashboardAdmin";
-import IA from "./pages/IA";
-import SaibaMais from "./pages/SaibaMais";
+import PageShell from "./components/layout/PageShell";
+import Inicio from "./pages/Inicio";
+import Sobre from "./pages/Sobre";
+import Informacoes from "./pages/Informacoes";
+import Desvendando from "./pages/Desvendando";
+import Trilha from "./pages/Trilha";
+import JogoDaVida from "./pages/JogoDaVida";
+import ExpedicaoTeaser from "./pages/ExpedicaoTeaser";
+import Material from "./pages/Material";
+import { scrollToSection } from "./utils/scroll";
 
-// App Memória e Vida — download
-import DownloadAppSection from "./components/DownloadAppSection";
+// Rotas secundárias carregam sob demanda: a home não paga pelo peso delas.
+// O formulário de contato traz Formik + Yup: fica fora do pacote inicial.
+const Contato = lazy(() => import("./pages/Contato"));
+const BlogPage = lazy(() => import("./pages/Blog"));
+const BlogPostPage = lazy(() => import("./components/BlogPost"));
+const SaibaMais = lazy(() => import("./pages/SaibaMais"));
+const IA = lazy(() => import("./pages/IA"));
+const DownloadAppSection = lazy(() => import("./components/DownloadAppSection"));
+const Expedicao = lazy(() => import("./pages/Expedicao"));
+const AdminPage = lazy(() => import("./pages/AdminBlog"));
+const AdminDashboard = lazy(() => import("./pages/DashboardAdmin"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-// ─── Home ─────────────────────────────────────────────────────────────────────
+// ─── Home ────────────────────────────────────────────────────────────────────
 
-const HomePage: React.FC = () => {
-  useEffect(() => {
-    AOS.init({ duration: 800, easing: "ease-out-cubic", once: false, offset: 80 });
-  }, []);
-
-  return (
-    <ModalDesvendandoProvider>
-      <Option />
-      <NavBar />
-      <Inicio />
-      <Sobre />
-      <Desvendando />
-      <Material />
-      <Audiencia />
-      <JogoDaVida />
-      <Informacoes />
-      <Resultados />
+/** Página inicial: narrativa da política, do porquê ao como participar. */
+const HomePage: FC = () => (
+  <PageShell className="home">
+    <Inicio />
+    <Sobre />
+    <Informacoes />
+    <Desvendando />
+    <Trilha />
+    <JogoDaVida />
+    <ExpedicaoTeaser />
+    <Material />
+    <Suspense fallback={<div className="section-placeholder" aria-hidden="true" />}>
       <Contato />
-      <Footer />
-    </ModalDesvendandoProvider>
-  );
+    </Suspense>
+  </PageShell>
+);
+
+// ─── Comportamentos globais de navegação ─────────────────────────────────────
+
+/** Ao trocar de rota, volta ao topo ou rola até a âncora indicada no hash. */
+const ScrollManager: FC = () => {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const id = decodeURIComponent(hash.slice(1));
+      const timer = window.setTimeout(() => scrollToSection(id), 120);
+      return () => window.clearTimeout(timer);
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    return undefined;
+  }, [pathname, hash]);
+
+  useEffect(() => {
+    AOS.refreshHard();
+  }, [pathname]);
+
+  return null;
 };
+
+/** Esqueleto exibido enquanto uma rota sob demanda é baixada. */
+const RouteFallback: FC = () => (
+  <div className="route-loading" role="status" aria-label="Carregando página">
+    <span className="skeleton skeleton--title" />
+    <span className="skeleton skeleton--line" />
+    <span className="skeleton skeleton--line skeleton--short" />
+  </div>
+);
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 
-const App: React.FC = () => (
-  <BrowserRouter>
-    {/*
-      AdminProvider: gerencia token de sessão admin (sessionStorage)
-      BlogProvider: carrega posts da API; usa token do AdminProvider para escrita
-    */}
-    <AdminProvider>
-      <BlogProvider>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:id" element={<BlogPostPage />} />
-          {/* Admin do blog — login + editor de posts */}
-          <Route path="/admin" element={<AdminPage />} />
-          {/* Dashboard analytics — requer login admin */}
-          <Route path="/admin-dash" element={<AdminDashboard />} />
-          <Route path="/agente" element={<IA />} />
-          <Route path="/saiba-mais" element={<SaibaMais />} />
-          {/* Página de download do app Memória e Vida */}
-          <Route path="/app" element={<DownloadAppSection />} />
-          <Route path="*" element={<HomePage />} />
-        </Routes>
-      </BlogProvider>
-    </AdminProvider>
-  </BrowserRouter>
-);
+const App: FC = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 700,
+      easing: "ease-out-cubic",
+      once: true,
+      offset: 64,
+      disable: () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    });
+
+    // Conteúdo carregado sob demanda muda a altura da página: recalcula os gatilhos do AOS.
+    let frame = 0;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => AOS.refresh());
+    });
+    ro.observe(document.body);
+    return () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+    };
+  }, []);
+
+  return (
+    <IconContext.Provider value={{ weight: "regular", mirrored: false }}>
+      <BrowserRouter>
+        <ScrollManager />
+        {/* AdminProvider: sessão do admin (sessionStorage). BlogProvider: posts da API; usa o token para escrita. */}
+        <AdminProvider>
+          <BlogProvider>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:id" element={<BlogPostPage />} />
+                <Route path="/saiba-mais" element={<SaibaMais />} />
+                <Route path="/agente" element={<IA />} />
+                <Route path="/app" element={<DownloadAppSection />} />
+                <Route path="/expedicao" element={<Expedicao />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin-dash" element={<AdminDashboard />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BlogProvider>
+        </AdminProvider>
+      </BrowserRouter>
+    </IconContext.Provider>
+  );
+};
 
 export default App;

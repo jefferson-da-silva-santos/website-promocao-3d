@@ -1,0 +1,134 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  Design tokens · Promoção 3D
+//  Base neutra levemente esverdeada + as três cores da logo oficial como código das dimensões:
+//  vermelho = sangue · verde = órgãos e tecidos · amarelo = leite humano.
+//  Regra de forma: botões e campos 10px, cartões 16px, mídias 22px, chips em pílula.
+// ─────────────────────────────────────────────────────────────────────────────
+
+$bp-sm: 640px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+@mixin up($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+@mixin down($bp) {
+  @media (max-width: ($bp - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin motion {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+@mixin hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+:root {
+  color-scheme: light;
+
+  // Superfícies
+  --paper: #f4f6f5;
+  --surface: #fcfdfc;
+  --surface-2: #ebf0ee;
+  --surface-3: #e1e8e5;
+  --line: #dce3e0;
+  --line-strong: #bfcbc6;
+
+  // Texto
+  --ink: #13221f;
+  --ink-2: #34433f;
+  --muted: #586764;
+  --on-ink: #f4f6f5;
+
+  // Ação (verde da logo, escurecido para contraste AA)
+  --accent: #236a2c;
+  --accent-hover: #1a5121;
+  --accent-soft: #e3f3df;
+  --focus: #2f8a3c;
+
+  // Dimensões
+  --sangue: #d20101;
+  --sangue-ink: #a50e0e;
+  --sangue-soft: #fde7e4;
+  --orgaos: #7ed958;
+  --orgaos-ink: #2d6a12;
+  --orgaos-soft: #e7f6de;
+  --leite: #ecbe08;
+  --leite-ink: #6b4f00;
+  --leite-soft: #fdf4d2;
+
+  // Estados
+  --success: #2d6a12;
+  --success-soft: #e7f6de;
+  --warning: #8a5a00;
+  --warning-soft: #fdf1d8;
+  --danger: #a50e0e;
+  --danger-soft: #fde7e4;
+
+  // Marca-texto educativo (destaque de palavras-chave em títulos)
+  --highlight: rgba(236, 190, 8, 0.38);
+
+  // Tipografia
+  --font-display: "Bricolage Grotesque Variable", "Figtree Variable", system-ui, sans-serif;
+  --font-body: "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", monospace;
+
+  --fs-xs: 0.78rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: clamp(1.15rem, 0.4vw + 1.05rem, 1.3rem);
+  --fs-h3: clamp(1.2rem, 0.5vw + 1.08rem, 1.4rem);
+  --fs-h2: clamp(2rem, 2.6vw + 1.1rem, 3.1rem);
+  --fs-h1: clamp(2.5rem, 3.6vw + 1.2rem, 4.35rem);
+
+  // Espaço e forma
+  --gutter: clamp(1rem, 3vw, 2rem);
+  --container: 1240px;
+  --section-y: clamp(4rem, 7vw, 6.5rem);
+  --header-h: 68px;
+  --r-control: 10px;
+  --r-card: 16px;
+  --r-media: 22px;
+  --r-pill: 999px;
+
+  // Sombras tingidas com a cor da tinta (nunca preto puro)
+  --shadow-xs: 0 1px 2px rgba(19, 34, 31, 0.06);
+  --shadow-sm: 0 1px 2px rgba(19, 34, 31, 0.05), 0 4px 14px -6px rgba(19, 34, 31, 0.12);
+  --shadow-md: 0 2px 4px rgba(19, 34, 31, 0.04), 0 18px 40px -18px rgba(19, 34, 31, 0.24);
+  --shadow-lg: 0 30px 70px -28px rgba(19, 34, 31, 0.35);
+
+  // Vidro fosco
+  --glass-bg: rgba(252, 253, 252, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(19, 34, 31, 0.04);
+
+  // Movimento
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 160ms;
+  --t-base: 260ms;
+  --t-slow: 700ms;
+
+  // Camadas
+  --z-sentinel: 0;
+  --z-sticky: 20;
+  --z-header: 40;
+  --z-menu: 50;
+  --z-dialog: 70;
+  --z-grain: 90;
+  --z-skip: 100;
+}

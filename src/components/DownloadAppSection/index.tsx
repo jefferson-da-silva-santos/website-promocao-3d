@@ -1,103 +1,220 @@
-// src/components/DownloadAppSection.tsx
-// ─────────────────────────────────────────────────────────────────────────────
-//  Seção de download do app Memória e Vida
-//  Layout: 3 colunas — texto | celular | painel lateral direito
-// ─────────────────────────────────────────────────────────────────────────────
+// Página de download do app Memória e Vida (jogo da memória educativo da Promoção 3D).
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import type { FC } from "react";
+import { createPortal } from "react-dom";
+import {
+  Buildings,
+  ChartBar,
+  CheckCircle,
+  DownloadSimple,
+  Drop,
+  FirstAidKit,
+  GearSix,
+  HandHeart,
+  House,
+  Info,
+  LockKey,
+  Medal,
+  ShieldCheck,
+  ShieldWarning,
+  Stack,
+  Trophy,
+  WifiSlash,
+  X,
+  Cards,
+  GameController,
+  BookOpenText,
+  DeviceMobile,
+} from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
+import PageShell from "../layout/PageShell";
 import { APP_SCREENS } from "./appScreens";
+import { useBodyLock, useKeyboard, usePrefersReducedMotion } from "../../hooks/useUiEffects";
+import { usePageMeta } from "../../hooks/usePageMeta";
 
 interface Props {
-  downloadUrl?: string;
+  readonly downloadUrl?: string;
 }
 
-const WARNINGS = [
+type Tone = "warning" | "safe" | "info" | "neutral";
+
+const WARNINGS: ReadonlyArray<{ icon: Icon; title: string; text: string; tone: Tone }> = [
   {
-    icon: "bx bx-shield-alt-2",
+    icon: ShieldWarning,
     title: "Aviso de segurança do Android",
-    text: 'Ao instalar, o Android pode exibir "App de fonte desconhecida". Isso é normal para APKs distribuídos fora da Play Store.',
-    color: "warning",
+    text: "Ao instalar, o Android pode exibir “App de fonte desconhecida”. Isso é normal para APKs distribuídos fora da Play Store.",
+    tone: "warning",
   },
   {
-    icon: "bx bx-check-shield",
+    icon: ShieldCheck,
     title: "App seguro e testado",
-    text: "Desenvolvido por pesquisadores da UPE, testado extensivamente. Não contém vírus, malware ou código malicioso.",
-    color: "safe",
+    text: "Desenvolvido por pesquisadores da UPE e testado extensivamente. Não contém vírus, malware ou código malicioso.",
+    tone: "safe",
   },
   {
-    icon: "bx bx-buildings",
+    icon: Buildings,
     title: "Política pública educativa",
     text: "Integra a Promoção 3D (Lei 18.359/2023), política pública do Estado de Pernambuco para educação em saúde.",
-    color: "info",
+    tone: "info",
   },
   {
-    icon: "bx bx-cog",
+    icon: GearSix,
     title: "Como instalar",
-    text: 'Abra o .apk após baixar. Se solicitado: Configurações → Segurança → "Instalar de fontes desconhecidas".',
-    color: "neutral",
+    text: "Abra o .apk após baixar. Se solicitado: Configurações, Segurança, “Instalar de fontes desconhecidas”.",
+    tone: "neutral",
   },
 ];
 
-// Cards exibidos no painel direito — descrição de cada tela do carrossel
-const SCREEN_INFO: Record<string, { emoji: string; desc: string; color: string }> = {
-  "Login":           { emoji: "🔐", desc: "Cadastro rápido com nome e senha. Sem e-mail ou dados sensíveis.", color: "teal" },
-  "Home":            { emoji: "🏠", desc: "Escolha entre os 3 temas e veja seu placar na tela inicial.", color: "blue" },
-  "Doação de Sangue":{ emoji: "🩸", desc: "24 cards sobre tipos sanguíneos, mitos e requisitos para doação.", color: "red" },
-  "Vitória!":        { emoji: "🏆", desc: "Tela de parabéns com pontuação, tempo e avaliação em estrelas.", color: "amber" },
-  "Doação de Órgãos":{ emoji: "💚", desc: "Aprenda sobre órgãos, tecidos e mitos sobre transplantes.", color: "green" },
-  "Doação de Leite": { emoji: "🍼", desc: "Benefícios do leite materno, Bancos de Leite e amamentação segura.", color: "orange" },
-  "Placar":          { emoji: "📊", desc: "Ranking global e histórico pessoal por tema e pontuação.", color: "purple" },
-  "Privacidade":     { emoji: "🛡️", desc: "Acesso à política de privacidade e exclusão de conta pelo app.", color: "teal" },
+/** Descrição de cada tela do carrossel. */
+const SCREEN_INFO: Record<string, { icon: Icon; desc: string; tone: "sangue" | "orgaos" | "leite" | "ink" }> = {
+  Login: { icon: LockKey, desc: "Cadastro rápido com nome e senha, sem e-mail ou dados sensíveis.", tone: "ink" },
+  Home: { icon: House, desc: "Escolha entre os três temas e veja seu placar na tela inicial.", tone: "ink" },
+  "Doação de Sangue": {
+    icon: Drop,
+    desc: "24 cards sobre tipos sanguíneos, mitos e requisitos para doação.",
+    tone: "sangue",
+  },
+  "Vitória!": { icon: Trophy, desc: "Tela de parabéns com pontuação, tempo e avaliação em estrelas.", tone: "ink" },
+  "Doação de Órgãos": {
+    icon: FirstAidKit,
+    desc: "Aprenda sobre órgãos, tecidos e mitos sobre transplantes.",
+    tone: "orgaos",
+  },
+  "Doação de Leite": {
+    icon: HandHeart,
+    desc: "Benefícios do leite materno, Bancos de Leite e amamentação segura.",
+    tone: "leite",
+  },
+  Placar: { icon: ChartBar, desc: "Ranking geral e histórico pessoal por tema e pontuação.", tone: "ink" },
+  Privacidade: { icon: ShieldCheck, desc: "Política de privacidade e exclusão de conta direto pelo app.", tone: "ink" },
 };
 
-// Stats fixas mostradas no painel
-const STATS = [
-  { icon: "bx bx-layer",    value: "3",    label: "Temas" },
-  { icon: "bx bx-card",     value: "72",   label: "Cards" },
-  { icon: "bx bx-trophy",   value: "∞",    label: "Partidas" },
-  { icon: "bx bx-wifi-off", value: "100%", label: "Offline" },
+const STATS: ReadonlyArray<{ icon: Icon; value: string; label: string }> = [
+  { icon: Stack, value: "3", label: "temas" },
+  { icon: Cards, value: "72", label: "cards" },
+  { icon: Trophy, value: "Ranking", label: "e histórico" },
+  { icon: WifiSlash, value: "Offline", label: "sem internet" },
 ];
 
-const DownloadAppSection: React.FC<Props> = ({
-  downloadUrl = "/download/app",
-}) => {
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+const FEATURES: ReadonlyArray<{ icon: Icon; text: string }> = [
+  { icon: GameController, text: "3 jogos temáticos com 24 cards cada" },
+  { icon: Trophy, text: "Ranking e histórico de pontuações" },
+  { icon: BookOpenText, text: "Conteúdo educativo validado pela UPE" },
+  { icon: WifiSlash, text: "Funciona offline, sem internet" },
+];
+
+const AUTOPLAY_MS = 3400;
+
+// ─── Modal de confirmação ────────────────────────────────────────────────────
+
+interface DownloadModalProps {
+  readonly onClose: () => void;
+  readonly onConfirm: () => void;
+  readonly downloading: boolean;
+}
+
+const DownloadModal: FC<DownloadModalProps> = ({ onClose, onConfirm, downloading }) => {
+  const titleId = useId();
+  const confirmRef = useRef<HTMLButtonElement | null>(null);
+
+  useBodyLock(true);
+  useKeyboard({ Escape: onClose });
+
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    confirmRef.current?.focus();
+    return () => previous?.focus();
+  }, []);
+
+  return createPortal(
+    <div className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <button type="button" className="modal__scrim" aria-label="Fechar" tabIndex={-1} onClick={onClose} />
+      <div className="modal__panel">
+        <header className="modal__head">
+          <img src="/iconApp.png" alt="" width={48} height={48} />
+          <div>
+            <h2 id={titleId}>Baixar Memória e Vida</h2>
+            <p>Leia as informações antes de instalar.</p>
+          </div>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Fechar">
+            <X size={20} aria-hidden="true" />
+          </button>
+        </header>
+
+        <ul className="modal__body">
+          {WARNINGS.map(({ icon: IconCmp, title, text, tone }) => (
+            <li key={title} className={`warning warning--${tone}`}>
+              <IconCmp size={22} weight="fill" aria-hidden="true" />
+              <div>
+                <strong>{title}</strong>
+                <p>{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <p className="modal__meta">
+          <span>
+            <DeviceMobile size={14} aria-hidden="true" /> Android 6.0+
+          </span>
+          <span>~25 MB</span>
+          <span>Versão 1.0</span>
+          <span>Offline</span>
+        </p>
+
+        <footer className="modal__foot">
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
+            Cancelar
+          </button>
+          <button
+            ref={confirmRef}
+            type="button"
+            className="btn btn--primary"
+            onClick={onConfirm}
+            disabled={downloading}
+          >
+            {downloading ? (
+              <>
+                <span className="spinner" aria-hidden="true" />
+                Iniciando download
+              </>
+            ) : (
+              <>
+                <DownloadSimple size={18} weight="bold" aria-hidden="true" />
+                Confirmar e baixar
+              </>
+            )}
+          </button>
+        </footer>
+      </div>
+    </div>,
+    document.body,
+  );
+};
+
+// ─── Página ──────────────────────────────────────────────────────────────────
+
+const DownloadAppSection: FC<Props> = ({ downloadUrl = "/download/app" }) => {
+  usePageMeta(
+    "App Memória e Vida | Promoção 3D",
+    "Baixe o Memória e Vida, jogo da memória educativo da Promoção 3D sobre doação de sangue, órgãos e leite humano. Android, gratuito e offline.",
+  );
+
+  const reduced = usePrefersReducedMotion();
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = APP_SCREENS.length;
 
-  const nextSlide = useCallback(() => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setActiveIdx((i) => (i + 1) % total);
-      setIsAnimating(false);
-    }, 350);
-  }, [total]);
-
-  const goTo = (idx: number) => {
-    if (idx === activeIdx) return;
-    setIsAnimating(true);
-    setTimeout(() => { setActiveIdx(idx); setIsAnimating(false); }, 350);
-  };
+  const next = useCallback(() => setActive((i) => (i + 1) % total), [total]);
 
   useEffect(() => {
-    intervalRef.current = setInterval(nextSlide, 3200);
-    return () => clearInterval(intervalRef.current!);
-  }, [nextSlide]);
-
-  useEffect(() => {
-    if (modalOpen) clearInterval(intervalRef.current!);
-    else intervalRef.current = setInterval(nextSlide, 3200);
-    return () => clearInterval(intervalRef.current!);
-  }, [modalOpen, nextSlide]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModalOpen(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+    if (reduced || paused || modalOpen) return;
+    const timer = window.setInterval(next, AUTOPLAY_MS);
+    return () => window.clearInterval(timer);
+  }, [reduced, paused, modalOpen, next]);
 
   const handleDownload = () => {
     setDownloading(true);
@@ -106,257 +223,145 @@ const DownloadAppSection: React.FC<Props> = ({
     a.download = "MemoriaEVida.apk";
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    setTimeout(() => setDownloading(false), 3000);
+    a.remove();
+    window.setTimeout(() => setDownloading(false), 3000);
   };
 
-  const current = APP_SCREENS[activeIdx];
-  const screenInfo = SCREEN_INFO[current.label] ?? { emoji: "📱", desc: current.desc, color: "teal" };
+  const screen = APP_SCREENS[active];
+  const info = SCREEN_INFO[screen.label] ?? { icon: DeviceMobile, desc: screen.desc, tone: "ink" as const };
+  const InfoIcon = info.icon;
 
   return (
-    <>
-      {/* ════════════════════════════════════════════════════
-          SEÇÃO PRINCIPAL
-      ════════════════════════════════════════════════════ */}
-      <section className="app-download" id="download-app">
-
-        <div className="app-download__bg" aria-hidden="true">
-          <div className="app-download__orb app-download__orb--1" />
-          <div className="app-download__orb app-download__orb--2" />
-          <div className="app-download__orb app-download__orb--3" />
-          <div className="app-download__grid" />
-        </div>
-
-        <div className="app-download__inner">
-
-          {/* ─── Coluna esquerda: texto ─── */}
-          <div className="app-download__left">
-            <div className="app-download__badge">
-              <span className="app-download__badge-dot" />
-              <span>Disponível para Android</span>
+    <PageShell className="app-page">
+      <section className="app-hero" aria-labelledby="app-title">
+        <div className="hero__grid-bg" aria-hidden="true" />
+        <div className="container app-hero__grid">
+          <div className="app-hero__copy">
+            <p className="eyebrow">Disponível para Android</p>
+            <div className="app-hero__brand">
+              <img src="/iconApp.png" alt="" width={64} height={64} />
+              <h1 className="page-title" id="app-title">
+                Memória <em>e Vida</em>
+              </h1>
             </div>
-
-            <div className="app-download__brand">
-              <img src="/iconApp.png" alt="Ícone Memória e Vida" className="app-download__icon" />
-              <div>
-                <h2 className="app-download__title">Memória<em> e Vida</em></h2>
-                <p className="app-download__tagname">Promoção 3D · UPE</p>
-              </div>
-            </div>
-
-            <p className="app-download__desc">
-              Um <strong>jogo da memória educativo</strong> que ensina sobre doação de sangue,
-              órgãos e leite humano de forma divertida e interativa. Ideal para professores,
-              alunos e ações escolares em todo o Estado de Pernambuco.
+            <p className="lead">
+              Um jogo da memória educativo que ensina sobre doação de sangue, órgãos e leite humano. Feito para
+              professores, estudantes e ações escolares em Pernambuco.
             </p>
 
-            <div className="app-download__pills">
-              <span className="app-download__pill app-download__pill--red">🩸 Doação de Sangue</span>
-              <span className="app-download__pill app-download__pill--green">💚 Doação de Órgãos</span>
-              <span className="app-download__pill app-download__pill--amber">🍼 Leite Humano</span>
-            </div>
-
-            <ul className="app-download__features">
-              {[
-                ["bx bx-joystick",  "3 jogos temáticos com 24 cards cada"],
-                ["bx bx-trophy",    "Ranking e histórico de pontuações"],
-                ["bx bx-book-open", "Conteúdo educativo validado pela UPE"],
-                ["bx bx-wifi-off",  "Funciona offline — sem internet"],
-              ].map(([icon, text]) => (
-                <li key={text} className="app-download__feature">
-                  <i className={`${icon} app-download__feature-icon`} />
-                  <span>{text}</span>
+            <ul className="app-hero__features">
+              {FEATURES.map(({ icon: IconCmp, text }) => (
+                <li key={text}>
+                  <IconCmp size={20} aria-hidden="true" />
+                  {text}
                 </li>
               ))}
             </ul>
 
-            <div className="app-download__actions">
-              <button className="app-download__btn-primary" onClick={() => setModalOpen(true)}>
-                <i className="bx bx-download" />
+            <div className="app-hero__actions">
+              <button type="button" className="btn btn--primary btn--lg" onClick={() => setModalOpen(true)}>
+                <DownloadSimple size={20} weight="bold" aria-hidden="true" />
                 Baixar APK
               </button>
-              <button className="app-download__btn-ghost" onClick={() => window.open("/privacy", "_blank")}>
-                <i className="bx bx-shield" />
+              <a className="btn btn--ghost btn--lg" href="/privacy" target="_blank" rel="noreferrer noopener">
+                <ShieldCheck size={20} aria-hidden="true" />
                 Privacidade
-              </button>
+              </a>
             </div>
 
-            <p className="app-download__law-note">
-              <i className="bx bx-info-circle" />
-              Criado no âmbito da <strong>Lei 18.359/2023 — Promoção 3D</strong>, política pública de Pernambuco.
+            <p className="app-hero__law">
+              <Info size={16} aria-hidden="true" />
+              Criado no âmbito da Lei 18.359/2023, a Promoção 3D de Pernambuco.
             </p>
           </div>
 
-          {/* ─── Coluna central: celular ─── */}
-          <div className="app-download__center">
-            <div className="app-download__phone-wrap">
-              <div className="app-download__phone-glow" aria-hidden="true" />
-
-              <div className="app-download__phone">
-                <div className="app-download__phone-notch" aria-hidden="true">
-                  <div className="app-download__phone-camera" />
-                </div>
-                <div className="app-download__phone-screen">
-                  <img
-                    key={activeIdx}
-                    src={current.src}
-                    alt={current.label}
-                    className={`app-download__screen-img${isAnimating ? " app-download__screen-img--out" : ""}`}
-                    draggable={false}
-                  />
-                </div>
-                <div className="app-download__phone-home" aria-hidden="true">
-                  <div className="app-download__phone-bar" />
-                </div>
-              </div>
-
-              <div className="app-download__screen-label">
-                <i className="bx bx-mobile-alt" />
-                <span>{current.label}</span>
-              </div>
-
-              <div className="app-download__dots" role="tablist" aria-label="Telas do aplicativo">
-                {APP_SCREENS.map((s, i) => (
-                  <button
-                    key={i}
-                    className={`app-download__dot${i === activeIdx ? " app-download__dot--active" : ""}`}
-                    onClick={() => goTo(i)}
-                    role="tab"
-                    aria-selected={i === activeIdx}
-                    aria-label={s.label}
-                    title={s.label}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ─── Coluna direita: painel ─── */}
-          <div className="app-download__right">
-
-            {/* Card de tela atual */}
-            <div className={`app-download__info-card app-download__info-card--${screenInfo.color}`}>
-              <div className="app-download__info-card-top">
-                <span className="app-download__info-card-emoji">{screenInfo.emoji}</span>
-                <div>
-                  <p className="app-download__info-card-screen">Tela atual</p>
-                  <strong className="app-download__info-card-name">{current.label}</strong>
-                </div>
-              </div>
-              <p className="app-download__info-card-desc">{screenInfo.desc}</p>
-              <div className="app-download__info-card-progress">
-                {APP_SCREENS.map((_, i) => (
-                  <button
-                    key={i}
-                    className={`app-download__info-card-pip${i === activeIdx ? " app-download__info-card-pip--active" : ""}`}
-                    onClick={() => goTo(i)}
-                    aria-label={APP_SCREENS[i].label}
-                  />
-                ))}
+          <div
+            className="app-hero__device"
+            onPointerEnter={() => setPaused(true)}
+            onPointerLeave={() => setPaused(false)}
+            onFocus={() => setPaused(true)}
+            onBlur={() => setPaused(false)}
+          >
+            <div className="phone">
+              <div className="phone__notch" aria-hidden="true" />
+              <div className="phone__screen">
+                <img key={active} src={screen.src} alt={`Tela do app: ${screen.label}`} draggable={false} />
               </div>
             </div>
 
-            {/* Grid de stats */}
-            <div className="app-download__stats">
-              {STATS.map((s) => (
-                <div key={s.label} className="app-download__stat">
-                  <i className={`${s.icon} app-download__stat-icon`} />
-                  <strong className="app-download__stat-value">{s.value}</strong>
-                  <span className="app-download__stat-label">{s.label}</span>
-                </div>
+            <div className={`screen-card screen-card--${info.tone}`} aria-live="polite">
+              <span className="screen-card__icon" aria-hidden="true">
+                <InfoIcon size={22} weight="fill" />
+              </span>
+              <div>
+                <small>Tela atual</small>
+                <strong>{screen.label}</strong>
+                <p>{info.desc}</p>
+              </div>
+            </div>
+
+            <div className="screen-dots" role="group" aria-label="Telas do aplicativo">
+              {APP_SCREENS.map((s, i) => (
+                <button
+                  key={s.label}
+                  type="button"
+                  aria-pressed={i === active}
+                  aria-label={s.label}
+                  title={s.label}
+                  onClick={() => setActive(i)}
+                />
               ))}
             </div>
-
-            {/* Card de instalação */}
-            <div className="app-download__install-card">
-              <div className="app-download__install-card-header">
-                <i className="bx bx-download" />
-                <span>Instalação</span>
-              </div>
-              <ol className="app-download__install-steps">
-                <li><span className="app-download__install-num">1</span>Clique em <strong>Baixar APK</strong></li>
-                <li><span className="app-download__install-num">2</span>Abra o arquivo no Android</li>
-                <li><span className="app-download__install-num">3</span>Permita fonte desconhecida se pedido</li>
-                <li><span className="app-download__install-num">4</span>Aproveite o jogo!</li>
-              </ol>
-              <button className="app-download__install-btn" onClick={() => setModalOpen(true)}>
-                <i className="bx bx-download" />
-                Baixar agora
-              </button>
-            </div>
-
-            {/* Badge UPE */}
-            <div className="app-download__upe-badge">
-              <i className="bx bx-medal" />
-              <div>
-                <strong>Universidade de Pernambuco</strong>
-                <span>Projeto acadêmico validado · PPGE/UPE</span>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════
-          MODAL
-      ════════════════════════════════════════════════════ */}
-      {modalOpen && (
-        <div
-          className="app-modal-overlay"
-          onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="app-modal-title"
-        >
-          <div className="app-modal">
-            <div className="app-modal__header">
-              <img src="/iconApp.png" alt="Ícone" className="app-modal__icon" />
-              <div>
-                <h3 id="app-modal-title" className="app-modal__title">Baixar Memória e Vida</h3>
-                <p className="app-modal__subtitle">Leia as informações antes de instalar</p>
+      <section className="section app-details" aria-labelledby="install-title">
+        <div className="container app-details__grid">
+          <dl className="figures figures--app" data-aos="fade-up">
+            {STATS.map(({ icon: IconCmp, value, label }) => (
+              <div key={label}>
+                <dt>
+                  <IconCmp size={16} aria-hidden="true" /> {label}
+                </dt>
+                <dd>{value}</dd>
               </div>
-              <button className="app-modal__close" onClick={() => setModalOpen(false)} aria-label="Fechar">
-                <i className="bx bx-x" />
-              </button>
-            </div>
+            ))}
+          </dl>
 
-            <div className="app-modal__body">
-              {WARNINGS.map((w, i) => (
-                <div key={i} className={`app-modal__warning app-modal__warning--${w.color}`}>
-                  <i className={`${w.icon} app-modal__warning-icon`} />
-                  <div>
-                    <strong className="app-modal__warning-title">{w.title}</strong>
-                    <p className="app-modal__warning-text">{w.text}</p>
-                  </div>
-                </div>
-              ))}
-              <div className="app-modal__meta">
-                <span><i className="bx bx-mobile-alt" /> Android 6.0+</span>
-                <span><i className="bx bx-package" /> ~25 MB</span>
-                <span><i className="bx bx-code-alt" /> Versão 1.0</span>
-                <span><i className="bx bx-wifi-off" /> Offline</span>
-              </div>
-            </div>
-
-            <div className="app-modal__footer">
-              <button className="app-modal__btn-cancel" onClick={() => setModalOpen(false)}>Cancelar</button>
-              <button
-                className={`app-modal__btn-download${downloading ? " app-modal__btn-download--loading" : ""}`}
-                onClick={handleDownload}
-                disabled={downloading}
-              >
-                {downloading ? (
-                  <><span className="app-modal__spinner" />Iniciando download…</>
-                ) : (
-                  <><i className="bx bx-download" />Confirmar e Baixar APK</>
-                )}
-              </button>
-            </div>
+          <div className="install" data-aos="fade-up" data-aos-delay="80">
+            <h2 className="section-title section-title--sm" id="install-title">
+              Instale em quatro passos.
+            </h2>
+            <ol className="install__steps">
+              <li>
+                Toque em <strong>Baixar APK</strong>.
+              </li>
+              <li>Abra o arquivo no Android.</li>
+              <li>Permita a instalação de fonte desconhecida, se o sistema pedir.</li>
+              <li>Escolha um tema e comece a jogar.</li>
+            </ol>
+            <button type="button" className="btn btn--primary" onClick={() => setModalOpen(true)}>
+              <DownloadSimple size={18} weight="bold" aria-hidden="true" />
+              Baixar agora
+            </button>
           </div>
+
+          <p className="upe-badge" data-aos="fade-up" data-aos-delay="120">
+            <Medal size={22} weight="fill" aria-hidden="true" />
+            <span>
+              <strong>Universidade de Pernambuco</strong>
+              Projeto acadêmico validado pelo PPGE/UPE
+            </span>
+            <CheckCircle size={20} weight="fill" aria-hidden="true" />
+          </p>
         </div>
+      </section>
+
+      {modalOpen && (
+        <DownloadModal onClose={() => setModalOpen(false)} onConfirm={handleDownload} downloading={downloading} />
       )}
-    </>
+    </PageShell>
   );
 };
 

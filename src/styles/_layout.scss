@@ -1,0 +1,436 @@
+@use "tokens" as *;
+
+// ─── Marca ───────────────────────────────────────────────────────────────────
+
+.brand-mark {
+  flex: none;
+  overflow: visible;
+
+  &__dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform var(--t-slow) var(--ease-out);
+
+    &--sangue {
+      fill: var(--sangue);
+    }
+
+    &--orgaos {
+      fill: var(--orgaos);
+    }
+
+    &--leite {
+      fill: var(--leite);
+    }
+  }
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+
+.scroll-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 24px;
+  pointer-events: none;
+}
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-header);
+  height: var(--header-h);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--t-base) var(--ease-out),
+    border-color var(--t-base) var(--ease-out),
+    box-shadow var(--t-base) var(--ease-out);
+
+  &.is-solid,
+  &.is-open {
+    background: var(--glass-bg);
+    border-bottom-color: rgba(19, 34, 31, 0.07);
+    box-shadow: var(--glass-edge);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+  }
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 100%;
+    max-width: calc(var(--container) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-right: auto;
+    border-radius: var(--r-control);
+
+    @include hover {
+      .brand-mark__dot--sangue {
+        transform: translate(-6%, -6%);
+      }
+
+      .brand-mark__dot--orgaos {
+        transform: translate(8%, 0);
+      }
+
+      .brand-mark__dot--leite {
+        transform: translate(-6%, 6%);
+      }
+    }
+  }
+
+  &__wordmark {
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+
+    strong {
+      font-weight: 760;
+    }
+  }
+
+  &__nav {
+    ul {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+    }
+
+    @include down($bp-lg) {
+      display: none;
+    }
+  }
+
+  &__link {
+    position: relative;
+    display: inline-flex;
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--r-control);
+    font-size: 0.93rem;
+    font-weight: 550;
+    color: var(--ink-2);
+    transition:
+      color var(--t-base),
+      background-color var(--t-base);
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 3px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      transform: translateX(-50%) scale(0);
+      transition: transform var(--t-base) var(--ease-out);
+    }
+
+    @include hover {
+      color: var(--ink);
+      background: rgba(19, 34, 31, 0.05);
+    }
+
+    &[aria-current] {
+      color: var(--ink);
+
+      &::after {
+        transform: translateX(-50%) scale(1);
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  &__cta {
+    @include down($bp-sm) {
+      display: none;
+    }
+  }
+
+  &__toggle {
+    @include up($bp-lg) {
+      display: none;
+    }
+  }
+}
+
+// ─── Menu móvel ──────────────────────────────────────────────────────────────
+
+.mobile-menu {
+  position: fixed;
+  inset: var(--header-h) 0 0;
+  z-index: var(--z-menu);
+  visibility: hidden;
+  pointer-events: none;
+
+  &__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(19, 34, 31, 0.42);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-out);
+  }
+
+  &__panel {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 2rem;
+    padding: 1.5rem var(--gutter) 2rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    transform: translateY(-12px);
+    opacity: 0;
+    transition:
+      transform var(--t-slow) var(--ease-out),
+      opacity var(--t-base) var(--ease-out);
+  }
+
+  &__primary {
+    display: grid;
+
+    li {
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+        opacity var(--t-base) var(--ease-out),
+        transform var(--t-slow) var(--ease-out);
+      transition-delay: calc(var(--i, 0) * 40ms);
+    }
+
+    a {
+      display: block;
+      padding: 0.55rem 0;
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+  }
+
+  &__secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+
+    a {
+      display: inline-flex;
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--r-pill);
+      border: 1px solid var(--line-strong);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+    }
+  }
+
+  &.is-open {
+    visibility: visible;
+    pointer-events: auto;
+
+    .mobile-menu__scrim {
+      opacity: 1;
+    }
+
+    .mobile-menu__panel {
+      transform: none;
+      opacity: 1;
+    }
+
+    .mobile-menu__primary li {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @include up($bp-lg) {
+    display: none;
+  }
+}
+
+// ─── Rodapé ──────────────────────────────────────────────────────────────────
+
+.site-footer {
+  position: relative;
+  margin-top: clamp(2rem, 5vw, 4rem);
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+
+  &__motto {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(2.5rem, 5vw, 4rem);
+    border-bottom: 1px solid var(--line);
+
+    p {
+      max-width: 30ch;
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 2.2vw + 0.9rem, 2.6rem);
+      font-weight: 560;
+      font-stretch: 92%;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: var(--ink-2);
+      text-wrap: balance;
+    }
+
+    em {
+      font-style: normal;
+      color: var(--ink);
+    }
+
+    @include down($bp-sm) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 3rem;
+    grid-template-columns: 1fr;
+
+    @include up($bp-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @include up($bp-lg) {
+      grid-template-columns: 1.3fr 0.8fr 1fr 1.2fr;
+    }
+  }
+
+  &__about {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 1rem;
+
+    p {
+      max-width: 38ch;
+      color: var(--muted);
+      font-size: var(--fs-sm);
+    }
+  }
+
+  &__brand {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+
+    strong {
+      font-weight: 760;
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: -0.6rem;
+  }
+
+  &__title {
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  &__col ul {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  &__col a {
+    font-size: 0.95rem;
+    color: var(--ink-2);
+    transition: color var(--t-base);
+
+    @include hover {
+      color: var(--accent);
+    }
+  }
+
+  &__laws li {
+    display: grid;
+    gap: 0.1rem;
+    font-size: var(--fs-sm);
+
+    strong {
+      font-weight: 650;
+    }
+
+    span {
+      color: var(--muted);
+    }
+  }
+
+  &__people li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+
+    > span:last-child {
+      display: grid;
+      font-size: var(--fs-sm);
+      line-height: 1.4;
+    }
+
+    small {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  }
+
+  &__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.5rem 2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  &__bar-links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+
+    a {
+      transition: color var(--t-base);
+
+      @include hover {
+        color: var(--ink);
+      }
+    }
+  }
+
+  &__dev strong {
+    color: var(--ink);
+    font-weight: 650;
+  }
+}

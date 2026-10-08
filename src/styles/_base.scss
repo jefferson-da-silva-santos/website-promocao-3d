@@ -1,0 +1,631 @@
+@use "tokens" as *;
+
+// ─── Reset ───────────────────────────────────────────────────────────────────
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+
+  @include motion {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+// Grão fixo, fora do fluxo de rolagem, para tirar a "frieza" digital das superfícies.
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+img,
+svg,
+video,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+abbr[title] {
+  text-decoration: none;
+}
+
+:where(h1, h2, h3, h4) {
+  font-family: var(--font-display);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--leite);
+  color: var(--ink);
+}
+
+// ─── Foco acessível ──────────────────────────────────────────────────────────
+
+:focus-visible {
+  outline: 2.5px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: var(--z-skip);
+  padding: 0.7rem 1rem;
+  border-radius: var(--r-control);
+  background: var(--ink);
+  color: var(--on-ink);
+  font-weight: 600;
+  transform: translateY(-160%);
+  transition: transform var(--t-base) var(--ease-out);
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ─── Layout ──────────────────────────────────────────────────────────────────
+
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.page {
+  outline: none;
+}
+
+.section {
+  position: relative;
+  padding-block: var(--section-y) calc(var(--section-y) * 1.04);
+  scroll-margin-top: var(--header-h);
+}
+
+.anchor-alias {
+  position: absolute;
+  top: 0;
+  scroll-margin-top: var(--header-h);
+}
+
+// ─── Tipografia de seção ─────────────────────────────────────────────────────
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+
+  &::before {
+    content: "";
+    width: 26px;
+    height: 10px;
+    flex: none;
+    background:
+      radial-gradient(circle at 5px 5px, var(--sangue) 4px, transparent 4.5px),
+      radial-gradient(circle at 13px 5px, var(--orgaos) 4px, transparent 4.5px),
+      radial-gradient(circle at 21px 5px, var(--leite) 4px, transparent 4.5px);
+  }
+}
+
+.section-title,
+.page-title {
+  font-size: var(--fs-h2);
+  font-weight: 640;
+  font-stretch: 92%;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  max-width: 18ch;
+
+  em {
+    font-style: normal;
+    background: linear-gradient(transparent 58%, var(--highlight) 58%, var(--highlight) 92%, transparent 92%);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding-inline: 0.06em;
+  }
+}
+
+.page-title {
+  font-size: var(--fs-h1);
+  max-width: 16ch;
+}
+
+.section-title--sm {
+  font-size: clamp(1.6rem, 1.4vw + 1.1rem, 2.1rem);
+}
+
+.lead {
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 54ch;
+}
+
+// ─── Botões ──────────────────────────────────────────────────────────────────
+
+.btn {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--ink);
+  --btn-border: var(--line-strong);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 46px;
+  padding: 0.7rem 1.25rem;
+  border-radius: var(--r-control);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-weight: 600;
+  font-size: 0.97rem;
+  line-height: 1;
+  white-space: nowrap;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    background-color var(--t-base) var(--ease-out),
+    border-color var(--t-base) var(--ease-out),
+    color var(--t-base) var(--ease-out),
+    box-shadow var(--t-base) var(--ease-out),
+    transform var(--t-fast) var(--ease-out);
+
+  svg {
+    flex: none;
+    transition: transform var(--t-base) var(--ease-out);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px) scale(0.985);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    --btn-bg: var(--ink);
+    --btn-fg: var(--on-ink);
+    --btn-border: var(--ink);
+    box-shadow: var(--shadow-sm);
+
+    // Faixa tricolor que desliza pela base no hover: a logo "assinando" a ação.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--sangue) 0 33.3%, var(--orgaos) 33.3% 66.6%, var(--leite) 66.6% 100%);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--t-slow) var(--ease-out);
+    }
+
+    @include hover {
+      --btn-bg: #1d302c;
+
+      &::after {
+        transform: scaleX(1);
+      }
+
+      svg:last-child {
+        transform: translateX(3px);
+      }
+    }
+  }
+
+  &--outline {
+    @include hover {
+      --btn-border: var(--ink);
+      background: var(--surface-2);
+    }
+  }
+
+  &--ghost {
+    --btn-bg: transparent;
+    --btn-border: transparent;
+
+    @include hover {
+      --btn-bg: var(--surface-2);
+    }
+  }
+
+  &--sm {
+    min-height: 38px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  &--lg {
+    min-height: 52px;
+    padding: 0.85rem 1.5rem;
+    font-size: 1.02rem;
+  }
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-control);
+  color: var(--ink);
+  transition:
+    background-color var(--t-base) var(--ease-out),
+    transform var(--t-fast) var(--ease-out);
+
+  @include hover {
+    background: var(--surface-2);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &--lg {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  &.is-disabled {
+    color: var(--muted);
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.glass-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--r-control);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-edge), var(--shadow-sm);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition:
+    transform var(--t-fast) var(--ease-out),
+    background-color var(--t-base);
+
+  @include hover {
+    background: rgba(252, 253, 252, 0.92);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 2px;
+  transition:
+    background-size var(--t-base) var(--ease-out),
+    color var(--t-base);
+
+  svg {
+    transition: transform var(--t-base) var(--ease-out);
+  }
+
+  @include hover {
+    color: var(--accent-hover);
+    background-size: 100% 1.5px;
+
+    svg {
+      transform: translate(2px, -2px);
+    }
+  }
+}
+
+// ─── Peças pequenas reutilizáveis ────────────────────────────────────────────
+
+.dim-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--dot, var(--leite));
+}
+
+.dim-link--sangue,
+.segmented__btn--sangue,
+.myths__panel--sangue,
+.sheet__panel--sangue,
+.mindmap--sangue,
+.fact--sangue {
+  --dot: var(--sangue);
+  --dim: var(--sangue);
+  --dim-ink: var(--sangue-ink);
+  --dim-soft: var(--sangue-soft);
+}
+
+.dim-link--orgaos,
+.segmented__btn--orgaos,
+.myths__panel--orgaos,
+.sheet__panel--orgaos,
+.mindmap--orgaos,
+.fact--orgaos {
+  --dot: var(--orgaos);
+  --dim: var(--orgaos);
+  --dim-ink: var(--orgaos-ink);
+  --dim-soft: var(--orgaos-soft);
+}
+
+.dim-link--leite,
+.segmented__btn--leite,
+.myths__panel--leite,
+.sheet__panel--leite,
+.mindmap--leite,
+.fact--leite {
+  --dot: var(--leite);
+  --dim: var(--leite);
+  --dim-ink: var(--leite-ink);
+  --dim-soft: var(--leite-soft);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--r-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  &--mito {
+    background: var(--dim-soft, var(--leite-soft));
+    color: var(--dim-ink, var(--leite-ink));
+  }
+
+  &--medo {
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+}
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-2);
+
+  &--lg {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    font-size: 0.8rem;
+  }
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--r-control);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+
+  svg {
+    flex: none;
+    margin-top: 2px;
+  }
+
+  &--success {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  &--warning {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+
+  &--danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+}
+
+// ─── Esqueletos de carregamento ──────────────────────────────────────────────
+
+.skeleton {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(100deg, var(--surface-2) 30%, var(--surface) 50%, var(--surface-2) 70%) 0 0 / 300% 100%;
+
+  @include motion {
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  &--title {
+    width: min(520px, 80%);
+    height: 3rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &--line {
+    width: min(680px, 100%);
+    height: 1rem;
+    margin-bottom: 0.7rem;
+  }
+
+  &--short {
+    width: min(380px, 60%);
+  }
+}
+
+.route-loading {
+  max-width: var(--container);
+  margin: calc(var(--header-h) + 5rem) auto 0;
+  padding-inline: var(--gutter);
+  min-height: 70dvh;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+// ─── AOS: entradas mais curtas e precisas do que o padrão da biblioteca ──────
+
+[data-aos="fade-up"] {
+  transform: translate3d(0, 18px, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-btn,
+  .site-header.is-solid,
+  .chat-preview,
+  .pe-map__tip {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+.section-placeholder {
+  min-height: 720px;
+}

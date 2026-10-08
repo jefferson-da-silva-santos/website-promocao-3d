@@ -5,9 +5,7 @@
 //  Escrita (POST / PUT / DELETE) exige token admin via AdminContext.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import React, {
-  createContext, useCallback, useContext, useEffect, useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { API_BASE } from "./AdminContext";
 
@@ -20,13 +18,13 @@ export interface BlogPost {
   content: string;
   author: string;
   category: string;
-  cover_image: string;   // snake_case vindo da API
-  coverImage?: string;   // alias para compatibilidade com componentes existentes
+  cover_image: string; // snake_case vindo da API
+  coverImage?: string; // alias para compatibilidade com componentes existentes
   read_time: number;
-  readTime?: number;     // alias
+  readTime?: number; // alias
   published: boolean;
   created_at: string;
-  createdAt?: string;    // alias
+  createdAt?: string; // alias
 }
 
 /** Normaliza o post da API para o formato que os componentes esperam */
@@ -37,9 +35,9 @@ const normalize = (p: BlogPost): BlogPost => ({
   createdAt: p.created_at,
 });
 
-export type CreatePostInput = Omit<BlogPost,
-  'id' | 'created_at' | 'read_time' | 'published' |
-  'coverImage' | 'readTime' | 'createdAt'
+export type CreatePostInput = Omit<
+  BlogPost,
+  "id" | "created_at" | "read_time" | "published" | "coverImage" | "readTime" | "createdAt"
 > & { cover_image: string; published?: boolean };
 
 interface BlogContextValue {
@@ -56,10 +54,13 @@ interface BlogContextValue {
   deletePost: (token: string, id: string) => Promise<void>;
 }
 
+const http = axios.create({ baseURL: API_BASE });
+
 // ─── Contexto ─────────────────────────────────────────────────────────────────
 
 const BlogContext = createContext<BlogContextValue>({} as BlogContextValue);
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook e provider do mesmo contexto ficam juntos
 export const useBlog = () => useContext(BlogContext);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -69,27 +70,27 @@ export const BlogProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const http = axios.create({ baseURL: API_BASE });
-
-  const authHeaders = (token: string) => ({ 'x-admin-token': token });
+  const authHeaders = (token: string) => ({ "x-admin-token": token });
 
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await http.get('/api/blog');
+      const { data } = await http.get("/api/blog");
       setPosts((data.data as BlogPost[]).map(normalize));
     } catch {
-      setError('Não foi possível carregar os artigos.');
+      setError("Não foi possível carregar os artigos.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const addPost = async (token: string, input: CreatePostInput): Promise<string> => {
-    const { data } = await http.post('/api/blog', input, { headers: authHeaders(token) });
+    const { data } = await http.post("/api/blog", input, { headers: authHeaders(token) });
     await refresh();
     return data.id as string;
   };
@@ -101,7 +102,7 @@ export const BlogProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deletePost = async (token: string, id: string) => {
     await http.delete(`/api/blog/${id}`, { headers: authHeaders(token) });
-    setPosts(prev => prev.filter(p => p.id !== id));
+    setPosts((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (

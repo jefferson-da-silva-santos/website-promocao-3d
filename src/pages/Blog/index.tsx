@@ -1,189 +1,185 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useDeferredValue, useMemo, useState } from "react";
+import type { FC } from "react";
+import { Link } from "react-router-dom";
+import { ArrowClockwise, ArrowRight, MagnifyingGlass, X } from "@phosphor-icons/react";
+import PageShell from "../../components/layout/PageShell";
 import { useBlog } from "../../contexts/BlogContext";
 import type { BlogPost } from "../../contexts/BlogContext";
-import logo from "../../assets/image/logo.png";
-import Footer from "../../components/Footer";
+import { usePageMeta } from "../../hooks/usePageMeta";
+import { formatDate } from "../../utils/format";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const CATEGORIES = ["Todos", "Doação de Sangue", "Doação de Leite", "Doação de Órgãos"] as const;
+type Category = (typeof CATEGORIES)[number];
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-const CATEGORIES = ["Todos", "Doação de Sangue", "Doação de Leite", "Doação de Órgãos"];
-
-// ─── Sub-componentes ──────────────────────────────────────────────────────────
-
-const PostCard: React.FC<{ post: BlogPost; featured?: boolean }> = ({
-  post,
-  featured = false,
-}) => {
-  const navigate = useNavigate();
-
-  return (
-    <article
-      className={`blog-card${featured ? " blog-card--featured" : ""}`}
-      onClick={() => navigate(`/blog/${post.id}`)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && navigate(`/blog/${post.id}`)}
-    >
-      <div className="blog-card__cover">
-        <img src={post.coverImage} alt={post.title} loading="lazy" />
-        <span className="blog-card__category">{post.category}</span>
-      </div>
-
-      <div className="blog-card__body">
-        <div className="blog-card__meta">
-          <span className="blog-card__date">{post.createdAt && formatDate(post.createdAt)}</span>
-          <span className="blog-card__dot">·</span>
-          <span className="blog-card__read">{post.readTime} min de leitura</span>
-        </div>
-
-        <h2 className="blog-card__title">{post.title}</h2>
-        <p className="blog-card__subtitle">{post.subtitle}</p>
-
-        <div className="blog-card__author">
-          <div className="blog-card__author-avatar">
-            {post.author.charAt(0).toUpperCase()}
-          </div>
-          <span className="blog-card__author-name">{post.author}</span>
-        </div>
-      </div>
-    </article>
-  );
+const DIM_BY_CATEGORY: Record<string, string> = {
+  "Doação de Sangue": "sangue",
+  "Doação de Leite": "leite",
+  "Doação de Órgãos": "orgaos",
 };
 
-// ─── Página ───────────────────────────────────────────────────────────────────
+// ─── Cartão de artigo ────────────────────────────────────────────────────────
 
-const BlogPage: React.FC = () => {
-  const { posts } = useBlog();
-  const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState("Todos");
-  const [searchQuery, setSearchQuery] = useState("");
+const PostCard: FC<{ readonly post: BlogPost; readonly featured?: boolean }> = ({ post, featured = false }) => (
+  <article className={`post-card${featured ? " post-card--featured" : ""}`}>
+    <Link to={`/blog/${post.id}`} className="post-card__link">
+      <div className="post-card__cover">
+        <img src={post.coverImage} alt="" loading={featured ? "eager" : "lazy"} />
+      </div>
+      <div className="post-card__body">
+        <p className="post-card__meta">
+          <span className={`post-cat post-cat--${DIM_BY_CATEGORY[post.category] ?? "leite"}`}>{post.category}</span>
+          {post.createdAt && <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>}
+        </p>
+        <h2 className="post-card__title">{post.title}</h2>
+        <p className="post-card__excerpt">{post.subtitle}</p>
+        <p className="post-card__foot">
+          <span>
+            {post.author} · {post.readTime} min de leitura
+          </span>
+          <ArrowRight size={18} weight="bold" aria-hidden="true" />
+        </p>
+      </div>
+    </Link>
+  </article>
+);
 
-  const filtered = posts.filter((p) => {
-    const matchCat = activeCategory === "Todos" || p.category === activeCategory;
-    const q = searchQuery.toLowerCase();
-    const matchSearch =
-      !q ||
-      p.title.toLowerCase().includes(q) ||
-      p.subtitle.toLowerCase().includes(q) ||
-      p.content.toLowerCase().includes(q);
-    return matchCat && matchSearch;
-  });
+const PostSkeleton: FC = () => (
+  <div className="post-card post-card--skeleton" aria-hidden="true">
+    <span className="skeleton post-card__cover" />
+    <div className="post-card__body">
+      <span className="skeleton skeleton--line skeleton--tiny" />
+      <span className="skeleton skeleton--title" />
+      <span className="skeleton skeleton--line" />
+      <span className="skeleton skeleton--line skeleton--short" />
+    </div>
+  </div>
+);
 
-  const featured = filtered[0];
-  const rest = filtered.slice(1);
+// ─── Página ──────────────────────────────────────────────────────────────────
+
+/** Blog com busca instantânea, filtro por dimensão e estados de carregamento, erro e vazio. */
+const BlogPage: FC = () => {
+  usePageMeta(
+    "Blog | Promoção 3D",
+    "Artigos de Eliabi Pereira sobre doação de sangue, leite materno, órgãos e políticas públicas de saúde e educação.",
+  );
+  const { posts, isLoading, error, refresh } = useBlog();
+  const [category, setCategory] = useState<Category>("Todos");
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+
+  const filtered = useMemo(() => {
+    const q = deferredQuery.trim().toLowerCase();
+    return posts.filter((p) => {
+      const matchCat = category === "Todos" || p.category === category;
+      const matchSearch =
+        !q ||
+        p.title.toLowerCase().includes(q) ||
+        p.subtitle.toLowerCase().includes(q) ||
+        p.content.toLowerCase().includes(q);
+      return matchCat && matchSearch;
+    });
+  }, [posts, category, deferredQuery]);
+
+  const [featured, ...rest] = filtered;
 
   return (
-    <div className="blog-page">
-
-      {/* ── NavBar ── */}
-      <nav className="blog-nav">
-        <div className="blog-nav__inner">
-          <button className="blog-nav__logo" onClick={() => navigate("/")}>
-            <img src={logo} alt="Promoção 3D" />
-            <span>Promoção 3D</span>
-          </button>
-
-          <div className="blog-nav__links">
-            <button onClick={() => navigate("/")}>Início</button>
-            <button className="active">Blog</button>
-          </div>
-        </div>
-      </nav>
-
-      {/* ── Hero do blog ── */}
-      <header className="blog-hero">
-        <div className="blog-hero__inner">
-          <p className="blog-hero__eyebrow">Artigos & Reflexões</p>
-          <h1 className="blog-hero__title">Blog da Promoção 3D</h1>
-          <p className="blog-hero__desc">
-            Textos escritos por <strong>Eliabe Pereira</strong> sobre doação de
-            sangue, leite materno, órgãos e políticas públicas de saúde.
+    <PageShell className="blog">
+      <header className="page-head">
+        <div className="container page-head__inner">
+          <h1 className="page-title">
+            Blog da <em>Promoção 3D</em>
+          </h1>
+          <p className="lead">
+            Textos de <strong>Eliabi Pereira</strong> sobre doação de sangue, leite materno, órgãos e políticas públicas
+            de saúde.
           </p>
 
-          {/* Search */}
-          <div className="blog-search">
-            <i className="bx bx-search blog-search__icon" />
-            <input
-              type="text"
-              placeholder="Buscar artigos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="blog-search__input"
-            />
-            {searchQuery && (
-              <button
-                className="blog-search__clear"
-                onClick={() => setSearchQuery("")}
-                aria-label="Limpar busca"
-              >
-                <i className="bx bx-x" />
-              </button>
-            )}
+          <div className="blog-tools">
+            <label className="search">
+              <MagnifyingGlass size={18} aria-hidden="true" />
+              <span className="sr-only">Buscar artigos</span>
+              <input
+                type="search"
+                placeholder="Buscar artigos"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button type="button" className="search__clear" onClick={() => setQuery("")} aria-label="Limpar busca">
+                  <X size={16} weight="bold" aria-hidden="true" />
+                </button>
+              )}
+            </label>
+
+            <div className="filter-chips" role="group" aria-label="Filtrar por tema">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className="filter-chip"
+                  aria-pressed={category === cat}
+                  onClick={() => setCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ── Filtros de categoria ── */}
-      <div className="blog-filters">
-        <div className="blog-filters__inner">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              className={`blog-filter-btn${activeCategory === cat ? " blog-filter-btn--active" : ""}`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
+      <section className="container blog__content" aria-live="polite" aria-busy={isLoading}>
+        {isLoading ? (
+          <div className="post-grid">
+            <PostSkeleton />
+            <PostSkeleton />
+            <PostSkeleton />
+          </div>
+        ) : error ? (
+          <div className="empty-state">
+            <p className="notice notice--danger">{error}</p>
+            <button type="button" className="btn btn--outline" onClick={() => void refresh()}>
+              <ArrowClockwise size={18} aria-hidden="true" />
+              Tentar novamente
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Conteúdo ── */}
-      <main className="blog-main">
-        <div className="blog-main__inner">
-
-          {filtered.length === 0 ? (
-            <div className="blog-empty">
-              <i className="bx bx-search-alt blog-empty__icon" />
-              <p>Nenhum artigo encontrado para "<strong>{searchQuery}</strong>"</p>
-            </div>
-          ) : (
-            <>
-              {/* Post em destaque */}
-              {featured && (
-                <section className="blog-featured">
-                  <PostCard post={featured} featured />
-                </section>
-              )}
-
-              {/* Grid dos demais posts */}
-              {rest.length > 0 && (
-                <section className="blog-grid">
-                  <h3 className="blog-grid__label">Mais artigos</h3>
-                  <div className="blog-grid__cards">
-                    {rest.map((post) => (
-                      <PostCard key={post.id} post={post} />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </>
-          )}
-        </div>
-      </main>
-
-      {/* ── Footer ── */}
-     <Footer />
-    </div>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="empty-state">
+            <MagnifyingGlass size={32} aria-hidden="true" />
+            <h2>{posts.length === 0 ? "Nenhum artigo publicado ainda." : "Nenhum artigo encontrado."}</h2>
+            <p>
+              {posts.length === 0
+                ? "Os primeiros textos do blog aparecem aqui assim que forem publicados."
+                : "Tente outro termo ou limpe o filtro de tema."}
+            </p>
+            {posts.length > 0 && (
+              <button
+                type="button"
+                className="btn btn--outline"
+                onClick={() => {
+                  setQuery("");
+                  setCategory("Todos");
+                }}
+              >
+                Limpar filtros
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            {featured && <PostCard post={featured} featured />}
+            {rest.length > 0 && (
+              <div className="post-grid">
+                {rest.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+    </PageShell>
   );
 };
 

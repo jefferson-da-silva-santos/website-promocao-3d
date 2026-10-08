@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin-dash
+
+Sitemap: [URL_DO_SITE]/sitemap.xml

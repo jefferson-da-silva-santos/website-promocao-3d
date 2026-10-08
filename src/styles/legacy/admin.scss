@@ -1,0 +1,2292 @@
+// Painel administrativo (blog + dashboard). Re-skin para os tokens do novo design system.
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN — LOGIN
+// ═══════════════════════════════════════════════════════════════
+
+.admin-login {
+  min-height: 100vh;
+  background: #f4f6f5;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(0, 66, 120, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 66, 120, 0.04) 0%, transparent 50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+
+  &__card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+    border: 1px solid #dce3e0;
+    text-align: center;
+  }
+
+  &__logo {
+    width: 40px;
+    margin: 0 auto 1.5rem;
+    display: block;
+  }
+
+  &__title {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    color: #13221f;
+    margin-bottom: 0.4rem;
+  }
+
+  &__desc {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-bottom: 2.5rem;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    text-align: left;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+  }
+
+  &__input-wrap {
+    position: relative;
+  }
+
+  &__input-icon {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #9ca3af;
+    pointer-events: none;
+  }
+
+  &__field input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 2.6rem;
+    border: 1px solid #dce3e0;
+    border-radius: 6px;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.95rem;
+    background: #f4f6f5;
+    outline: none;
+    transition: all 0.25s ease;
+    color: #13221f;
+
+    &:focus {
+      border-color: #13221f;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 66, 120, 0.1);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__eye {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #1f2937;
+    }
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    color: #dc2626;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.83rem;
+  }
+
+  &__lockout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    color: #92400e;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+  }
+
+  &__btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.85rem;
+    background: #13221f;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      transform 0.15s;
+    margin-top: 0.5rem;
+
+    &:hover:not(:disabled) {
+      background: #0a1513;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: blog-spin 0.7s linear infinite;
+  }
+
+  &__security {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+}
+
+@keyframes blog-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN — PAINEL
+// ═══════════════════════════════════════════════════════════════
+
+.admin-panel {
+  min-height: 100vh;
+  background: #f4f6f5;
+}
+
+.admin-header {
+  background: #ffffff;
+  border-bottom: 1px solid #dce3e0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  &__inner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 60px;
+  }
+
+  &__logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+
+    img {
+      width: 20px;
+    }
+
+    span {
+      font-family: "Bricolage Grotesque Variable", sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      color: #13221f;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__view-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f2f2f2;
+    border: none;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.82rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #dce3e0;
+    }
+  }
+
+  &__logout {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1px solid #dce3e0;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.82rem;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #fef2f2;
+      border-color: #dc2626;
+    }
+  }
+}
+
+.admin-main {
+  padding: 2rem 1.5rem 4rem;
+
+  &__inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────
+
+.admin-tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+  background: #ffffff;
+  border: 1px solid #dce3e0;
+  border-radius: 12px;
+  padding: 0.3rem;
+  width: fit-content;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1.1rem;
+  font-family: "Figtree Variable", sans-serif;
+  font-size: 0.88rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+
+  &:hover:not(&--active) {
+    background: #f2f2f2;
+  }
+
+  &--active {
+    background: #13221f;
+    color: #ffffff;
+  }
+
+  &__badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 100px;
+    background: #dce3e0;
+    color: #4b5563;
+
+    .admin-tab--active & {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+  }
+}
+
+// ── Sucesso ──────────────────────────────────────────────────────
+
+.admin-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+  border-radius: 6px;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  animation: blog-fadeInDown 0.3s ease;
+}
+
+@keyframes blog-fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Lista de posts no admin ──────────────────────────────────────
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.admin-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #9ca3af;
+
+  &__icon {
+    font-size: 3rem;
+  }
+  p {
+    font-size: 0.9rem;
+  }
+}
+
+.admin-post-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid #dce3e0;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  &__thumb {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  &__cat {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #13221f;
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #13221f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  &__meta {
+    font-size: 0.78rem;
+    color: #9ca3af;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  &__view,
+  &__delete {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    border: 1px solid #dce3e0;
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    transition: all 0.25s ease;
+  }
+
+  &__view {
+    color: #13221f;
+
+    &:hover {
+      background: #13221f;
+      color: #ffffff;
+      border-color: #13221f;
+    }
+  }
+
+  &__delete {
+    color: #dc2626;
+
+    &:hover {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #dc2626;
+    }
+  }
+}
+
+// ── Editor ───────────────────────────────────────────────────────
+
+.admin-editor {
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+    align-items: flex-start;
+
+    @media screen and (max-width: 800px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+
+    @media screen and (max-width: 800px) {
+      order: -1;
+    }
+  }
+}
+
+// ── Sidebar cards ────────────────────────────────────────────────
+
+.admin-sidebar-card {
+  background: #ffffff;
+  border: 1px solid #dce3e0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+
+  &__title {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #4b5563;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #dce3e0;
+    margin-bottom: 0.25rem;
+  }
+}
+
+// ── Campos do formulário ─────────────────────────────────────────
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  position: relative;
+
+  &__label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1f2937;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__hint {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: #9ca3af;
+  }
+
+  &__input,
+  &__select {
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #dce3e0;
+    border-radius: 6px;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.9rem;
+    background: #f4f6f5;
+    color: #13221f;
+    outline: none;
+    transition: all 0.25s ease;
+    width: 100%;
+
+    &:focus {
+      border-color: #13221f;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 66, 120, 0.1);
+    }
+
+    &--error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+  }
+
+  &__textarea {
+    padding: 0.8rem 0.9rem;
+    border: 1px solid #dce3e0;
+    border-radius: 6px;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    background: #f4f6f5;
+    color: #13221f;
+    resize: vertical;
+    outline: none;
+    transition: all 0.25s ease;
+    width: 100%;
+
+    &:focus {
+      border-color: #13221f;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 66, 120, 0.1);
+    }
+
+    &.admin-field__input--error {
+      border-color: #dc2626;
+    }
+  }
+
+  &__error {
+    font-size: 0.78rem;
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  &__count {
+    font-size: 0.72rem;
+    color: #9ca3af;
+    text-align: right;
+  }
+}
+
+// ── Botão publicar ───────────────────────────────────────────────
+
+.admin-publish-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem;
+  background: #13221f;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-family: "Figtree Variable", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+
+  &:hover {
+    background: #0a1513;
+    transform: translateY(-1px);
+  }
+}
+
+// ── Cover preview ────────────────────────────────────────────────
+
+.admin-cover-preview {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #dce3e0;
+
+  img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__remove {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #dc2626;
+    }
+  }
+}
+
+// ── Divider ──────────────────────────────────────────────────────
+
+.admin-cover-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #dce3e0;
+  }
+}
+
+// ── Upload btn ───────────────────────────────────────────────────
+
+.admin-upload-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px dashed #9ca3af;
+  border-radius: 6px;
+  font-family: "Figtree Variable", sans-serif;
+  font-size: 0.85rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    border-color: #13221f;
+    color: #13221f;
+    background: rgba(0, 66, 120, 0.04);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MODAL DE EXCLUSÃO
+// ═══════════════════════════════════════════════════════════════
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  animation: blog-fadeIn 0.2s ease;
+}
+
+.admin-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  max-width: 380px;
+  width: calc(100% - 2rem);
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  animation: blog-scaleIn 0.25s ease;
+
+  &__icon {
+    font-size: 2.5rem;
+    color: #dc2626;
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #13221f;
+    margin-bottom: 0.5rem;
+  }
+
+  &__desc {
+    font-size: 0.88rem;
+    color: #9ca3af;
+    margin-bottom: 2rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__cancel {
+    padding: 0.7rem 1.5rem;
+    border: 1px solid #dce3e0;
+    border-radius: 6px;
+    background: #ffffff;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.9rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #f2f2f2;
+    }
+  }
+
+  &__confirm {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    background: #dc2626;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #b91c1c;
+    }
+  }
+}
+
+@keyframes blog-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes blog-scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// admin-dashboard.scss
+// ─────────────────────────────────────────────────────────────────────────────
+//  Dashboard Admin — Promoção 3D
+//  Padrão: BEM, sem mixins externos, alinhado ao design system do projeto
+//  Fontes: Josefin Sans (display) + Muli / Muli-Light (body)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Tokens ───────────────────────────────────────────────────────────────────
+
+$navy: #13221f;
+$navy-d: #0a1513;
+$navy-l: #ebf0ee;
+$sky: #7ed958;
+$white: #ffffff;
+$black: #13221f;
+$ink: #1f2937;
+$muted: #9ca3af;
+$sub: #4b5563;
+$border: #dce3e0;
+$bg: #f4f6f5;
+
+$r-sm: 6px;
+$r-md: 12px;
+$r-lg: 20px;
+
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
+
+// ── Reset específico do componente ────────────────────────────────────────────
+
+.adm {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  font-family: "Figtree Variable", sans-serif;
+  background-color: $bg;
+  min-height: 100vh;
+  color: $black;
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+
+.adm-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background: $bg;
+
+  p {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: $muted;
+  }
+}
+
+// ── Spinner ───────────────────────────────────────────────────────────────────
+
+.adm-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 3px solid rgba($navy, 0.15);
+  border-top-color: $navy;
+  animation: adm-spin 0.7s linear infinite;
+}
+
+@keyframes adm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+.adm-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  background: $navy-d;
+  color: $white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: $r-md;
+  box-shadow: $shadow-lg;
+  animation: adm-toast-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @keyframes adm-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.adm-header {
+  background: $white;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+
+  &__inner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 64px;
+    gap: 1rem;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__logo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $sky;
+    box-shadow: 0 0 0 4px rgba($sky, 0.2);
+    animation: adm-pulse 2s ease infinite;
+    flex-shrink: 0;
+
+    @keyframes adm-pulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 4px rgba($sky, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba($sky, 0.1);
+      }
+    }
+  }
+
+  &__eyebrow {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: $muted;
+    margin-bottom: 1px;
+  }
+
+  &__title {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    color: $black;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__updated {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: $muted;
+
+    i {
+      font-size: 0.95rem;
+    }
+  }
+
+  &__refresh {
+    width: 36px;
+    height: 36px;
+    border-radius: $r-sm;
+    border: 1px solid $border;
+    background: $white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    color: $sub;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: $bg;
+      border-color: $navy;
+      color: $navy;
+    }
+
+    &--spin i {
+      animation: adm-spin 0.6s linear infinite;
+    }
+  }
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+
+.adm-tabs {
+  background: $white;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 64px;
+  z-index: 99;
+
+  &__inner {
+    display: flex;
+    flex-direction: row;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.adm-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: "Figtree Variable", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $muted;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    color: $ink;
+  }
+
+  &--active {
+    color: $navy;
+    border-bottom-color: $navy;
+  }
+
+  &__badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: $border;
+    color: $sub;
+    padding: 0.1rem 0.45rem;
+    border-radius: 100px;
+    min-width: 20px;
+    text-align: center;
+
+    .adm-tab--active & {
+      background: rgba($navy, 0.12);
+      color: $navy;
+    }
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
+.adm-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  @media screen and (max-width: 768px) {
+    padding: 1.25rem;
+  }
+}
+
+// ── Overview grid ─────────────────────────────────────────────────────────────
+
+.adm-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+
+.adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+
+  @media screen and (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media screen and (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.adm-kpi {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  box-shadow: $shadow-sm;
+  animation: adm-fade-up 0.5s ease both;
+  position: relative;
+  overflow: hidden;
+
+  // Detalhe decorativo
+  &::after {
+    content: "";
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+
+  &--blue {
+    border-top: 3px solid $navy;
+    &::after {
+      background: $navy;
+    }
+  }
+  &--red {
+    border-top: 3px solid #dc2626;
+    &::after {
+      background: #dc2626;
+    }
+  }
+  &--navy {
+    border-top: 3px solid $navy-d;
+    &::after {
+      background: $navy-d;
+    }
+  }
+  &--sky {
+    border-top: 3px solid $sky;
+    &::after {
+      background: $sky;
+    }
+  }
+
+  &__icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: $r-md;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    background: $navy-l;
+    color: $navy;
+
+    .adm-kpi--red & {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .adm-kpi--sky & {
+      background: #ecfeff;
+      color: #0891b2;
+    }
+
+    i {
+      font-size: 1.4rem;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__value {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: $black;
+    line-height: 1;
+  }
+
+  &__sub {
+    font-size: 0.75rem;
+    color: $muted;
+  }
+}
+
+@keyframes adm-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Card genérico ─────────────────────────────────────────────────────────────
+
+.adm-card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  box-shadow: $shadow-sm;
+  padding: 1.5rem;
+  animation: adm-fade-up 0.5s ease both;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__title {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: -0.3px;
+    color: $black;
+  }
+
+  &__sub {
+    font-size: 0.78rem;
+    color: $muted;
+    margin-top: 0.15rem;
+  }
+}
+
+// ── Row: dois cards lado a lado ───────────────────────────────────────────────
+
+.adm-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+
+  @media screen and (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Intervalo de tempo ────────────────────────────────────────────────────────
+
+.adm-interval-btns {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.adm-interval-btn {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $r-sm;
+  padding: 0.35rem 0.8rem;
+  font-family: "Figtree Variable", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $sub;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $navy;
+    color: $navy;
+  }
+
+  &--active {
+    background: $navy;
+    border-color: $navy;
+    color: $white;
+  }
+}
+
+// ── Pizza wrapper ─────────────────────────────────────────────────────────────
+
+.adm-pie-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.adm-pie-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    flex: 1;
+    color: $sub;
+  }
+
+  &__val {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: $black;
+  }
+}
+
+// ── Bar list (estados) ────────────────────────────────────────────────────────
+
+.adm-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: adm-fade-up 0.4s ease both;
+  }
+
+  &__label {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: 32px;
+    flex-shrink: 0;
+    color: $ink;
+  }
+
+  &__track {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: $border;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to right, $navy, lighten($navy, 18%));
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__val {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: $black;
+    min-width: 28px;
+    text-align: right;
+  }
+}
+
+// ── Ranking table ─────────────────────────────────────────────────────────────
+
+.adm-rank-table-wrap {
+  overflow-x: auto;
+}
+
+.adm-rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead tr {
+    border-bottom: 2px solid $border;
+  }
+
+  th {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $muted;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: $bg;
+    }
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  td {
+    padding: 0.85rem 1rem;
+    color: $ink;
+  }
+
+  &__top td {
+    font-weight: 600;
+  }
+
+  &__name {
+    font-weight: 700;
+    color: $black;
+  }
+
+  &__score {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 1rem;
+    color: $navy;
+    font-weight: 700;
+  }
+
+  &__empty {
+    text-align: center;
+    color: $muted;
+    padding: 2rem !important;
+    font-size: 0.85rem;
+  }
+}
+
+.adm-rank-medal {
+  font-size: 0.9rem;
+  &--1,
+  &--2,
+  &--3 {
+    font-size: 1.1rem;
+  }
+}
+
+// ── Cidades grid ──────────────────────────────────────────────────────────────
+
+.adm-city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.adm-city-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $r-md;
+  animation: adm-fade-up 0.4s ease both;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $navy;
+    transform: translateY(-2px);
+    box-shadow: $shadow-sm;
+  }
+
+  &__rank {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: $muted;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: $black;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    span {
+      font-size: 0.72rem;
+      color: $muted;
+    }
+  }
+
+  &__total {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $navy;
+    flex-shrink: 0;
+  }
+}
+
+// ── Tooltip recharts ──────────────────────────────────────────────────────────
+
+.adm-tooltip {
+  background: $navy-d;
+  border-radius: $r-sm;
+  padding: 0.6rem 0.9rem;
+  box-shadow: $shadow-md;
+  min-width: 120px;
+
+  &__label {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba($white, 0.55);
+    margin-bottom: 0.35rem;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.82rem;
+    margin-top: 0.2rem;
+  }
+
+  &__key {
+    color: rgba($white, 0.75);
+  }
+  &__val {
+    font-weight: 700;
+    color: $white;
+  }
+}
+
+// ── Section (users / scores / audit) ─────────────────────────────────────────
+
+.adm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__title {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 1.3rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    color: $black;
+
+    em {
+      font-style: normal;
+      color: $muted;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+  }
+}
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+
+.adm-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-md;
+  padding: 1rem 1.25rem;
+
+  &__search {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+
+    i {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $muted;
+      font-size: 1rem;
+      pointer-events: none;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.6rem 2.4rem 0.6rem 2.4rem;
+    border: 1px solid $border;
+    border-radius: $r-sm;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.88rem;
+    background: $bg;
+    color: $black;
+    outline: none;
+    transition: all 0.25s ease;
+
+    &:focus {
+      border-color: $navy;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba($navy, 0.08);
+    }
+
+    &--sm {
+      max-width: 90px;
+      padding-left: 0.75rem;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $muted;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $black;
+    }
+  }
+
+  &__select {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid $border;
+    border-radius: $r-sm;
+    font-family: "Figtree Variable", sans-serif;
+    font-size: 0.88rem;
+    background: $bg;
+    color: $ink;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:focus {
+      border-color: $navy;
+      background: $white;
+    }
+  }
+}
+
+// ── Tabela ────────────────────────────────────────────────────────────────────
+
+.adm-table-wrap {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.855rem;
+
+  thead tr {
+    background: $bg;
+    border-bottom: 1px solid $border;
+  }
+
+  th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $muted;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: $bg;
+    }
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  td {
+    padding: 0.8rem 1rem;
+    color: $ink;
+    white-space: nowrap;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    color: $black;
+  }
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $navy;
+    color: $white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+  }
+
+  &__muted {
+    color: $muted;
+  }
+
+  &__del {
+    width: 30px;
+    height: 30px;
+    border-radius: $r-sm;
+    border: 1px solid $border;
+    background: $white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #9ca3af;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #fef2f2;
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 3rem !important;
+    color: $muted;
+    font-size: 0.88rem;
+  }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+
+.adm-pill {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-family: "Bricolage Grotesque Variable", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  &--blood {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  &--organs {
+    background: #ebf0ee;
+    color: #2563eb;
+  }
+  &--milk {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+}
+
+.adm-role {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: $r-sm;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &--teacher {
+    background: rgba($navy, 0.1);
+    color: $navy;
+  }
+  &--student {
+    background: #ecfeff;
+    color: #0891b2;
+  }
+  &--other {
+    background: $bg;
+    color: $muted;
+  }
+}
+
+.adm-uf {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 22px;
+  border-radius: 4px;
+  background: $bg;
+  border: 1px solid $border;
+  font-family: "Bricolage Grotesque Variable", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: $sub;
+}
+
+.adm-score-val {
+  font-family: "Bricolage Grotesque Variable", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: $navy;
+}
+
+// ── Paginação ─────────────────────────────────────────────────────────────────
+
+.adm-pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+
+  &__btn {
+    width: 36px;
+    height: 36px;
+    border-radius: $r-sm;
+    border: 1px solid $border;
+    background: $white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    color: $sub;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: $navy;
+      color: $navy;
+    }
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__info {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: $muted;
+    letter-spacing: 1px;
+  }
+}
+
+// ── Auditoria ─────────────────────────────────────────────────────────────────
+
+.adm-audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adm-audit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: $white;
+  border: 1px solid $border;
+  border-left: 3px solid transparent;
+  border-radius: $r-md;
+  transition: all 0.2s ease;
+  animation: adm-fade-up 0.35s ease both;
+
+  &:hover {
+    box-shadow: $shadow-sm;
+  }
+
+  &--created {
+    border-left-color: #16a34a;
+  }
+  &--deleted {
+    border-left-color: #dc2626;
+  }
+  &--updated {
+    border-left-color: #d97706;
+  }
+  &--login {
+    border-left-color: $navy;
+  }
+
+  &__icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: $r-sm;
+    background: $bg;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.1rem;
+
+      .adm-audit-row--created & {
+        color: #16a34a;
+      }
+      .adm-audit-row--deleted & {
+        color: #dc2626;
+      }
+      .adm-audit-row--updated & {
+        color: #d97706;
+      }
+      .adm-audit-row--login & {
+        color: $navy;
+      }
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__event {
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $black;
+    margin-bottom: 0.2rem;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    color: $muted;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  &__entity {
+    color: $navy;
+    font-weight: 600;
+  }
+  &__id {
+    font-family: monospace;
+    background: $bg;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: $sub;
+  }
+  &__sep {
+    opacity: 0.4;
+  }
+  &__ip {
+    font-family: monospace;
+    color: $sub;
+  }
+
+  &__date {
+    font-size: 0.75rem;
+    color: $muted;
+    white-space: nowrap;
+    align-self: center;
+    flex-shrink: 0;
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.adm-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 2rem;
+  color: $muted;
+
+  i {
+    font-size: 2.5rem;
+    opacity: 0.4;
+  }
+  p {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Bricolage Grotesque Variable", sans-serif;
+  }
+}
+
+// ── Responsividade ────────────────────────────────────────────────────────────
+
+@media screen and (max-width: 768px) {
+  .adm-header__title {
+    font-size: 0.95rem;
+  }
+  .adm-header__eyebrow {
+    display: none;
+  }
+  .adm-kpi__label {
+    font-size: 0.68rem;
+  }
+  .adm-kpi__value {
+    font-size: 1.55rem;
+  }
+  .adm-card__head {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .adm-interval-btns {
+    flex-wrap: wrap;
+  }
+  .adm-city-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .adm-audit-row__date {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .adm-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .adm-city-grid {
+    grid-template-columns: 1fr;
+  }
+  .adm-tab span {
+    display: none;
+  }
+  .adm-tab i {
+    font-size: 1.2rem;
+  }
+  .adm-filters {
+    padding: 0.75rem;
+  }
+  .adm-toast {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .agente-nav__links button:not(.active):not(:last-child) {
+    display: none;
+  }
+
+  .agente-hero__title {
+    font-size: 2.2rem;
+    letter-spacing: -1.5px;
+  }
+
+  .agente-section-header h2 {
+    font-size: 1.7rem;
+  }
+
+  .agente-dimensions {
+    padding: 4rem 1.25rem;
+  }
+  .agente-capabilities {
+    padding: 4rem 1.25rem;
+  }
+  .agente-public {
+    padding: 4rem 1.25rem;
+  }
+  .agente-legal {
+    padding: 4rem 1.25rem;
+  }
+  .agente-creators {
+    padding: 4rem 1.25rem;
+  }
+  .agente-cta {
+    padding: 5rem 1.25rem;
+  }
+
+  .agente-btn--primary,
+  .agente-btn--ghost,
+  .agente-btn--cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .agente-hero__actions {
+    flex-direction: column;
+  }
+
+  .agente-public__grid {
+    gap: 0.75rem;
+  }
+
+  .agente-public-item {
+    min-width: 90px;
+    padding: 1.25rem 1rem;
+  }
+}
+
+/* ========================================
+   SaibaMais.scss — Promoção 3D
+   Design: dark navy + accent teal, editorial
+======================================== */
+
+/* ── Animações ── */
+@keyframes sm-orb-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(24px, -18px) scale(1.04);
+  }
+  66% {
+    transform: translate(-12px, 14px) scale(0.97);
+  }
+}
+
+@keyframes sm-badge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.7);
+  }
+}

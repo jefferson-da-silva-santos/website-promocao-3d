@@ -1,160 +1,153 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import type { FC } from "react";
+import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, Check, LinkSimple, WhatsappLogo } from "@phosphor-icons/react";
+import PageShell from "../layout/PageShell";
 import { useBlog } from "../../contexts/BlogContext";
-import logo from "../../assets/image/logo.png";
+import { usePageMeta } from "../../hooks/usePageMeta";
+import { formatDate } from "../../utils/format";
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-const BlogPostPage: React.FC = () => {
+/** Leitura de um artigo do blog, com compartilhamento e sugestões de leitura. */
+const BlogPostPage: FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { posts } = useBlog();
-  const navigate = useNavigate();
-
+  const { posts, isLoading } = useBlog();
+  const [copied, setCopied] = useState(false);
   const post = posts.find((p) => p.id === id);
 
-  if (!post) {
+  usePageMeta(post ? `${post.title} | Blog Promoção 3D` : "Blog | Promoção 3D", post?.subtitle);
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = window.setTimeout(() => setCopied(false), 2400);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="blog-page">
-        <div className="blog-not-found">
-          <h2>Artigo não encontrado.</h2>
-          <button className="blog-back-btn" onClick={() => navigate("/blog")}>
-            ← Voltar ao blog
-          </button>
+      <PageShell className="article">
+        <div className="container article__inner" aria-busy="true">
+          <span className="skeleton skeleton--line skeleton--tiny" />
+          <span className="skeleton skeleton--title" />
+          <span className="skeleton skeleton--line" />
+          <span className="skeleton article__cover-skeleton" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 
-  // Outros posts para sugestão
+  if (!post) {
+    return (
+      <PageShell className="article">
+        <div className="container article__inner empty-state">
+          <h1 className="page-title">Artigo não encontrado.</h1>
+          <p>Ele pode ter sido removido ou o endereço está incorreto.</p>
+          <Link to="/blog" className="btn btn--primary">
+            <ArrowLeft size={18} weight="bold" aria-hidden="true" />
+            Voltar ao blog
+          </Link>
+        </div>
+      </PageShell>
+    );
+  }
+
   const related = posts.filter((p) => p.id !== post.id).slice(0, 3);
 
   return (
-    <div className="blog-page">
+    <PageShell className="article">
+      <article className="container article__inner">
+        <nav className="breadcrumb" aria-label="Você está em">
+          <Link to="/blog">Blog</Link>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{post.category}</span>
+        </nav>
 
-      {/* ── NavBar ── */}
-      <nav className="blog-nav">
-        <div className="blog-nav__inner">
-          <button className="blog-nav__logo" onClick={() => navigate("/")}>
-            <img src={logo} alt="Promoção 3D" />
-            <span>Promoção 3D</span>
-          </button>
-          <div className="blog-nav__links">
-            <button onClick={() => navigate("/")}>Início</button>
-            <button onClick={() => navigate("/blog")}>Blog</button>
-          </div>
-        </div>
-      </nav>
-
-      {/* ── Artigo ── */}
-      <main className="blog-post">
-
-        {/* Breadcrumb */}
-        <div className="blog-post__breadcrumb">
-          <button onClick={() => navigate("/blog")}>Blog</button>
-          <span>/</span>
-          <span>{post.category}</span>
-        </div>
-
-        {/* Header do post */}
-        <header className="blog-post__header">
-          <span className="blog-post__category">{post.category}</span>
-          <h1 className="blog-post__title">{post.title}</h1>
-          <p className="blog-post__subtitle">{post.subtitle}</p>
-
-          <div className="blog-post__info">
-            <div className="blog-post__author">
-              <div className="blog-post__author-avatar">
-                {post.author.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <span className="blog-post__author-name">{post.author}</span>
-                <span className="blog-post__author-role">Doutorando em Educação · UPE</span>
-              </div>
-            </div>
-
-            <div className="blog-post__meta">
-              <span>{post.createdAt && formatDate(post.createdAt)}</span>
-              <span className="blog-post__dot">·</span>
-              <span>{post.readTime} min de leitura</span>
-            </div>
+        <header className="article__head">
+          <h1 className="article__title">{post.title}</h1>
+          <p className="article__subtitle">{post.subtitle}</p>
+          <div className="article__byline">
+            <span className="avatar avatar--lg" aria-hidden="true">
+              {post.author.charAt(0).toUpperCase()}
+            </span>
+            <span>
+              <strong>{post.author}</strong>
+              <small>
+                {post.createdAt && <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>} ·{" "}
+                {post.readTime} min de leitura
+              </small>
+            </span>
           </div>
         </header>
 
-        {/* Cover */}
-        <div className="blog-post__cover">
+        <figure className="article__cover">
           <img src={post.coverImage} alt={post.title} />
-        </div>
+        </figure>
 
-        {/* Conteúdo */}
-        <div className="blog-post__content">
+        <div className="article__content">
           {post.content.split("\n\n").map((paragraph, i) => (
             <p key={i}>{paragraph}</p>
           ))}
         </div>
 
-        {/* Tags de partilha */}
-        <div className="blog-post__share">
-          <span>Compartilhar:</span>
+        <footer className="article__share">
+          <span>Compartilhar</span>
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(post.title + " " + window.location.href)}`}
+            className="icon-btn icon-btn--lg"
+            href={`https://wa.me/?text=${encodeURIComponent(`${post.title} ${window.location.href}`)}`}
             target="_blank"
-            rel="noreferrer"
-            className="blog-post__share-btn blog-post__share-btn--whatsapp"
+            rel="noreferrer noopener"
             aria-label="Compartilhar no WhatsApp"
           >
-            <i className="bx bxl-whatsapp" />
+            <WhatsappLogo size={20} aria-hidden="true" />
           </a>
           <button
-            className="blog-post__share-btn"
-            onClick={() => navigator.clipboard.writeText(window.location.href)}
-            aria-label="Copiar link"
+            type="button"
+            className="icon-btn icon-btn--lg"
+            onClick={() => void copyLink()}
+            aria-label="Copiar link do artigo"
           >
-            <i className="bx bx-link" />
+            {copied ? (
+              <Check size={20} weight="bold" aria-hidden="true" />
+            ) : (
+              <LinkSimple size={20} aria-hidden="true" />
+            )}
           </button>
-        </div>
+          <span className="article__copied" aria-live="polite">
+            {copied ? "Link copiado" : ""}
+          </span>
+        </footer>
+      </article>
 
-        {/* Voltar */}
-        <button className="blog-back-btn" onClick={() => navigate("/blog")}>
-          ← Voltar ao blog
-        </button>
-
-        {/* Posts relacionados */}
-        {related.length > 0 && (
-          <section className="blog-post__related">
-            <h3 className="blog-post__related-title">Continue lendo</h3>
-            <div className="blog-post__related-grid">
-              {related.map((r) => (
-                <button
-                  key={r.id}
-                  className="blog-related-card"
-                  onClick={() => {
-                    navigate(`/blog/${r.id}`);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  <img src={r.coverImage} alt={r.title} />
-                  <div className="blog-related-card__body">
-                    <span className="blog-related-card__cat">{r.category}</span>
-                    <p className="blog-related-card__title">{r.title}</p>
-                    <span className="blog-related-card__read">{r.readTime} min</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-      </main>
-
-      <footer className="blog-footer">
-        <span>© {new Date().getFullYear()} Promoção 3D — Todos os direitos reservados</span>
-      </footer>
-    </div>
+      {related.length > 0 && (
+        <section className="container related" aria-labelledby="related-title">
+          <h2 className="section-title section-title--sm" id="related-title">
+            Continue lendo
+          </h2>
+          <ul className="related__list">
+            {related.map((r) => (
+              <li key={r.id}>
+                <Link to={`/blog/${r.id}`} className="related__item">
+                  <img src={r.coverImage} alt="" loading="lazy" />
+                  <span>
+                    <small>{r.category}</small>
+                    <strong>{r.title}</strong>
+                    <small>{r.readTime} min</small>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </PageShell>
   );
 };
 

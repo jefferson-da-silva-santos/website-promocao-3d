@@ -1,14 +1,27 @@
+# Build e deploy automático na Hostinger (hospedagem compartilhada).
+# A cada push na main: instala, gera o build e envia o dist/ para o public_html do domínio.
+#
+# Secrets do repositório (Settings > Secrets and variables > Actions):
+#   SSH_PRIVATE_KEY, SSH_HOST, SSH_USER
+# Opcional: variável SSH_PORT (padrão 65002, a porta SSH da Hostinger).
 name: Build e Deploy para Hostinger
 
 on:
   push:
     branches: [main]
-
   workflow_dispatch:
+
+# Um deploy por vez: um push novo espera o envio anterior terminar.
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_DIR: domains/promocao3d.com/public_html
 
     steps:
       - uses: actions/checkout@v4
@@ -18,26 +31,47 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Build
         run: npm run build
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      - name: Deploy
+      # Sites React com rotas precisam que o Apache devolva o index.html.
+      # Se o projeto já traz um .htaccess próprio em public/, ele é mantido.
+      - name: Fallback de rotas para o Apache
         run: |
-          mkdir -p ~/.ssh
+          if [ ! -f dist/.htaccess ]; then
+            printf '%s\n' \
+              'Options -MultiViews' \
+              'RewriteEngine On' \
+              'RewriteCond %{REQUEST_FILENAME} !-f' \
+              'RewriteCond %{REQUEST_FILENAME} !-d' \
+              'RewriteRule ^ index.html [QSA,L]' > dist/.htaccess
+          fi
 
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-
+      - name: Deploy na Hostinger
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ vars.SSH_PORT || '65002' }}
+        run: |
+          if [ -z "$SSH_PRIVATE_KEY" ] || [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ]; then
+            echo "::warning::Secrets SSH_PRIVATE_KEY, SSH_HOST e SSH_USER não configurados. Build ok, deploy não enviado."
+            exit 0
+          fi
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # --delete remove do servidor o que saiu do build; .well-known (SSL) é preservada.
+          rsync -az --delete --exclude '.well-known' \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
+            dist/ "$SSH_USER@$SSH_HOST:~/$DEPLOY_DIR/"
 
-          ssh-keyscan -p 65002 ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-
-          rsync -avz --delete \
-          -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
-          ./dist/ \
-          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/domains/promocao3d.com/public_html/
-
-          rm -f ~/.ssh/deploy_key
+      - name: Apagar a chave
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
